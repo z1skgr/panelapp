@@ -1,0 +1,230 @@
+@model panelapp.ViewModels.SupplierEditViewModel
+
+@{
+    ViewData["Title"] = "Επεξεργασία Προμηθευτή";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Επεξεργασία Προμηθευτή</h1>
+        <p class="text-muted mb-0">
+            Ενημέρωση στοιχείων προμηθευτή και υπευθύνων επικοινωνίας
+        </p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Edit" asp-route-id="@Model.SupplierID" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="SupplierID" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SupplierName" class="form-label">Όνομα Προμηθευτή</label>
+                    <input asp-for="SupplierName" class="form-control" />
+                    <span asp-validation-for="SupplierName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">Email Προμηθευτή</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Address" class="form-label">Διεύθυνση</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="Active" class="form-check-input" />
+                        <label asp-for="Active" class="form-check-label">Ενεργός προμηθευτής</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label">Σημειώσεις</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <strong>Υπεύθυνοι επικοινωνίας</strong>
+                    <div class="small text-muted">
+                        Μπορείτε να διορθώσετε υπάρχοντες υπεύθυνους ή να προσθέσετε νέους.
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Όνομα</th>
+                                    <th>Τηλέφωνο</th>
+                                    <th>Email</th>
+                                    <th class="text-center">Ενεργός</th>
+                                    <th class="text-end">Ενέργεια</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.ExistingContactPersons.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" asp-for="ExistingContactPersons[i].SupplierContactPersonID" />
+                                            <input asp-for="ExistingContactPersons[i].FullName" class="form-control form-control-sm" />
+                                            <span asp-validation-for="ExistingContactPersons[i].FullName" class="text-danger small"></span>
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="ExistingContactPersons[i].Phone"
+                                                   class="form-control form-control-sm"
+                                                   inputmode="numeric"
+                                                   maxlength="10"
+                                                   autocomplete="tel"
+                                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                                                   pattern="[0-9]{0,10}" />
+                                            <span asp-validation-for="ExistingContactPersons[i].Phone" class="text-danger small"></span>
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="ExistingContactPersons[i].Email"
+                                                   type="email"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="name@supplier.gr" />
+                                            <span asp-validation-for="ExistingContactPersons[i].Email" class="text-danger small"></span>
+                                        </td>
+                                        
+
+                                        <td class="text-center align-middle">
+                                            <input asp-for="ExistingContactPersons[i].Active"
+                                                   class="form-check-input" />
+                                        </td>
+
+                                        <td class="text-end align-middle">
+                                            <button type="submit"
+                                                    form="deleteContactForm_@Model.ExistingContactPersons[i].SupplierContactPersonID"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Διαγραφή υπευθύνου"
+                                                    onclick="return confirm('Να διαγραφεί ο υπεύθυνος επικοινωνίας;');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Νέος υπεύθυνος</label>
+                            <input type="text"
+                                   id="contactName"
+                                   class="form-control"
+                                   placeholder="Π.χ. Γιώργος Παπαδόπουλος" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Τηλέφωνο</label>
+                            <input type="text"
+                                   id="contactPhone"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   placeholder="Π.χ. 2101234567" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   id="contactEmail"
+                                   class="form-control"
+                                   placeholder="name@supplier.gr" />
+                        </div>
+
+                        <div class="col-md-2 d-grid">
+                            <button type="button"
+                                    class="btn btn-outline-primary"
+                                    id="addContactBtn">
+                                + Προσθήκη
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="contactError" class="text-danger small mt-2 d-none"></div>
+
+                    <div class="table-responsive mt-3 d-none" id="newContactsWrapper">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Νέος υπεύθυνος</th>
+                                    <th>Τηλέφωνο</th>
+                                    <th>Email</th>
+                                    <th class="text-end">Ενέργεια</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newContactsTable"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="hiddenNewContacts"></div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    Αποθήκευση
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+
+
+        @for (var i = 0; i < Model.ExistingContactPersons.Count; i++)
+        {
+            <form id="deleteContactForm_@Model.ExistingContactPersons[i].SupplierContactPersonID"
+                  asp-action="DeleteContactPerson"
+                  asp-controller="Suppliers"
+                  method="post"
+                  class="d-none">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.ExistingContactPersons[i].SupplierContactPersonID" />
+
+                <input type="hidden"
+                       name="supplierId"
+                       value="@Model.SupplierID" />
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

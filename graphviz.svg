@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="520pt" height="530pt" viewBox="0.00 0.00 519.66 529.86">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 525.86)">
+<title>Features</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-525.86 515.66,-525.86 515.66,4 -4,4"/>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="#8b5cf6" stroke="black" cx="375.54" cy="-97.87" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="375.54" y="-102.07" font-family="Times,serif" font-size="14.00" fill="white">📂</text>
+<text text-anchor="middle" x="375.54" y="-85.27" font-family="Times,serif" font-size="14.00" fill="white">Categories</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<ellipse fill="#3b82f6" stroke="black" cx="199.09" cy="-57.6" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="199.09" y="-61.8" font-family="Times,serif" font-size="14.00" fill="white">🔍</text>
+<text text-anchor="middle" x="199.09" y="-45" font-family="Times,serif" font-size="14.00" fill="white">Search</text>
+</g>
+<!-- A&#45;&#45;B -->
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<ellipse fill="#22c55e" stroke="black" cx="57.6" cy="-170.44" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="57.6" y="-174.64" font-family="Times,serif" font-size="14.00" fill="white">📊</text>
+<text text-anchor="middle" x="57.6" y="-157.84" font-family="Times,serif" font-size="14.00" fill="white">Dashboard</text>
+</g>
+<!-- B&#45;&#45;C -->
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<ellipse fill="#ef4444" stroke="black" cx="57.6" cy="-351.42" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="57.6" y="-355.62" font-family="Times,serif" font-size="14.00" fill="white">🧾</text>
+<text text-anchor="middle" x="57.6" y="-338.82" font-family="Times,serif" font-size="14.00" fill="white">Logs</text>
+</g>
+<!-- C&#45;&#45;D -->
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<ellipse fill="#6366f1" stroke="black" cx="199.09" cy="-464.26" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="199.09" y="-468.46" font-family="Times,serif" font-size="14.00" fill="white">👥</text>
+<text text-anchor="middle" x="199.09" y="-451.66" font-family="Times,serif" font-size="14.00" fill="white">Users</text>
+</g>
+<!-- D&#45;&#45;E -->
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<ellipse fill="#f59e0b" stroke="black" cx="375.54" cy="-423.98" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="375.54" y="-428.18" font-family="Times,serif" font-size="14.00" fill="white">⚡</text>
+<text text-anchor="middle" x="375.54" y="-411.38" font-family="Times,serif" font-size="14.00" fill="white">Performance</text>
+</g>
+<!-- E&#45;&#45;F -->
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<ellipse fill="#06b6d4" stroke="black" cx="454.06" cy="-260.93" rx="57.6" ry="57.6"/>
+<text text-anchor="middle" x="454.06" y="-265.13" font-family="Times,serif" font-size="14.00" fill="white">☁️</text>
+<text text-anchor="middle" x="454.06" y="-248.33" font-family="Times,serif" font-size="14.00" fill="white">Cloud</text>
+</g>
+<!-- F&#45;&#45;G -->
+<!-- G&#45;&#45;A -->
+</g>
+</svg>

@@ -1,0 +1,149 @@
+﻿@model List<panelapp.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Ιστορικό Ενεργειών";
+
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var isAdmin = (bool)(ViewBag.IsAdmin ?? false);
+
+    string GetIcon(string entityType, string actionType)
+    {
+        return (entityType, actionType) switch
+        {
+            ("Panel", "Created") => "bi-plus-circle",
+            ("Panel", "Updated") => "bi-pencil-square",
+            ("Material", "Created") => "bi-box-seam",
+            ("Material", "Updated") => "bi-pencil-square",
+            ("Customer", "Created") => "bi-person-plus",
+            ("Supplier", "Created") => "bi-building-add",
+            ("Import", "Imported") => "bi-file-earmark-excel",
+            _ => "bi-clock-history"
+        };
+    }
+
+    string GetBadgeClass(string actionType)
+    {
+        return actionType switch
+        {
+            "Created" => "bg-success",
+            "Updated" => "bg-primary",
+            "Deleted" => "bg-danger",
+            "Imported" => "bg-info text-dark",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Ιστορικό Ενεργειών</h1>
+        <p class="text-muted mb-0">
+            @(isAdmin ? "Προβολή όλων των ενεργειών χρηστών" : "Προβολή των δικών σου πρόσφατων ενεργειών")
+        </p>
+    </div>
+
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary app-btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="h5 mb-1">Ενέργειες</h2>
+                <p class="text-muted small mb-0">Σύνολο εγγραφών: @totalCount</p>
+            </div>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="dashboard-empty-icon mb-3">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <h2 class="h5">Δεν υπάρχουν ενέργειες</h2>
+                <p class="text-muted mb-0">Δεν έχει καταγραφεί ακόμη δραστηριότητα.</p>
+            </div>
+        }
+        else
+        {
+            <div class="activity-log-list">
+                @foreach (var log in Model)
+                {
+                    <div class="activity-log-row">
+                        <span class="activity-icon @GetBadgeClass(log.ActionType)">
+                            <i class="bi @GetIcon(log.EntityType, log.ActionType)"></i>
+                        </span>
+
+                        <div class="activity-log-content">
+                            <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+                                <div>
+                                    <div class="activity-log-title">@log.Title</div>
+
+                                    @if (!string.IsNullOrWhiteSpace(log.Description))
+                                    {
+                                        <div class="activity-log-description">@log.Description</div>
+                                    }
+                                </div>
+
+                                <div class="activity-log-meta text-lg-end">
+                                    <div>@log.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+
+                                    @if (isAdmin && !string.IsNullOrWhiteSpace(log.UserName))
+                                    {
+                                        <small>@log.UserName · @log.UserRole</small>
+                                    }
+                                </div>
+                            </div>
+
+                            
+                            <div class="activity-log-tags mt-2">
+                                <span class="activity-tag activity-tag-entity">@log.EntityType</span>
+                                <span class="activity-tag activity-tag-action @GetBadgeClass(log.ActionType)">
+                                    @log.ActionType
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (totalPages > 1)
+{
+    <nav class="mt-4" aria-label="Activity log pagination">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage - 1)">
+                    Προηγούμενη
+                </a>
+            </li>
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage + 1)">
+                    Επόμενη
+                </a>
+            </li>
+        </ul>
+    </nav>
+}

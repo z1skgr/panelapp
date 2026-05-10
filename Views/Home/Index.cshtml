@@ -1,0 +1,518 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+@using panelapp.Constants
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    string GetStatusLabel(string status) => PanelStatuses.ToDisplayLabel(status);
+
+    string GetStatusBadgeClass(string status) => PanelStatuses.Normalize(status) switch
+    {
+        PanelStatuses.Completed => "bg-success",
+        PanelStatuses.Cancelled => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+
+<div class="dashboard-hero card border-0 shadow-sm mb-4">
+    <div class="card-body p-4 p-lg-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+            <div>
+                <div class="dashboard-kicker mb-2">PanelApp</div>
+                <h1 class="dashboard-title mb-2">Dashboard</h1>
+                <p class="dashboard-hero-subtitle mb-0">
+                    Έχεις <strong>@Model.UnderConstructionPanels</strong> πίνακες σε εξέλιξη και
+                    <strong>@Model.ActiveMaterials</strong> ενεργά υλικά διαθέσιμα.
+                </p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Panels" asp-action="Create" class="btn btn-light app-btn">
+                    <i class="bi bi-plus-circle me-1"></i>Νέος Πίνακας
+                </a>
+
+                <a asp-controller="Panels" asp-action="Index" class="btn btn-outline-light app-btn">
+                    <i class="bi bi-grid me-1"></i>Όλοι οι Πίνακες
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Βασικά Στατιστικά</h2>
+        <p class="text-muted small mb-0">Τα στατιστικά εμφανίζονται ανά ομάδα των 3</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <div class="dashboard-stat-dots" id="statsDots"></div>
+
+        <button type="button" class="btn btn-outline-secondary btn-sm app-btn-sm" id="prevStatsBtn">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <button type="button" class="btn btn-primary btn-sm app-btn-sm" id="nextStatsBtn">
+            Επόμενα <i class="bi bi-chevron-right ms-1"></i>
+        </button>
+    </div>
+</div>
+
+<div class="row g-3 mb-4 dashboard-stats-row" id="statsCarousel">
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item" data-stat-group="0">
+        <a asp-controller="Panels" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-panels h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Πίνακες</div>
+                        <span class="stat-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.TotalPanels</div>
+                    <div class="stat-subtext">Σύνολο καταχωρημένων πινάκων</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item" data-stat-group="0">
+        <a asp-controller="Panels" asp-action="Index" asp-route-status="@PanelStatuses.UnderConstruction" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-progress h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Υπό Κατασκευή</div>
+                        <span class="stat-icon"><i class="bi bi-tools"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.UnderConstructionPanels</div>
+                    <div class="stat-subtext">Πίνακες που βρίσκονται σε εξέλιξη</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item" data-stat-group="0">
+        <a asp-controller="Panels" asp-action="Index" asp-route-status="@PanelStatuses.Completed" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Ολοκληρωμένοι</div>
+                        <span class="stat-icon"><i class="bi bi-check-circle"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.CompletedPanels</div>
+                    <div class="stat-subtext">Πίνακες που έχουν ολοκληρωθεί</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="1">
+        <a asp-controller="Materials" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-materials h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Υλικά</div>
+                        <span class="stat-icon"><i class="bi bi-box-seam"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.TotalMaterials</div>
+                    <div class="stat-subtext">Σύνολο καταχωρημένων υλικών</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="1">
+        <a asp-controller="Materials" asp-action="Index" asp-route-active="true" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-active-materials h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Ενεργά Υλικά</div>
+                        <span class="stat-icon"><i class="bi bi-box-seam-fill"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.ActiveMaterials</div>
+                    <div class="stat-subtext">Διαθέσιμα υλικά προς χρήση</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="1">
+        <a asp-controller="Suppliers" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-suppliers h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Προμηθευτές</div>
+                        <span class="stat-icon"><i class="bi bi-building"></i></span>
+                    </div>
+                    <div class="stat-value">@totalSuppliers</div>
+                    <div class="stat-subtext">@Model.ActiveSuppliers ενεργοί / @Model.InactiveSuppliers ανενεργοί</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
+        <a asp-controller="Panels" asp-action="Index" asp-route-status="@PanelStatuses.Cancelled" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-danger h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Ακυρωμένοι Πίνακες</div>
+                        <span class="stat-icon"><i class="bi bi-x-circle"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.CancelledPanels</div>
+                    <div class="stat-subtext">Πίνακες που έχουν ακυρωθεί</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
+        <a asp-controller="Customers" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-customers h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Πελάτες</div>
+                        <span class="stat-icon"><i class="bi bi-people"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.TotalCustomers</div>
+                    <div class="stat-subtext">Σύνολο καταχωρημένων πελατών</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
+        <a asp-controller="Suppliers" asp-action="Index" asp-route-active="false" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-muted h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Ανενεργοί Προμηθευτές</div>
+                        <span class="stat-icon"><i class="bi bi-building-x"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.InactiveSuppliers</div>
+                    <div class="stat-subtext">Προμηθευτές χωρίς ενεργή χρήση</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="dashboard-kpi-strip card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-success">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Completion Rate</div>
+                        <div class="mini-kpi-value">@Model.CompletionRate%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-warning text-dark">
+                        <i class="bi bi-tools"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Σε εξέλιξη</div>
+                        <div class="mini-kpi-value">@Model.UnderConstructionRate%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-primary">
+                        <i class="bi bi-building"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Top Πελάτης</div>
+                        <div class="mini-kpi-value mini-kpi-truncate">
+                            @Model.TopCustomerName
+                            @if (Model.TopCustomerPanelCount > 0)
+                            {
+                                <span class="mini-kpi-count">(@Model.TopCustomerPanelCount)</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-info text-dark">
+                        <i class="bi bi-calendar3"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Πίνακες μήνα</div>
+                        <div class="mini-kpi-value">@Model.PanelsThisMonth</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100 dashboard-table-card">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Πρόσφατοι Πίνακες</h2>
+                        <p class="text-muted small mb-0">Οι τελευταίοι πίνακες με βάση την τελευταία αλλαγή</p>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <select id="recentPanelsFilter" class="form-select form-select-sm dashboard-filter-select">
+                            <option value="all">Όλοι</option>
+                            <option value="@PanelStatuses.UnderConstruction">Υπό Κατασκευή</option>
+                            <option value="@PanelStatuses.Completed">Ολοκληρωμένοι</option>
+                            <option value="@PanelStatuses.Cancelled">Ακυρωμένοι</option>
+                        </select>
+
+                        <a asp-controller="Panels" asp-action="Index" class="btn btn-outline-secondary btn-sm app-btn-sm">
+                            Προβολή όλων
+                        </a>
+                    </div>
+                </div>
+
+                @if (!Model.RecentPanels.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="dashboard-empty-icon mb-3">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <p class="text-muted mb-0">Δεν υπάρχουν ακόμη πίνακες.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 dashboard-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Κωδικός</th>
+                                    <th>Πελάτης</th>
+                                    <th>Κατάσταση</th>
+                                    <th>Τελευταία Αλλαγή</th>
+                                    <th class="text-end">Ενέργεια</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var panel in Model.RecentPanels)
+                                {
+                                    <tr class="recent-panel-row" data-status="@PanelStatuses.Normalize(panel.Status)">
+                                        <td class="fw-semibold">@panel.PanelCode</td>
+                                        <td>@panel.CustomerName</td>
+                                        <td>
+                                            <span class="badge rounded-pill @GetStatusBadgeClass(panel.Status)">
+                                                @GetStatusLabel(panel.Status)
+                                            </span>
+                                        </td>
+                                        <td>@panel.LastModifiedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="text-end">
+                                            <a asp-controller="Panels"
+                                               asp-action="Details"
+                                               asp-route-id="@panel.PanelID"
+                                               class="btn btn-sm btn-outline-primary icon-btn"
+                                               title="Προβολή">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="recentPanelsEmptyFilter" class="text-center py-4 d-none">
+                        <p class="text-muted mb-0">Δεν υπάρχουν πρόσφατοι πίνακες με αυτό το φίλτρο.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100 dashboard-activity-card">
+            <div class="card-body p-4">
+                
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="quick-actions-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </span>
+                        
+                        <div>
+                            <h2 class="h5 mb-0">Τελευταία Δραστηριότητα</h2>
+                            <div class="text-muted small">Οι πιο πρόσφατες αλλαγές</div>
+                            <a asp-controller="ActivityLogs" asp-action="Index" class="btn btn-outline-secondary btn-sm app-btn-sm">
+                                Όλες
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.ActivityFeed == null || !Model.ActivityFeed.Any())
+                {
+                    <div class="text-center py-4">
+                        <div class="dashboard-empty-icon mb-3">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <p class="text-muted mb-0">Δεν υπάρχει ακόμη δραστηριότητα.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="activity-feed">
+                        @foreach (var item in Model.ActivityFeed)
+                        {
+                            var activityUrl = Url.Action("Index", "ActivityLogs");
+
+                            switch (item.EntityType)
+                            {
+                                case "Panel":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Details", "Panels", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Customer":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Edit", "Customers", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Supplier":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Edit", "Suppliers", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Material":
+                                    activityUrl = Url.Action("Index", "Materials");
+                                    break;
+
+                                case "Import":
+                                    activityUrl = Url.Action("Index", "ActivityLogs");
+                                    break;
+                            }
+
+                            <a href="@activityUrl" class="activity-item">
+                                <span class="activity-icon @item.BadgeClass">
+                                    <i class="bi @item.Icon"></i>
+                                </span>
+
+                                <span class="activity-content">
+                                    <strong>@item.Title</strong>
+                                    <small>@item.Description</small>
+                                    <span class="activity-time">
+                                        @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </span>
+                            </a>
+
+                        }
+                    </div>
+                }
+
+                <hr class="my-4" />
+
+                <div class="quick-actions-grid compact-actions-grid">
+                    <a asp-controller="Customers" asp-action="Create" class="quick-action-tile">
+                        <span class="quick-action-tile-icon"><i class="bi bi-person-plus"></i></span>
+                        <span class="quick-action-tile-text">
+                            <strong>Νέος Πελάτης</strong>
+                            <small>Καταχώριση νέου πελάτη</small>
+                        </span>
+                    </a>
+
+                    <a asp-controller="Suppliers" asp-action="Create" class="quick-action-tile">
+                        <span class="quick-action-tile-icon"><i class="bi bi-building-add"></i></span>
+                        <span class="quick-action-tile-text">
+                            <strong>Νέος Προμηθευτής</strong>
+                            <small>Καταχώριση supplier</small>
+                        </span>
+                    </a>
+
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="Materials" asp-action="Create" class="quick-action-tile">
+                            <span class="quick-action-tile-icon"><i class="bi bi-box-seam"></i></span>
+                            <span class="quick-action-tile-text">
+                                <strong>Νέο Υλικό</strong>
+                                <small>Προσθήκη νέου υλικού</small>
+                            </span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm dashboard-chart-card premium-chart-card">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+            <div>
+                <div class="dashboard-kicker chart-kicker mb-1">Analytics</div>
+                <h2 class="h5 mb-1">Panels ανά Πελάτη</h2>
+                <p class="text-muted small mb-0">Σύγκριση πελατών με breakdown ανά κατάσταση</p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <select id="chartTopSelect" class="form-select form-select-sm chart-control-select">
+                    <option value="5">Top 5</option>
+                    <option value="8" selected>Top 8</option>
+                    <option value="10">Top 10</option>
+                </select>
+
+                <div class="btn-group btn-group-sm" role="group" aria-label="Chart mode">
+                    <input type="radio" class="btn-check" name="chartMode" id="chartModeStacked" value="stacked" checked>
+                    <label class="btn btn-outline-secondary" for="chartModeStacked">Stacked</label>
+
+                    <input type="radio" class="btn-check" name="chartMode" id="chartModeGrouped" value="grouped">
+                    <label class="btn btn-outline-secondary" for="chartModeGrouped">Grouped</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="chartSummary" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+        <div id="chartEmptyState" class="text-center py-5 d-none">
+            <div class="dashboard-empty-icon mb-3">
+                <i class="bi bi-bar-chart"></i>
+            </div>
+            <p class="text-muted mb-0">Δεν υπάρχουν αρκετά δεδομένα για εμφάνιση γραφήματος.</p>
+        </div>
+
+        <div class="chart-container premium-chart-container">
+            <canvas id="panelsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        window.dashboardChartData = @Html.Raw(ViewBag.ChartData ?? "[]");
+    </script>
+    <script src="~/js/dashboard-index.js" asp-append-version="true"></script>
+
+
+}

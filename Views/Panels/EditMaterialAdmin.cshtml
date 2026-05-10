@@ -1,0 +1,104 @@
+@model panelapp.ViewModels.EditPanelMaterialAdminViewModel
+
+@{
+    ViewData["Title"] = "Admin Επεξεργασία Υλικού";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Admin Επεξεργασία Υλικού</h1>
+        <p class="text-muted mb-0">@Model.MaterialCode - @Model.MaterialDescription</p>
+    </div>
+
+    <a asp-action="Details" asp-route-id="@Model.PanelID" class="btn btn-outline-secondary app-btn">
+        <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="text-muted small">Πίνακας</div>
+                <div class="fw-semibold">@Model.PanelCode</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Υλικό</div>
+                <div class="fw-semibold">@Model.MaterialCode</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Περιγραφή</div>
+                <div class="fw-semibold">@Model.MaterialDescription</div>
+            </div>
+        </div>
+
+        <form asp-action="EditMaterialAdmin" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="PanelMaterialID" />
+            <input type="hidden" asp-for="PanelID" />
+            <input type="hidden" asp-for="PanelCode" />
+            <input type="hidden" asp-for="MaterialCode" />
+            <input type="hidden" asp-for="MaterialDescription" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="Quantity" class="form-label">Ποσότητα</label>
+                    <input asp-for="Quantity" class="form-control" type="number" min="0.01" step="0.01" />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="UnitPrice" class="form-label">Τιμή €</label>
+                    <input asp-for="UnitPrice" class="form-control" type="number" min="0" step="0.01" />
+                    <span asp-validation-for="UnitPrice" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="DiscountPercent" class="form-label">Έκπτωση %</label>
+                    <input asp-for="DiscountPercent" class="form-control" type="number" min="0" max="100" step="0.01" />
+                    <span asp-validation-for="DiscountPercent" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="IsManualPrice" class="form-check-input" />
+                        <label asp-for="IsManualPrice" class="form-check-label">Χειροκίνητη Τιμή</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="ManualPriceReason" class="form-label">Αιτιολογία</label>
+                    <textarea asp-for="ManualPriceReason"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Προαιρετική αιτιολογία χειροκίνητης τιμής"></textarea>
+                    <span asp-validation-for="ManualPriceReason" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="submit" class="btn btn-primary app-btn">
+                    <i class="bi bi-check-circle me-1"></i>Αποθήκευση
+                </button>
+
+                <a asp-action="Details" asp-route-id="@Model.PanelID" class="btn btn-outline-secondary app-btn">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

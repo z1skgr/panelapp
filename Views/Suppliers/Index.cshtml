@@ -1,0 +1,252 @@
+@model panelapp.ViewModels.SupplierIndexViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Προμηθευτές";
+
+    var suppliers = Model.Suppliers;
+    var statusFilter = Model.StatusFilter ?? "all";
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+
+    var currentPage = Model.CurrentPage;
+    var totalPages = Model.TotalPages;
+    var totalCount = Model.TotalCount;
+    var pageSize = Model.PageSize;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Προμηθευτές</h1>
+        <p class="text-muted mb-0">Διαχείριση προμηθευτών και υπευθύνων επικοινωνίας</p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary app-btn">
+        <i class="bi bi-plus-circle me-1"></i>Νέος Προμηθευτής
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="suppliersSearchForm" asp-action="Index" method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="pageSize" value="@pageSize" />
+
+            <div class="col-md-3">
+                <label for="statusFilter" class="form-label">Φίλτρο</label>
+                <select id="statusFilter" name="statusFilter" class="form-select filter-control">
+                    <option value="all" selected="@(statusFilter == "all")">Όλοι οι προμηθευτές</option>
+                    <option value="active" selected="@(statusFilter == "active")">Ενεργοί προμηθευτές</option>
+                </select>
+            </div>
+
+            <div class="col-md-7">
+                <label for="searchTerm" class="form-label">Αναζήτηση</label>
+                <div class="position-relative">
+                    <input type="text"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@currentSearch"
+                           class="form-control filter-control"
+                           placeholder="Όνομα, email, διεύθυνση, υπεύθυνος ή τηλέφωνο..." />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                       asp-route-pageSize="@pageSize"
+                       class="btn btn-outline-secondary app-btn-sm w-100 filter-control d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (suppliers == null || suppliers.Count == 0)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-building fs-1 text-muted"></i>
+            <h2 class="h5 mt-3">Δεν βρέθηκαν προμηθευτές</h2>
+            <p class="text-muted mb-0">Δεν υπάρχουν προμηθευτές με τα επιλεγμένα κριτήρια.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Προμηθευτής</th>
+                            <th>Email</th>
+                            <th>Υπεύθυνοι επικοινωνίας</th>
+                            <th>Κατάσταση</th>
+                            <th class="text-end">Ενέργειες</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in suppliers)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.SupplierName</strong>
+                                    @if (!string.IsNullOrWhiteSpace(item.Address))
+                                    {
+                                        <div class="small text-muted">@item.Address</div>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.Email))
+                                    {
+                                        <span>@item.Email</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.ContactPersons != null && item.ContactPersons.Any(c => c.Active))
+                                    {
+                                        foreach (var contact in item.ContactPersons.Where(c => c.Active).OrderBy(c => c.FullName))
+                                        {
+                                            <div class="small">
+                                                <strong>@contact.FullName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(contact.Phone))
+                                                {
+                                                    <span class="text-muted"> — @contact.Phone</span>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Δεν έχουν δηλωθεί υπεύθυνοι</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.Active)
+                                    {
+                                        <span class="badge bg-success">Ενεργός</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Ανενεργός</span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="Edit"
+                                               asp-route-id="@item.SupplierID"
+                                               class="btn btn-sm btn-outline-primary app-btn-sm"
+                                               title="Επεξεργασία">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        @if (Context.Session.GetString("RoleName") == "Admin" && item.Active)
+                                        {
+                                            <form asp-action="Delete"
+                                                  asp-route-id="@item.SupplierID"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Θέλετε σίγουρα να διαγράψετε τον προμηθευτή από την ενεργή λίστα;');">
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger app-btn-sm"
+                                                        title="Διαγραφή">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+        <form id="suppliersPageSizeForm" asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="searchTerm" value="@currentSearch" />
+            <input type="hidden" name="statusFilter" value="@statusFilter" />
+            <input type="hidden" name="page" value="1" />
+
+            <label for="pageSizeSelect" class="form-label mb-0">Προμηθευτές</label>
+
+            <select id="pageSizeSelect" name="pageSize" class="form-select form-select-sm select-width-sm">
+                <option value="5" selected="@(pageSize == 5)">5</option>
+                <option value="10" selected="@(pageSize == 10)">10</option>
+                <option value="15" selected="@(pageSize == 15)">15</option>
+                <option value="20" selected="@(pageSize == 20)">20</option>
+            </select>
+
+            <span class="text-muted small">ανά σελίδα</span>
+
+            <span class="text-muted small ms-md-3">
+                Σύνολο: @totalCount
+            </span>
+        </form>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Σελιδοποίηση προμηθευτών">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-searchTerm="@currentSearch"
+                               asp-route-statusFilter="@statusFilter"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-page="@(currentPage - 1)">
+                            Προηγούμενη
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-searchTerm="@currentSearch"
+                                   asp-route-statusFilter="@statusFilter"
+                                   asp-route-pageSize="@pageSize"
+                                   asp-route-page="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-searchTerm="@currentSearch"
+                               asp-route-statusFilter="@statusFilter"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-page="@(currentPage + 1)">
+                            Επόμενη
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/suppliers-index.js" asp-append-version="true"></script>
+}

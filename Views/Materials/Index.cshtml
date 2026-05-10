@@ -1,0 +1,418 @@
+@model panelapp.ViewModels.MaterialIndexViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+@{
+    ViewData["Title"] = "Κατάλογος Υλικών";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var currentSupplierId = Model.SupplierFilterId;
+    
+    var supplierFilter = Model.SupplierFilter ?? "all";
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch)
+                     || currentSupplierId.HasValue
+                     || supplierFilter != "all";
+}
+
+
+
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Κατάλογος Υλικών</h1>
+        <p class="text-muted mb-0">Προβολή υλικών ομαδοποιημένων ανά προμηθευτή</p>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Create" class="btn btn-primary app-btn-sm">
+                <i class="bi bi-plus-circle me-1"></i>Νέο Υλικό
+            </a>
+
+            <a asp-action="Import" class="btn btn-outline-secondary app-btn-sm">
+                <i class="bi bi-file-earmark-excel me-1"></i>Εισαγωγή Excel
+            </a>
+        </div>
+    }
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="materialsSearchForm" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <input type="hidden" name="supplierPage" value="1" />
+            <input type="hidden" name="suppliersPerPage" value="@Model.SuppliersPerPage" />
+            <input type="hidden" name="materialsPerSupplier" value="@Model.MaterialsPerSupplier" />
+
+            <div class="col-md-4">
+                <label for="searchTerm" class="form-label">Αναζήτηση</label>
+                <div class="position-relative">
+                    <input type="text"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@currentSearch"
+                           class="form-control filter-control"
+                           placeholder="Κωδικός ή περιγραφή υλικού..." />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="supplierFilter" class="form-label">Τύπος προμηθευτών</label>
+                <select id="supplierFilter" name="supplierFilter" class="form-select filter-control">
+                    
+
+                    @if (supplierFilter == "all")
+                    {
+                        <option value="all" selected="@(supplierFilter == "all")">Όλοι οι προμηθευτές</option>
+                    }
+                    else
+                    {
+                        <option value="all">Όλοι οι προμηθευτές</option>
+                    }
+
+                    @if (supplierFilter == "active")
+                    {
+                        <option value="active" selected="@(supplierFilter == "active")">Ενεργοί προμηθευτές</option>
+                    }
+                    else
+                    {
+                        <option value="active">Ενεργοί προμηθευτές</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="supplierId" class="form-label">Προμηθευτής</label>
+                <select id="supplierId" name="supplierId" class="form-select filter-control">
+                    <option value="">Όλοι</option>
+
+                    @foreach (var supplier in Model.SupplierOptions)
+                    {
+                        var label = supplier.Active
+                            ? supplier.SupplierName
+                            : $"{supplier.SupplierName} (ανενεργός)";
+
+                        if (currentSupplierId == supplier.SupplierID)
+                        {
+                            <option value="@supplier.SupplierID" selected>@label</option>
+                        }
+                        else
+                        {
+                            <option value="@supplier.SupplierID">@label</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                   asp-route-supplierFilter="active"
+                   asp-route-suppliersPerPage="@Model.SuppliersPerPage"
+                   asp-route-materialsPerSupplier="@Model.MaterialsPerSupplier"
+                   class="btn btn-outline-secondary app-btn-sm w-100 filter-control d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (hasFilters)
+{
+    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span class="badge bg-info text-dark">
+            Προμηθευτές: @Model.TotalSupplierCount
+        </span>
+
+        @if (supplierFilter == "active")
+        {
+            <span class="badge bg-success">
+                Ενεργοί προμηθευτές
+            </span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">
+                Όλοι οι προμηθευτές
+            </span>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(currentSearch))
+        {
+            <span class="badge bg-light text-dark border">
+                Αναζήτηση: @currentSearch
+            </span>
+        }
+    </div>
+}
+
+@if (Model.Groups == null || Model.Groups.Count == 0)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-search fs-1 text-muted"></i>
+            <h2 class="h5 mt-3">Δεν βρέθηκαν υλικά</h2>
+            <p class="text-muted mb-4">Δεν βρέθηκαν υλικά με τα επιλεγμένα κριτήρια αναζήτησης.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="accordion" id="suppliersAccordion">
+        @for (int i = 0; i < Model.Groups.Count; i++)
+        {
+            var group = Model.Groups[i];
+            var collapseId = $"supplier-collapse-{group.SupplierID}";
+            var headingId = $"supplier-heading-{group.SupplierID}";
+            var isExpanded = Model.ExpandedSupplierId == group.SupplierID;
+
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden" id="supplier-@group.SupplierID">
+                <h2 class="accordion-header" id="@headingId">
+                        <button class="accordion-button @(isExpanded ? "" : "collapsed") fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="@(isExpanded ? "true" : "false")"
+                            aria-controls="@collapseId">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100 me-3 gap-2">
+                            <span>
+                                <i class="bi bi-building me-2 text-muted"></i>@group.SupplierName
+                            </span>
+
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                @if (group.SupplierActive)
+                                {
+                                    <span class="badge bg-success ms-1">Ενεργός</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary ms-1">Ανενεργός</span>
+                                }
+
+                                <span class="badge rounded-pill bg-light text-dark border">
+                                    Σύνολο Υλικών: @group.TotalMaterialCount
+                                </span>
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+
+                <div id="@collapseId"
+                     class="accordion-collapse collapse @(isExpanded ? "show" : "")"
+                     aria-labelledby="@headingId"
+                     data-bs-parent="#suppliersAccordion">
+                    <div class="accordion-body p-0">
+                        @if (group.Materials.Count == 0)
+                        {
+                            <div class="p-4 text-muted">
+                                Δεν υπάρχουν υλικά για αυτόν τον προμηθευτή.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Κωδικός</th>
+                                            <th>Περιγραφή</th>
+                                            <th>Μονάδα</th>
+                                            <th class="text-end">Τιμή</th>
+                                            <th class="text-center">Ενεργό</th>
+                                            @if (isAdmin)
+                                            {
+                                                <th class="text-end">Ενέργειες</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in group.Materials)
+                                        {
+                                            <tr class="@(item.Active ? "" : "table-secondary")">
+                                                <td class="fw-semibold">@item.MaterialCode</td>
+                                                <td>@item.Description</td>
+                                                <td>@MaterialUnits.ToDisplayName(item.Unit)</td>
+                                                <td class="text-end text-nowrap">@item.CurrentPrice.ToString("N2") €</td>
+                                                <td class="text-center">
+                                                    @if (item.Active)
+                                                    {
+                                                        <span class="badge rounded-pill bg-success">
+                                                            <i class="bi bi-check-circle me-1"></i>Ναι
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge rounded-pill bg-secondary">Όχι</span>
+                                                    }
+                                                </td>
+
+                                                @if (isAdmin)
+                                                {
+                                                    <td class="text-end">
+                                                        <div class="d-inline-flex gap-1">
+                                                            <a asp-action="Edit"
+                                                               asp-route-id="@item.MaterialID"
+                                                               class="btn btn-outline-secondary btn-sm app-btn-sm"
+                                                               title="Επεξεργασία">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (group.TotalMaterialPages > 1)
+                            {
+                                <div id="material-pagination-@group.SupplierID" class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <span class="text-muted small">
+                                        Σελίδα @group.CurrentMaterialPage από @group.TotalMaterialPages
+                                    </span>
+
+                                    <div class="d-flex gap-2">
+                                        @{
+                                            var prevMaterialRoutes = new Dictionary<string, string?>()
+                                            {
+                                                ["searchTerm"] = Model.SearchTerm,
+                                                ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                                ["supplierFilter"] = Model.SupplierFilter,
+                                                ["supplierPage"] = Model.SupplierPage.ToString(),
+                                                ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                                ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                                [$"materialPage_{group.SupplierID}"] = (group.CurrentMaterialPage - 1).ToString(),
+                                                ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                                ["scrollTo"] = $"material-pagination-{group.SupplierID}",
+                                            };
+
+                                            var nextMaterialRoutes = new Dictionary<string, string?>()
+                                            {
+                                                ["searchTerm"] = Model.SearchTerm,
+                                                ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                                ["supplierFilter"] = Model.SupplierFilter,
+                                                ["supplierPage"] = Model.SupplierPage.ToString(),
+                                                ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                                ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                                [$"materialPage_{group.SupplierID}"] = (group.CurrentMaterialPage + 1).ToString(),
+                                                ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                                ["scrollTo"] = $"material-pagination-{group.SupplierID}",
+                                            };
+                                        }
+
+                                        <a class="btn btn-sm btn-outline-secondary @(group.CurrentMaterialPage == 1 ? "disabled" : "")"
+                                           asp-action="Index"
+                                           asp-all-route-data="prevMaterialRoutes">
+                                            Προηγούμενα Υλικά
+                                        </a>
+
+                                        <a class="btn btn-sm btn-outline-secondary @(group.CurrentMaterialPage == group.TotalMaterialPages ? "disabled" : "")"
+                                           asp-action="Index"
+                                           asp-all-route-data="nextMaterialRoutes">
+                                            Επόμενα Υλικά
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+        <form id="materialOptionsForm" method="get" asp-action="Index" class="d-flex flex-wrap align-items-center gap-3">
+            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+            <input type="hidden" name="supplierId" value="@Model.SupplierFilterId" />
+            <input type="hidden" name="supplierFilter" value="@Model.SupplierFilter" />
+            <input type="hidden" name="expandedSupplierId" value="@Model.ExpandedSupplierId" />
+            <input type="hidden" name="supplierPage" value="1" />
+
+            <div class="d-flex align-items-center gap-2">
+                <label for="suppliersPerPage" class="form-label mb-0">Προμηθευτές</label>
+                <select id="suppliersPerPage" name="suppliersPerPage" class="form-select form-select-sm select-width-sm">
+                    <option value="5" selected="@(Model.SuppliersPerPage == 5)">5</option>
+                    <option value="10" selected="@(Model.SuppliersPerPage == 10)">10</option>
+                    <option value="15" selected="@(Model.SuppliersPerPage == 15)">15</option>
+                    <option value="20" selected="@(Model.SuppliersPerPage == 20)">20</option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <label for="materialsPerSupplier" class="form-label mb-0">Υλικά ανά προμηθευτή</label>
+                <select id="materialsPerSupplier" name="materialsPerSupplier" class="form-select form-select-sm select-width-md">
+                    <option value="25" selected="@(Model.MaterialsPerSupplier == 25)">25</option>
+                    <option value="50" selected="@(Model.MaterialsPerSupplier == 50)">50</option>
+                    <option value="100" selected="@(Model.MaterialsPerSupplier == 100)">100</option>
+                    <option value="200" selected="@(Model.MaterialsPerSupplier == 200)">200</option>
+                </select>
+            </div>
+        </form>
+
+        @if (Model.TotalSupplierPages > 1)
+        {
+            <nav aria-label="Σελιδοποίηση προμηθευτών υλικών">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(Model.SupplierPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-supplierId="@Model.SupplierFilterId"
+                           asp-route-supplierFilter="@Model.SupplierFilter"
+                           asp-route-suppliersPerPage="@Model.SuppliersPerPage"
+                           asp-route-materialsPerSupplier="@Model.MaterialsPerSupplier"
+                           asp-route-expandedSupplierId="@Model.ExpandedSupplierId"
+                           asp-route-supplierPage="@(Model.SupplierPage - 1)">
+                            Προηγούμενη
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalSupplierPages; i++)
+                    {
+                        <li class="page-item @(i == Model.SupplierPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-searchTerm="@Model.SearchTerm"
+                               asp-route-supplierId="@Model.SupplierFilterId"
+                               asp-route-supplierFilter="@Model.SupplierFilter"
+                               asp-route-suppliersPerPage="@Model.SuppliersPerPage"
+                               asp-route-materialsPerSupplier="@Model.MaterialsPerSupplier"
+                               asp-route-expandedSupplierId="@Model.ExpandedSupplierId"
+                               asp-route-supplierPage="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.SupplierPage == Model.TotalSupplierPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-supplierId="@Model.SupplierFilterId"
+                           asp-route-supplierFilter="@Model.SupplierFilter"
+                           asp-route-suppliersPerPage="@Model.SuppliersPerPage"
+                           asp-route-materialsPerSupplier="@Model.MaterialsPerSupplier"
+                               asp-route-expandedSupplierId="@Model.ExpandedSupplierId"
+                           asp-route-supplierPage="@(Model.SupplierPage + 1)">
+                            Επόμενη
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/materials-index.js" asp-append-version="true"></script>
+    <script src="~/js/page-scroll.js" asp-append-version="true"></script>
+}

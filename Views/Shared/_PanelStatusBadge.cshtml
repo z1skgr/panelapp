@@ -1,0 +1,22 @@
+﻿@using panelapp.Constants
+@model string?
+
+@{
+    var status = PanelStatuses.Normalize(Model);
+
+    var badgeClass = status switch
+    {
+        var s when s == PanelStatuses.Completed => "badge rounded-pill bg-success",
+        var s when s == PanelStatuses.Cancelled => "badge rounded-pill bg-danger",
+        _ => "badge rounded-pill bg-warning text-dark"
+    };
+
+    var displayText = status switch
+    {
+        var s when s == PanelStatuses.Completed => "Ολοκληρωμένο",
+        var s when s == PanelStatuses.Cancelled => "Ακυρομένο",
+        _ => "Υπο κατασκευή"
+    };
+}
+
+<span class="badge @badgeClass">@displayText</span>

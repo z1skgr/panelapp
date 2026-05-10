@@ -1,0 +1,101 @@
+@model panelapp.Models.Material
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Επεξεργασία Υλικού";
+    var suppliers = ViewBag.Suppliers as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Επεξεργασία Υλικού</h1>
+        <p class="text-muted mb-0">Ενημέρωση στοιχείων υλικού του καταλόγου</p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MaterialID" />
+            <input type="hidden" asp-for="CreatedDate" />
+            <input type="hidden" asp-for="LastModifiedDate" />
+            <input type="hidden" asp-for="PriceUpdatedDate" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="MaterialCode" class="form-label">Κωδικός Υλικού</label>
+                    <input asp-for="MaterialCode" class="form-control" placeholder="Π.χ. A9F73110" />
+                    <span asp-validation-for="MaterialCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="Description" class="form-label">Περιγραφή</label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Περιγραφή υλικού"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Unit" class="form-label">Μονάδα</label>
+                    <select asp-for="Unit" class="form-select">
+                        <option value="">-- Επιλογή Μονάδας --</option>
+                        <option value="pcs">Τεμάχια (pcs)</option>
+                        <option value="meters">Μέτρα (meters)</option>
+                    </select>
+                    <span asp-validation-for="Unit" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CurrentPrice" class="form-label">Τρέχουσα Τιμή</label>
+                    <input asp-for="CurrentPrice" type="number" step="0.01" min="0" class="form-control" />
+                    <span asp-validation-for="CurrentPrice" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SupplierID" class="form-label">Προμηθευτής</label>
+                    <select asp-for="SupplierID" asp-items="suppliers" class="form-select">
+                        <option value="">-- Επιλογή Προμηθευτή --</option>
+                    </select>
+                    <span asp-validation-for="SupplierID" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check mt-2">
+                        <input asp-for="Active" class="form-check-input" />
+                        <label asp-for="Active" class="form-check-label">Ενεργό υλικό</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="submit" class="btn btn-primary app-btn">
+                    <i class="bi bi-check-circle me-1"></i>Αποθήκευση Αλλαγών
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

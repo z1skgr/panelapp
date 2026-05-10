@@ -1,0 +1,99 @@
+﻿@model panelapp.ViewModels.PanelFormViewModel
+@using panelapp.Constants
+
+@{
+    ViewData["Title"] = "Επεξεργασία Πίνακα";
+    var currentStatus = PanelStatuses.Normalize(Model.Status);
+    var statusOptions = PanelStatuses.Allowed.ToList();
+    var nextStatus = PanelStatuses.Allowed.Where(s => s != currentStatus).ToList();
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Επεξεργασία Πίνακα</h1>
+        <p class="text-muted mb-0">Ενημέρωση βασικών στοιχείων πίνακα έργου</p>
+    </div>
+
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.PanelID" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="PanelID" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="PanelCode" class="form-label">Κωδικός Πίνακα</label>
+                    <input asp-for="PanelCode" class="form-control" readonly />
+                    <span asp-validation-for="PanelCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="CustomerID" class="form-label">Πελάτης</label>
+                    <select asp-for="CustomerID" asp-items="Model.Customers" class="form-select">
+                        <option value="">-- Επιλογή Πελάτη --</option>
+                    </select>
+                    <span asp-validation-for="CustomerID" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label">Περιγραφή</label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Σύντομη περιγραφή πίνακα ή έργου"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Τρέχουσα Κατάσταση</label>
+                    <div>
+                        <partial name="_PanelStatusBadge" model="Model.Status" />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Status" class="form-label">Αλλαγή Κατάστασης</label>
+                    <select asp-for="Status" class="form-select">
+                    @foreach (var status in statusOptions)
+                    {
+                            <option value="@status" selected="@(status == currentStatus)">
+                                @PanelStatuses.ToDisplayLabel(status)
+                            </option>
+                    }
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+
+                
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="submit" class="btn btn-primary app-btn">
+                    <i class="bi bi-check-circle me-1"></i>Αποθήκευση Αλλαγών
+                </button>
+
+                <a asp-action="Details" asp-route-id="@Model.PanelID" class="btn btn-outline-secondary app-btn">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

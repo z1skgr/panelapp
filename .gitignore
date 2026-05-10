@@ -1,0 +1,42 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# App settings / secrets
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+
+# Database files
+*.mdf
+*.ldf
+*.bak
+
+# Publish
+publish/
+PublishProfiles/
+
+# Logs
+*.log
+logs/
+
+# Excel / imports / Datasets
+Dataset/
+*.xlsx
+*.xls
+*.csv
+
+# Company assets
+wwwroot/images/
+wwwroot/uploads/
+
+# OS
+.DS_Store
+Thumbs.db

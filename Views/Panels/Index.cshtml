@@ -1,0 +1,196 @@
+@model panelapp.ViewModels.PanelIndexViewModel
+
+@{
+    ViewData["Title"] = "Πίνακες";
+
+    var panels = Model.Panels;
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch);
+
+}
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Πίνακες</h1>
+        <p class="text-muted mb-0">Διαχείριση πινάκων και κοστολόγησης υλικών</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary app-btn">
+            <i class="bi bi-plus-circle me-1"></i>Νέος Πίνακας
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="panelsSearchForm" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+            <div class="col-md-10">
+                <label for="searchTerm" class="form-label">Αναζήτηση</label>
+                <input type="text"
+                       id="searchTerm"
+                       name="searchTerm"
+                       value="@currentSearch"
+                       class="form-control"
+                       placeholder="Κωδικός πίνακα, πελάτης ή περιγραφή..." />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                   asp-route-pageSize="@Model.PageSize"
+                   class="btn btn-outline-secondary app-btn w-100">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (hasFilters)
+{
+    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span class="badge bg-info text-dark">
+            Αποτελέσματα: @Model.TotalCount
+        </span>
+
+        <span class="badge bg-light text-dark border">
+            Αναζήτηση: @currentSearch
+        </span>
+    </div>
+}
+
+@if (panels == null || panels.Count == 0)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-5 text-center">
+            <i class="bi bi-lightning-charge fs-1 text-muted"></i>
+            <h3 class="h5 mt-3">Δεν υπάρχουν πίνακες</h3>
+            <p class="text-muted mb-3">Δεν βρέθηκαν πίνακες με τα επιλεγμένα κριτήρια.</p>
+
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a asp-action="Index" asp-route-pageSize="@Model.PageSize" class="btn btn-outline-secondary app-btn">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Καθαρισμός
+                </a>
+
+                <a asp-action="Create" class="btn btn-primary app-btn">
+                    <i class="bi bi-plus-circle me-1"></i>Νέος Πίνακας
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Κωδικός</th>
+                            <th>Πελάτης</th>
+                            <th>Περιγραφή</th>
+                            <th>Κατάσταση</th>
+                            <th>Ημερομηνία</th>
+                            <th class="text-end">Ενέργειες</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in panels)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.PanelCode</td>
+                                <td>@(item.Customer?.CustomerName ?? item.CustomerName)</td>
+                                <td class="text-truncate" style="max-width: 260px;">@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                                <td><partial name="_PanelStatusBadge" model="item.Status" /></td>
+                                <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    <div class="table-actions justify-content-end" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.PanelID"
+                                           class="btn btn-sm btn-outline-primary icon-btn" title="Προβολή">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <a asp-action="Edit" asp-route-id="@item.PanelID"
+                                           class="btn btn-sm btn-outline-secondary icon-btn" title="Επεξεργασία">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+        <div class="d-flex align-items-center gap-2">
+            <label for="pageSizeSelect" class="form-label mb-0">Εμφάνιση</label>
+
+            <form id="pageSizeForm" method="get" asp-action="Index" class="d-flex align-items-center gap-2 ">
+                <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                <input type="hidden" name="page" value="1" />
+
+                <select id="pageSizeSelect" name="pageSize" class="form-select form-select-sm select-width-sm">
+                    <option value="5" selected="@(Model.PageSize == 5)">5</option>
+                    <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                    <option value="15" selected="@(Model.PageSize == 15)">15</option>
+                    <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                </select>
+                <span class="text-muted small">ανά σελίδα</span> 
+             </form>
+
+            
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Σελιδοποίηση πινάκων">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-pageSize="@Model.PageSize"
+                           asp-route-page="@(Model.CurrentPage - 1)">
+                            Προηγούμενη
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-searchTerm="@Model.SearchTerm"
+                               asp-route-pageSize="@Model.PageSize"
+                               asp-route-page="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-pageSize="@Model.PageSize"
+                           asp-route-page="@(Model.CurrentPage + 1)">
+                            Επόμενη
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/panels-index.js" asp-append-version="true"></script>
+}

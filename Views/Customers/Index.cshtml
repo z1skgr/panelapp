@@ -1,0 +1,347 @@
+@model panelapp.ViewModels.CustomerIndexViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Πελάτες";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var customers = Model.Customers;
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch);
+
+}
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Πελάτες</h1>
+        <p class="text-muted mb-0">Προβολή πελατών και των πινάκων τους</p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary app-btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Νέος Πελάτης
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="customersSearchForm" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="customerPageSize" value="@Model.CustomerPageSize" />
+            <input type="hidden" name="panelsPerCustomer" value="@Model.PanelsPerCustomer" />
+
+            <div class="col-md-10">
+                <label for="searchTerm" class="form-label">Αναζήτηση Πελάτη</label>
+                <div class="position-relative">
+                    <input type="text"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@currentSearch"
+                           class="form-control filter-control"
+                           placeholder="Όνομα πελάτη ή ΑΦΜ..." />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                   asp-route-customerPageSize="@Model.CustomerPageSize"
+                   asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                   class="btn btn-outline-secondary app-btn-sm w-100 filter-control d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (hasFilters)
+{
+    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span class="badge bg-info text-dark">
+            Αποτελέσματα: @Model.TotalCount
+        </span>
+
+        <span class="badge bg-light text-dark border">
+            Αναζήτηση: @currentSearch
+        </span>
+    </div>
+}
+
+@if (customers == null || customers.Count == 0)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-people fs-1 text-muted"></i>
+            <h2 class="h5 mt-3">Δεν βρέθηκαν πελάτες</h2>
+            <p class="text-muted mb-4">Δεν υπάρχουν πελάτες με τα επιλεγμένα κριτήρια.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="accordion" id="customersAccordion">
+        @for (int i = 0; i < customers.Count; i++)
+        {
+            var customer = customers[i];
+            var collapseId = $"customer-collapse-{customer.CustomerID}";
+            var headingId = $"customer-heading-{customer.CustomerID}";
+            var panelPageKey = $"panelPage_{customer.CustomerID}";
+            var isExpanded = Model.ExpandedCustomerId == customer.CustomerID;
+
+            var currentPanelPage = 1;
+            if (Context.Request.Query.ContainsKey(panelPageKey) &&
+                int.TryParse(Context.Request.Query[panelPageKey], out var parsedPanelPage) &&
+                parsedPanelPage > 0)
+            {
+                currentPanelPage = parsedPanelPage;
+            }
+
+            var totalPanels = customer.Panels.Count;
+            var panelTotalPages = (int)Math.Ceiling(totalPanels / (double)Model.PanelsPerCustomer);
+
+            if (panelTotalPages == 0)
+            {
+                panelTotalPages = 1;
+            }
+
+            if (currentPanelPage > panelTotalPages)
+            {
+                currentPanelPage = panelTotalPages;
+            }
+
+            var panels = customer.Panels
+                .OrderByDescending(p => p.CreatedDate)
+                .Skip((currentPanelPage - 1) * Model.PanelsPerCustomer)
+                .Take(Model.PanelsPerCustomer)
+                .ToList();
+
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden" id="customer-@customer.CustomerID">
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button @(isExpanded ? "" : "collapsed") fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="@(isExpanded ? "true" : "false")"
+                            aria-controls="@collapseId">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100 me-3 gap-2">
+                            <span>
+                                <i class="bi bi-person-badge me-2 text-muted"></i>@customer.CustomerName
+                            </span>
+
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                @if (!string.IsNullOrWhiteSpace(customer.VatNumber))
+                                {
+                                    <span class="badge rounded-pill bg-light text-dark border">
+                                        ΑΦΜ: @customer.VatNumber
+                                    </span>
+                                }
+
+                                <span class="badge rounded-pill bg-light text-dark border">
+                                    Σύνολο Πινάκων: @totalPanels
+                                </span>
+
+                                @if (customer.Active)
+                                {
+                                    <span class="badge rounded-pill bg-success">Ενεργός</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary">Ανενεργός</span>
+                                }
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+
+                <div id="@collapseId"
+                     class="accordion-collapse collapse @(isExpanded ? "show" : "")"
+                     aria-labelledby="@headingId"
+                     data-bs-parent="#customersAccordion">
+                    <div class="accordion-body p-0">
+                        @if (totalPanels == 0)
+                        {
+                            <div class="p-4 text-muted">
+                                Δεν υπάρχουν πίνακες για αυτόν τον πελάτη.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Κωδικός Πίνακα</th>
+                                            <th>Περιγραφή</th>
+                                            <th>Κατάσταση</th>
+                                            <th>Ημ/νία</th>
+                                            <th class="text-end">Ενέργειες</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var panel in panels)
+                                        {
+                                            <tr>
+                                                <td class="fw-semibold">@panel.PanelCode</td>
+                                                <td>@(string.IsNullOrWhiteSpace(panel.Description) ? "-" : panel.Description)</td>
+                                                <td><partial name="_PanelStatusBadge" model="panel.Status" /></td>
+                                                <td>@panel.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                                <td class="text-end">
+                                                    <a asp-controller="Panels"
+                                                       asp-action="Details"
+                                                       asp-route-id="@panel.PanelID"
+                                                       class="btn btn-outline-secondary btn-sm app-btn-sm">
+                                                        <i class="bi bi-eye me-1"></i>Προβολή
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (panelTotalPages > 1)
+                            {
+                                <div id="panel-pagination-@customer.CustomerID" class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <span class="text-muted small">
+                                        Σελίδα @currentPanelPage από @panelTotalPages
+                                    </span>
+
+                                    <div class="d-flex gap-2">
+                                        @{
+                                            var prevPanelRoutes = new Dictionary<string, string?>
+                                            {
+                                                ["searchTerm"] = Model.SearchTerm,
+                                                ["page"] = Model.CurrentPage.ToString(),
+                                                ["customerPageSize"] = Model.CustomerPageSize.ToString(),
+                                                ["panelsPerCustomer"] = Model.PanelsPerCustomer.ToString(),
+                                                [$"panelPage_{customer.CustomerID}"] = (currentPanelPage - 1).ToString(),
+                                                ["expandedCustomerId"] = customer.CustomerID.ToString(),
+                                                ["scrollTo"] = $"panel-pagination-{customer.CustomerID}"
+                                            };
+
+                                            var nextPanelRoutes = new Dictionary<string, string?>
+                                            {
+                                                ["searchTerm"] = Model.SearchTerm,
+                                                ["page"] = Model.CurrentPage.ToString(),
+                                                ["customerPageSize"] = Model.CustomerPageSize.ToString(),
+                                                ["panelsPerCustomer"] = Model.PanelsPerCustomer.ToString(),
+                                                [$"panelPage_{customer.CustomerID}"] = (currentPanelPage + 1).ToString(),
+                                                ["expandedCustomerId"] = customer.CustomerID.ToString(),
+                                                ["scrollTo"] = $"panel-pagination-{customer.CustomerID}"
+                                            };
+                                        }
+
+                                        <a class="btn btn-sm btn-outline-secondary @(currentPanelPage == 1 ? "disabled" : "")"
+                                           asp-action="Index"
+                                           asp-all-route-data="prevPanelRoutes">
+                                            Προηγούμενοι Πίνακες
+                                        </a>
+
+                                        <a class="btn btn-sm btn-outline-secondary @(currentPanelPage == panelTotalPages ? "disabled" : "")"
+                                           asp-action="Index"
+                                           asp-all-route-data="nextPanelRoutes">
+                                            Επόμενοι Πίνακες
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @if (isAdmin)
+                        {
+                            <div class="p-3 border-top bg-light-subtle d-flex justify-content-end">
+                                <a asp-action="Edit"
+                                   asp-route-id="@customer.CustomerID"
+                                   class="btn btn-outline-primary btn-sm app-btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Επεξεργασία Πελάτη
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+        <form id="customerOptionsForm" method="get" asp-action="Index" class="d-flex flex-wrap align-items-center gap-3">
+            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+            <input type="hidden" name="expandedCustomerId" value="@Model.ExpandedCustomerId" />
+            <input type="hidden" name="page" value="1" />
+
+            <div class="d-flex align-items-center gap-2">
+                <label for="customerPageSize" class="form-label mb-0">Πελάτες</label>
+                <select id="customerPageSize" name="customerPageSize" class="form-select form-select-sm select-width-sm">
+                    <option value="5" selected="@(Model.CustomerPageSize == 5)">5</option>
+                    <option value="10" selected="@(Model.CustomerPageSize == 10)">10</option>
+                    <option value="15" selected="@(Model.CustomerPageSize == 15)">15</option>
+                    <option value="20" selected="@(Model.CustomerPageSize == 20)">20</option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <label for="panelsPerCustomer" class="form-label mb-0">Πίνακες ανά πελάτη</label>
+                <select id="panelsPerCustomer" name="panelsPerCustomer" class="form-select form-select-sm select-width-sm">
+                    <option value="5" selected="@(Model.PanelsPerCustomer == 5)">5</option>
+                    <option value="10" selected="@(Model.PanelsPerCustomer == 10)">10</option>
+                    <option value="15" selected="@(Model.PanelsPerCustomer == 15)">15</option>
+                    <option value="20" selected="@(Model.PanelsPerCustomer == 20)">20</option>
+                </select>
+            </div>
+        </form>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Σελιδοποίηση πελατών">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-customerPageSize="@Model.CustomerPageSize"
+                           asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                           asp-route-page="@(Model.CurrentPage - 1)">
+                            Προηγούμενη
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-searchTerm="@Model.SearchTerm"
+                               asp-route-customerPageSize="@Model.CustomerPageSize"
+                               asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                               asp-route-page="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-customerPageSize="@Model.CustomerPageSize"
+                           asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                           asp-route-page="@(Model.CurrentPage + 1)">
+                            Επόμενη
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/customers-index.js" asp-append-version="true"></script>
+    <script src="~/js/page-scroll.js" asp-append-version="true"></script>
+}

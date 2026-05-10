@@ -1,0 +1,79 @@
+@model panelapp.ViewModels.PanelFormViewModel
+@using panelapp.Constants
+
+@{
+    ViewData["Title"] = "Νέος Πίνακας";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Νέος Πίνακας</h1>
+        <p class="text-muted mb-0">Δημιουργία νέου πίνακα έργου και βασικών στοιχείων</p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="PanelCode" class="form-label">Κωδικός Πίνακα</label>
+                    <input asp-for="PanelCode" class="form-control" readonly />
+                    <span asp-validation-for="PanelCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="CustomerID" class="form-label">Πελάτης</label>
+                    <select asp-for="CustomerID" asp-items="Model.Customers" class="form-select">
+                        <option value="">-- Επιλογή Πελάτη --</option>
+                    </select>
+                    <span asp-validation-for="CustomerID" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label">Περιγραφή</label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Σύντομη περιγραφή πίνακα ή έργου"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Κατάσταση</label>
+                    <input type="text" class="form-control" value="@PanelStatuses.ToDisplayLabel(PanelStatuses.UnderConstruction)" readonly />
+                    <input type="hidden" asp-for="Status" value="@PanelStatuses.UnderConstruction"/>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Αποθήκευση
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,153 @@
+@model panelapp.ViewModels.SupplierCreateViewModel
+
+@{
+    ViewData["Title"] = "Νέος Προμηθευτής";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Νέος Προμηθευτής</h1>
+        <p class="text-muted mb-0">
+            Καταχώριση νέου προμηθευτή και υπευθύνων επικοινωνίας
+        </p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SupplierName" class="form-label">Όνομα Προμηθευτή</label>
+                    <input asp-for="SupplierName" class="form-control" />
+                    <span asp-validation-for="SupplierName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">Email Προμηθευτή</label>
+                    <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Address" class="form-label">Διεύθυνση</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="Active" class="form-check-input" />
+                        <label asp-for="Active" class="form-check-label">Ενεργός προμηθευτής</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label">Σημειώσεις</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <strong>Υπεύθυνοι επικοινωνίας</strong>
+                    <div class="small text-muted">
+                        Προσθέστε έναν ή περισσότερους υπεύθυνους πριν την αποθήκευση.
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Όνομα υπευθύνου</label>
+                            <input type="text"
+                                   id="contactName"
+                                   class="form-control"
+                                   placeholder="Π.χ. Γιώργος Παπαδόπουλος" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Τηλέφωνο</label>
+                            <input type="text"
+                                   id="contactPhone"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   maxlength="10"
+                                   pattern="[0-9]{0,10}"
+                                   autocomplete="tel"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                                   placeholder="Π.χ. 2101234567" />
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   id="contactEmail"
+                                   class="form-control"
+                                   placeholder="name@supplier.gr" />
+                        </div>
+
+                        
+
+                        <div class="col-md-2 d-grid">
+                            <button type="button"
+                                    class="btn btn-outline-primary"
+                                    id="addContactBtn">
+                                + Προσθήκη
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="contactError" class="text-danger small mt-2 d-none"></div>
+
+                    <div class="table-responsive mt-3 d-none" id="contactsWrapper">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Όνομα</th>
+                                    <th>Τηλέφωνο</th>
+                                    <th>Email</th>
+                                    <th class="text-end">Ενέργεια</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsTable"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="hiddenContacts"></div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="submit" class="btn btn-primary app-btn">
+                    Αποθήκευση
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Ακύρωση
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

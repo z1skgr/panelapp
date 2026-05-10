@@ -1,0 +1,49 @@
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Panel App</title>
+
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    @RenderSection("Styles", required: false)
+</head>
+<body class="auth-body">
+    <div class="auth-page-wrapper">
+        <main class="auth-main">
+            @RenderBody()
+        </main>
+
+        <footer class="auth-footer text-center">
+            <div class="small text-muted">
+                @if (Env.IsDevelopment())
+                {
+                    <span>Έκδοση Δοκιμών v1.0 · DEV</span>
+                }
+                else if (Env.IsProduction())
+                {
+                    <span>Έκδοση Παραγωγής v1.0 · PROD</span>
+                }
+                else
+                {
+                    <span>v1.0</span>
+                }
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+
+
