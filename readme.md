@@ -1,4 +1,4 @@
-# ⚡ PanelApp
+# ⚡ ZL PanelApp
 
 ![.NET](https://img.shields.io/badge/.NET-8-blue)
 ![ASP.NET MVC](https://img.shields.io/badge/ASP.NET-MVC-green)
@@ -7,9 +7,9 @@
 
 > Internal ERP-style platform for managing electrical distribution panel production, material pricing, supplier relationships and project costing.
 
-----
+---
 
-## 📑 Table of Contents
+# 📑 Table of Contents
 
 * [General Information](#-general-information)
 * [Current Capabilities](#-current-capabilities)
@@ -32,12 +32,11 @@
 * [Acknowledgements](#-acknowledgements)
 * [Version](#-version)
 
-----
+---
 
 # 📌 General Information
 
-
-** PanelApp** is an ASP.NET Core MVC application designed for managing materials used in low-voltage electrical distribution panels.
+**ZL PanelApp** is an ASP.NET Core MVC application designed for managing materials used in low-voltage electrical distribution panels.
 
 The platform focuses on:
 
@@ -51,8 +50,7 @@ The platform focuses on:
 
 The application is designed for real-world production usage within industrial electrical panel environments.
 
-
-----
+---
 
 # 🚀 Current Capabilities
 
@@ -84,7 +82,8 @@ The application is designed for real-world production usage within industrial el
 * Session-based Authentication
 * Bootstrap Icons
 * LINQ / EF Core Query Optimization
-----
+
+---
 
 # 🏗️ Architecture
 
@@ -98,12 +97,11 @@ The application is designed for real-world production usage within industrial el
 [ Business Logic ]
      |
      v
-[ Entity Framework ]
+[ Entity Framework Core ]
      |
      v
 [ SQL Server ]
 ```
-
 ----
 
 # 🗃️ Database (ER Diagram)
@@ -117,21 +115,6 @@ PasswordHash
 Role
 
 Suppliers
----------
-SupplierID (PK)
-SupplierName
-Active
-
-SupplierContactPersons
----------
-SupplierContactPersonID (PK)
-SupplierID
-FullName
-Phone
-Email
-Active
-Supplier
-
 ---------
 SupplierID (PK)
 SupplierName
@@ -160,30 +143,18 @@ Quantity
 UnitPrice
 DiscountPercent
 
-ActivityLogs
-------
-ActivityLogID (PK)
-EntityType
-EntityID
-ActionType
-Title
-Description
-UserName
-UserRole
-CreatedAt
+Activity logs
+--------------
 ```
 ----
 
 ## Relationships
 ```
 * Supplier → Materials (1:N)
+* Supplier → ContactPersons (1:N)
 * Panel → PanelMaterials (1:N)
 * Material → PanelMaterials (1:N)
-
-* Supplier → ContactPersons (1:N)
-
 * Customer → Panels (1:N)
-
 * User → ActivityLogs (1:N)
 ```
 👉 The system preserves pricing snapshots per panel line.
@@ -232,15 +203,13 @@ erDiagram
         decimal UnitPrice
         decimal DiscountPercent
     }
-	
 	ACTIVITYLOGS :::coloras {
-        int ActivityLogID PK
-        string EntityType
-        int EntityID
-        string ActionType
-        string Description
-        string UserName
-		DateTime CreatedAt
+        int PanelMaterialID PK
+        int PanelID FK
+        int MaterialID FK
+        decimal Quantity
+        decimal UnitPrice
+        decimal DiscountPercent
     }
 
     SUPPLIERS ||--o{ MATERIALS : **supplies**
@@ -252,7 +221,7 @@ erDiagram
     classDef colgre fill:#22C55E
     classDef colred fill:#EF4444
     classDef colpurp fill:#8B5CF6
-	classDef coloras fill:#8C1AF1
+	classDef coloras fill:#3A5CB1
     
 ```
 
@@ -264,36 +233,35 @@ erDiagram
 
 Detailed:
 ```text
-panelapp/
+ZL_panelapp/
 │
 ├── Controllers/
 │   ├── PanelsController.cs
 │   ├── MaterialsController.cs
-│   ├── SuppliersController.cs
-│   ├── AccountController.cs
 │   ├── HomeController.cs
-│   ├── CustomersController.cs
-│	└── ActivityLogsController.cs
+│   ├── SuppliersController.cs
+│   ├── ActivityLogsController.cs
+│   ├── MaterialsController.cs
+│   └── AccountController.cs
 │
 ├── Models/
 │   ├── Panel.cs
 │   ├── Material.cs
-│   ├── PanelMaterial.cs
 │   ├── Supplier.cs
-│   ├── SupplierContactPerson.cs
 │   ├── ActivityLog.cs
-│   ├── ErrorViewModel.cs
 │   ├── Customer.cs
+│   ├── PanelMaterial.cs
+│   ├── SupplierContactPerson.cs
 │   └── User.cs
 │
 ├── Views/
 │   ├── Panels/
 │   ├── Materials/
 │   ├── Suppliers/
-│   ├── Account/
-│   ├── Customer/
-│   ├── Suppliers/
+│   ├── Home/
 │   ├── ActivityLogs/
+│   ├── Customers/
+│   ├── Account/
 │   └── Shared/
 │       ├── _Layout.cshtml
 │       └── _AuthLayout.cshtml
@@ -305,27 +273,14 @@ panelapp/
 │   ├── AddMaterialToPanelViewModel.cs
 │   ├── CopyPanelViewModel.cs
 │   ├── CustomerIndexViewModel.cs
-│   ├── EditPanelMaterialViewModel.cs
-│   ├── EditPanelMaterialAdminViewModel.cs
-│   ├── EditPanelMaterialViewModel.cs
-│   ├── HomeDashboardViewModel.cs
-│   ├── ImportMaterialViewModel.cs
-│   ├── LoginViewModel.cs
-│   ├── MaterialIndexViewModel.cs
-│   ├── MaterialSupplierGroupViewModel.cs
-│   ├── PanelDetailsViewModel.cs
-│   ├── PanelExportRow.cs
-│   ├── PanelFormViewModel.cs
-│   ├── PanelIndexViewModel.cs
-│   ├── SupplierContactPersonInputViewModel.cs
-│   ├── SupplierEditViewModel.cs
-│   └── SupplierEditViewModel.cs
+│   ├── EditPanelMaterialAdminViewModel.cs/
+│	'
+│	'
+│	'
+│   └── SupplierIndexViewModel.cs
 │
 └── wwwroot/
     └── css / js / images
-└── readme.md
-    
-	
 ```
 
 
@@ -475,13 +430,6 @@ For version, select
 ----
 
 ## Create DB
-Create db and seed scripts
-```
-scripts/
-├── baseline.sql
-├── seed-dev.sql
-└── seed-materials.sql
-```
 
 ```sql
 CREATE DATABASE paneldb;
@@ -496,9 +444,16 @@ For named sql server: `SQLEXPRESS` and database: `paneldb`
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=paneldb;Trusted_Connection=True;TrustServerCertificate=True;"
+  "DefaultConnection": "Server=YourServer\\SQLEXPRESS;Database=paneldb;Trusted_Connection=True;TrustServerCertificate=True;"
 }
 ```
+
+----
+
+## Seed
+Edw tha valw kapoio script pou kanw add user h kati tetoio
+* Create Admin user
+* Create Supplier
 
 ----
 
@@ -509,77 +464,19 @@ For named sql server: `SQLEXPRESS` and database: `paneldb`
 
 **Admin**
 
-* Full access
-* Import Excel (materials)
-* Supplier management
-* Customer management
-* Activity log access
-* Panel Editing
 
+*full access
+*Excel imports
+*supplier management
+*customer management
+*activity log access
+*panel editing
 
 **User**
 
-* Panel management
-* Materials browsing
-* Limited activity visibility
-
-----
-
-📦 Features
-**Panel Management
-* Create/edit panels
-* Material quantity management
-* Pricing snapshot preservation
-* Automatic totals
-**Materials
-* Supplier-linked materials
-* Normalized units
-* Active/inactive support
-* Duplicate prevention
-**Suppliers
-* Supplier management
-* Multiple contact persons
-* Contact activation/deactivation
-* Contact deletion support
-** Customers
-* Customer information management
-* VAT validation
-* Linked panel protection
-** Activity Logging
-Tracks:
-
-*Panel creation
-*Panel updates
-*Material imports
-*Supplier updates
-*Customer updates
-*Login activity
-
-Admins can view all activities.
-
-Users only see their own activity history.
-
-📊 Excel Import
-*Supported Format
-MaterialCode | Description | Price | Unit
-
-**Import Capabilities
-*Bulk Excel import
-*Automatic duplicate detection
-*Supplier-scoped material updates
-*Transaction-safe operations
-*Unit normalization
-*Import activity logging
-*Optimized large-file processing
-
-🎨 User Experience
-*Responsive Bootstrap 5 UI
-*Dark / Light mode
-*Automatic theme selection based on local time
-*Persistent theme preference
-*Mobile-friendly layout
-*Auto-dismiss success notifications
-
+* panel management
+* materials browsing
+* limited activity visibility
 
 ----
 
@@ -701,7 +598,7 @@ bin/Release/net8.0/publish/
 ## Deploy
 
 ```text
-C:\Deploy\PanelApp
+C:\Deploy\ZLPanelApp
 ```
 
 ----
@@ -709,11 +606,11 @@ C:\Deploy\PanelApp
 ## Run
 
 ```bash
-dotnet panelapp.dll
+dotnet ZL_panelapp.dll
 
 or
 
-Run C:\Deploy\PanelApp\PanelApp.exe
+Run C:\Deploy\ZLPanelApp\ZLPanelApp.exe
 
 ```
 
@@ -771,7 +668,7 @@ Validity IIS using browser
 
 3. Firewall
 ```
-New-NetFirewallRule -panelapprule "HTTP" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
+New-NetFirewallRule -zlpanelapprule "HTTP" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
 ```
 
 4. **PERMISSION RULES**
@@ -817,7 +714,7 @@ Git Push → Build → Publish → Deploy
 
 ```bash
 dotnet build
-dotnet publish -c Release -o C:\Deploy\PanelApp
+dotnet publish -c Release -o C:\Deploy\ZLPanelApp
 ```
 
 ---
@@ -846,11 +743,15 @@ dotnet publish -c Release -o C:\Deploy\PanelApp
 
 # 🙏 Acknowledgements
 
-Developed for managing electrical distribution panel production workflows for:
+Developed for recording electrical distribution panel equipment for the company **Zalikas Liontas & SIA**.
 
-**Zalikas Liontas & SIA
 ----
 
 # 📌 Version
 
 v0.1 – Development
+
+
+```
+TO BE CONTINUED
+```
