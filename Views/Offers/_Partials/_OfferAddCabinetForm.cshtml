@@ -1,0 +1,72 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div class="card offer-card border-0 mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0">
+            <i class="bi bi-box-seam"></i>
+            Προσθήκη Ερμαρίου
+        </h5>
+    </div>
+
+    <div class="card-body">
+        <form asp-controller="Offers" asp-action="AddCabinetInline" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="OfferID" value="@offer.OfferID" />
+
+            <div class="row g-3 align-items-end">
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Προμηθευτής</label>
+                    <select name="SupplierID" class="form-select" id="cabinetSupplierSelect">
+                        <option value="">-- Επιλογή Προμηθευτή --</option>
+                        @foreach (var supplier in Model.AddCabinetForm.Suppliers)
+                        {
+                            <option value="@supplier.Value">@supplier.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-xl-3 col-md-8">
+                    <label class="form-label">Αναζήτηση Ερμαρίου</label>
+                    <input type="text"
+                           class="form-control"
+                           id="cabinetSearchInput"
+                           placeholder="Πληκτρολόγησε κωδικό ή περιγραφή ερμαρίου..." />
+                </div>
+
+                <div class="col-xl-3 col-md-12">
+                    <label class="form-label">Ερμάριο</label>
+                    <select name="CabinetID" class="form-select" id="cabinetSelect">
+                        <option value="">-- Πρώτα επίλεξε προμηθευτή --</option>
+                    </select>
+                    <div class="form-text" id="cabinetSearchMessage">
+                        Επίλεξε προμηθευτή για να φορτωθούν τα ερμάρια.
+                    </div>
+                </div>
+
+                <div class="col-xl-1 col-md-4">
+                    <label class="form-label">Ποσότητα</label>
+                    <input name="Quantity" class="form-control" type="number" step="0.01" min="0.01" value="1" />
+                </div>
+
+                <div class="col-xl-1 col-md-4">
+                    <label class="form-label">Έκπτωση %</label>
+                    <input name="DiscountPercent" class="form-control" type="number" step="0.01" min="0" max="100" value="0" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i>
+                        Προσθήκη Ερμαρίου
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

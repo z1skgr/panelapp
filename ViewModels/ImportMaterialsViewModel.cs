@@ -20,5 +20,7 @@ namespace panelapp.ViewModels
         public int SkippedCount { get; set; }
 
         public List<string> Messages { get; set; } = new();
+
+        public string ImportType { get; set; } = "Material";
     }
 }

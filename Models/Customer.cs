@@ -44,5 +44,9 @@ namespace panelapp.Models
         public DateTime LastModifiedDate { get; set; }
 
         public List<Panel> Panels { get; set; } = new();
+
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

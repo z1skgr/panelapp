@@ -1,0 +1,154 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+
+<div class="dashboard-kpi-strip card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-success">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Completion Rate</div>
+                        <div class="mini-kpi-value">@Model.CompletionRate%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-warning text-dark">
+                        <i class="bi bi-tools"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Σε εξέλιξη</div>
+                        <div class="mini-kpi-value">@Model.UnderConstructionRate%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-primary">
+                        <i class="bi bi-building"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Top Πελάτης</div>
+                        <div class="mini-kpi-value mini-kpi-truncate">
+                            @Model.TopCustomerName
+                            @if (Model.TopCustomerPanelCount > 0)
+                            {
+                                <span class="mini-kpi-count">(@Model.TopCustomerPanelCount)</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-info text-dark">
+                        <i class="bi bi-calendar3"></i>
+                    </span>
+                    <div>
+                        <div class="mini-kpi-label">Πίνακες μήνα</div>
+                        <div class="mini-kpi-value">@Model.PanelsThisMonth</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-success">
+                        <i class="bi bi-check2-circle"></i>
+                    </span>
+
+                    <div>
+                        <div class="mini-kpi-label">
+                            Acceptance Rate
+                        </div>
+
+                        <div class="mini-kpi-value">
+                            @Model.OfferAcceptanceRate%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-warning text-dark">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </span>
+
+                    <div>
+                        <div class="mini-kpi-label">
+                            Conversion Rate
+                        </div>
+
+                        <div class="mini-kpi-value">
+                            @Model.OfferConversionRate%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-primary">
+                        <i class="bi bi-cash-stack"></i>
+                    </span>
+
+                    <div>
+                        <div class="mini-kpi-label">
+                            Εκτιμώμενο Κέρδος
+                        </div>
+
+                        <div class="mini-kpi-value">
+                            @Model.EstimatedOfferProfit.ToString("N2") €
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="mini-kpi">
+                    <span class="mini-kpi-icon bg-info text-dark">
+                        <i class="bi bi-calendar3"></i>
+                    </span>
+
+                    <div>
+                        <div class="mini-kpi-label">
+                            Προσφορές Μήνα
+                        </div>
+
+                        <div class="mini-kpi-value">
+                            @Model.OffersThisMonth
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+
+
+            
+
+
+            
+        </div>
+    </div>
+</div>

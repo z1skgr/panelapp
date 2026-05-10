@@ -111,7 +111,10 @@ namespace panelapp.Services
 
             panelMaterial.Quantity = model.Quantity;
             panelMaterial.DiscountPercent = model.DiscountPercent;
-            panelMaterial.LastModifiedDate = DateTime.Now;
+            panelMaterial.LastModifiedDate = DateTime.UtcNow;
+            _context.Entry(panelMaterial)
+                .Property(x => x.RowVersion)
+                .OriginalValue = Convert.FromBase64String(model.RowVersion);
 
             return (true, "Το υλικό ενημερώθηκε επιτυχώς.");
         }
@@ -132,7 +135,11 @@ namespace panelapp.Services
             panelMaterial.DiscountPercent = model.DiscountPercent;
             panelMaterial.IsManualPrice = model.IsManualPrice;
             panelMaterial.ManualPriceReason = model.ManualPriceReason;
-            panelMaterial.LastModifiedDate = DateTime.Now;
+            panelMaterial.LastModifiedDate = DateTime.UtcNow;
+
+            _context.Entry(panelMaterial)
+                .Property(x => x.RowVersion)
+                .OriginalValue = Convert.FromBase64String(model.RowVersion);
 
             return (true, "Το υλικό ενημερώθηκε επιτυχώς.");
         }

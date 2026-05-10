@@ -1,0 +1,135 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+@using System.Globalization
+
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+@if (!offer.PanelID.HasValue && offer.Status == panelapp.Constants.OfferStatuses.Accepted)
+{
+    <div class="offer-convert-card mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="offer-sidebar-icon bg-success-soft">
+                <i class="bi bi-arrow-left-right"></i>
+            </span>
+            <h5 class="mb-0">Μετατροπή σε Πίνακα</h5>
+        </div>
+
+        <p class="small mb-3">
+            Η προσφορά είναι αποδεκτή και μπορεί να μετατραπεί σε πίνακα.
+        </p>
+
+        <form asp-controller="Offers"
+              asp-action="ConvertToPanel"
+              asp-route-id="@offer.OfferID"
+              method="post"
+              onsubmit="return confirm('Να μετατραπεί η προσφορά σε πίνακα;');">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="btn btn-success w-100 app-btn">
+                <i class="bi bi-arrow-right me-1"></i>
+                Μετατροπή σε Πίνακα
+            </button>
+        </form>
+    </div>
+}
+
+<div class="card offer-card border-0 mb-4">
+
+    <div class="card-header border-0">
+        <h5 class="mb-0"><i class="bi bi-calculator text-primary me-2"></i>Κοστολόγηση</h5>
+    </div>
+
+    <div class="card-body">
+
+        <form asp-controller="Offers" asp-action="UpdatePricing" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="OfferID" value="@offer.OfferID" />
+            <input type="hidden"
+                   name="RowVersion"
+                   value="@Convert.ToBase64String(offer.RowVersion)" />
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Εργατικά
+                </label>
+
+                <input name="LaborCost"
+                       value="@offer.LaborCost.ToString("0.##", CultureInfo.InvariantCulture)"
+                       class="form-control"
+                       type="number"
+                       step="0.01"
+                       min="0" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Κέρδος
+                </label>
+
+                <input name="ProfitAmount"
+                       value="@offer.ProfitAmount.ToString("0.##", CultureInfo.InvariantCulture)"
+                       class="form-control"
+                       type="number"
+                       step="0.01"
+                       min="0" />
+            </div>
+
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-save"></i>
+                Ενημέρωση Κοστολόγησης
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+<div class="card offer-card offer-totals-card border-0">
+    <div class="card-header border-0">
+        <h5 class="mb-0">
+            <i class="bi bi-calculator me-1"></i>
+            Σύνολα
+        </h5>
+    </div>
+
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+            <span>Υλικά NET</span>
+            <strong class="text-nowrap">@Model.MaterialsNetTotal.ToString("N2") €</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Ερμάρια NET</span>
+            <strong class="text-nowrap">@Model.CabinetsNetTotal.ToString("N2") €</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Λοιπά Υλικά NET</span>
+            <strong class="text-nowrap">@Model.ExtraItemsNetTotal.ToString("N2") €</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Εργατικά</span>
+            <strong class="text-nowrap">@offer.LaborCost.ToString("N2") €</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>Κέρδος</span>
+            <strong class="text-nowrap">@offer.ProfitAmount.ToString("N2") €</strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between align-items-center fs-5">
+            <strong>Τελική Προσφορά</strong>
+            <strong class="text-success text-nowrap">
+                @Model.FinalOfferTotal.ToString("N2") €
+            </strong>
+        </div>
+    </div>
+</div>

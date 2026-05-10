@@ -1,0 +1,48 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+
+
+
+
+<div class="dashboard-hero card border-0 shadow-sm mb-4">
+    <div class="card-body p-4 p-lg-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+            <div>
+                <div class="dashboard-kicker mb-2">PanelApp</div>
+                <h1 class="dashboard-title mb-2">Dashboard</h1>
+                <p class="dashboard-hero-subtitle mb-0">
+                    Έχεις <strong>@Model.UnderConstructionPanels</strong> πίνακες σε εξέλιξη και
+                    <strong>@Model.ActiveMaterials</strong> ενεργά υλικά διαθέσιμα.
+                </p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 dashboard-hero-actions">
+                <a asp-controller="Panels"
+                       asp-action="Create"
+                       class="btn btn-light hero-action-btn">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Νέος Πίνακας</span>
+                </a>
+
+                <a asp-controller="Panels"
+                       asp-action="Index"
+                       class="btn btn-outline-light hero-action-btn">
+                    <i class="bi bi-grid"></i>
+                    <span>Όλοι οι Πίνακες</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

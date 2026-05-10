@@ -1,8 +1,12 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
     let currentStatsGroup = 0;
-    const totalStatsGroups = 3;
-
     const statItems = document.querySelectorAll('.dashboard-stat-item');
+
+    const totalStatsGroups = Math.max(
+        ...Array.from(statItems).map(x => Number(x.dataset.statGroup || 0))
+    ) + 1;
+
+
     const prevStatsBtn = document.getElementById('prevStatsBtn');
     const nextStatsBtn = document.getElementById('nextStatsBtn');
     const statsDots = document.getElementById('statsDots');

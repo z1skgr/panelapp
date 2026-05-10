@@ -1,0 +1,380 @@
+﻿@model panelapp.ViewModels.MaterialIndexViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+@{
+    ViewData["Title"] = "Κατάλογος Υλικών";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var currentSupplierId = Model.SupplierFilterId;
+
+    var supplierFilter = Model.SupplierFilter ?? "all";
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch)
+                     || currentSupplierId.HasValue
+                     || supplierFilter != "all";
+}
+
+
+
+<div class="accordion" id="suppliersAccordion">
+    @for (int i = 0; i < Model.Groups.Count; i++)
+    {
+        var group = Model.Groups[i];
+        var collapseId = $"supplier-collapse-{group.SupplierID}";
+        var headingId = $"supplier-heading-{group.SupplierID}";
+        var isExpanded = Model.ExpandedSupplierId == group.SupplierID;
+
+        <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden" id="supplier-@group.SupplierID">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button @(isExpanded ? "" : "collapsed") fw-semibold"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#@collapseId"
+                        aria-expanded="@(isExpanded ? "true" : "false")"
+                        aria-controls="@collapseId">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100 me-3 gap-2">
+                        <span>
+                            <i class="bi bi-building me-2 text-muted"></i>@group.SupplierName
+                        </span>
+
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            @if (group.SupplierActive)
+                            {
+                                <span class="badge bg-success ms-1">Ενεργός</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary ms-1">Ανενεργός</span>
+                            }
+
+                            <span class="badge rounded-pill bg-light text-dark border">
+                                Σύνολο: @group.TotalCatalogCount
+                            </span>
+                        </div>
+                    </div>
+                </button>
+            </h2>
+
+            <div id="@collapseId"
+                 class="accordion-collapse collapse @(isExpanded ? "show" : "")"
+                 aria-labelledby="@headingId"
+                 data-bs-parent="#suppliersAccordion">
+
+                <div class="accordion-body p-0">
+
+                    <div class="p-3 border-bottom bg-body-tertiary">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill bg-primary">
+                                Διακοπτικό Υλικό: @group.TotalMaterialCount
+                            </span>
+
+                            <span class="badge rounded-pill bg-secondary">
+                                Ερμάρια: @group.TotalCabinetCount
+                            </span>
+
+                            <span class="badge rounded-pill bg-dark">
+                                Σύνολο: @group.TotalCatalogCount
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="px-3 pt-4 pb-2 border-top d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">
+                                <i class="bi bi-lightning-charge"></i>
+                                Διακοπτικό Υλικό
+                            </h6>
+                            <div class="text-muted small">
+                                @group.TotalMaterialCount καταχωρήσεις
+                            </div>
+                        </div>
+
+                        @if (isAdmin)
+                        {
+
+                            <a asp-action="Create"
+                               class="btn btn-primary app-btn">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Προσθήκη
+                            </a>
+                        }
+                    </div>
+
+
+
+                    @if (!group.Materials.Any())
+                    {
+                        <div class="px-3 pb-3 text-muted small">
+                            Δεν υπάρχουν υλικά για αυτόν τον προμηθευτή.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-start">Κωδικός</th>
+                                        <th class="text-start">Περιγραφή</th>
+                                        <th class="text-end">Μονάδα</th>
+                                        <th class="text-end">Τιμή</th>
+                                        <th class="text-end">Ενεργό</th>
+                                        @if (isAdmin)
+                                        {
+                                            <th class="text-end">Ενέργειες</th>
+                                        }
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var item in group.Materials)
+                                    {
+                                        <tr class="@(item.Active ? "" : "table-secondary")">
+                                            <td class="text-start text-nowrap">@item.MaterialCode</td>
+                                            <td class="text-start text-nowrap">@item.Description</td>
+                                            <td class="text-end text-nowrap">@MaterialUnits.ToDisplayName(item.Unit)</td>
+                                            <td class="text-end text-nowrap">@item.CurrentPrice.ToString("N2") €</td>
+                                            <td class="text-end text-nowrap">
+                                                @if (item.Active)
+                                                {
+                                                    <span class="badge rounded-pill bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Ναι
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill bg-secondary">
+                                                        <i class="bi bi-dash-lg me-1"></i>Όχι
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            @if (isAdmin)
+                                            {
+                                                <td class="text-end">
+                                                    <a asp-action="Edit"
+                                                       asp-route-id="@item.MaterialID"
+                                                       class="btn btn-outline-secondary btn-sm app-btn-sm"
+                                                       title="Επεξεργασία">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    @if (group.TotalMaterialPages > 1)
+                    {
+                        <div id="material-pagination-@group.SupplierID"
+                             class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                            <span class="text-muted small">
+                                Σελίδα @group.CurrentMaterialPage από @group.TotalMaterialPages
+                            </span>
+
+                            <div class="d-flex gap-2">
+                                @{
+                                    var prevMaterialRoutes = new Dictionary<string, string?>()
+                                    {
+                                        ["searchTerm"] = Model.SearchTerm,
+                                        ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                        ["supplierFilter"] = Model.SupplierFilter,
+                                        ["supplierPage"] = Model.SupplierPage.ToString(),
+                                        ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                        ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                        [$"materialPage_{group.SupplierID}"] = (group.CurrentMaterialPage - 1).ToString(),
+                                        [$"cabinetPage_{group.SupplierID}"] = group.CurrentCabinetPage.ToString(),
+                                        ["cabinetsPerSupplier"] = Model.CabinetsPerSupplier.ToString(),
+                                        ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                        ["scrollTo"] = $"material-pagination-{group.SupplierID}",
+                                    };
+
+                                    var nextMaterialRoutes = new Dictionary<string, string?>()
+                                    {
+                                        ["searchTerm"] = Model.SearchTerm,
+                                        ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                        ["supplierFilter"] = Model.SupplierFilter,
+                                        ["supplierPage"] = Model.SupplierPage.ToString(),
+                                        ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                        ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                        [$"materialPage_{group.SupplierID}"] = (group.CurrentMaterialPage + 1).ToString(),
+                                        [$"cabinetPage_{group.SupplierID}"] = group.CurrentCabinetPage.ToString(),
+                                        ["cabinetsPerSupplier"] = Model.CabinetsPerSupplier.ToString(),
+                                        ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                        ["scrollTo"] = $"material-pagination-{group.SupplierID}",
+                                    };
+                                }
+
+                                <a class="btn btn-sm btn-outline-secondary @(group.CurrentMaterialPage == 1 ? "disabled" : "")"
+                                   asp-action="Index"
+                                   asp-all-route-data="prevMaterialRoutes">
+                                    Προηγούμενα Υλικά
+                                </a>
+
+                                <a class="btn btn-sm btn-outline-secondary @(group.CurrentMaterialPage == group.TotalMaterialPages ? "disabled" : "")"
+                                   asp-action="Index"
+                                   asp-all-route-data="nextMaterialRoutes">
+                                    Επόμενα Υλικά
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="px-3 pt-4 pb-2 border-top d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">
+                                <i class="bi bi-box-seam"></i>
+                                Ερμάρια
+                            </h6>
+                            <div class="text-muted small">
+                                @group.TotalCabinetCount καταχωρήσεις
+                            </div>
+                        </div>
+
+                        @if (isAdmin)
+                        {
+                            <a asp-action="CreateCabinet"
+                               class="btn btn-primary app-btn">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Προσθήκη
+                            </a>
+
+                        }
+                    </div>
+
+                    @if (!group.Cabinets.Any())
+                    {
+                        <div class="px-3 pb-3 text-muted small">
+                            Δεν υπάρχουν ερμάρια για αυτόν τον προμηθευτή.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-start">Κωδικός</th>
+                                        <th class="text-start">Περιγραφή</th>
+                                        <th class="text-end">Μονάδα</th>
+                                        <th class="text-end">Τιμή</th>
+                                        <th class="text-end">Ενεργό</th>
+                                        @if (isAdmin)
+                                        {
+                                            <th class="text-end">Ενέργειες</th>
+                                        }
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var cabinet in group.Cabinets)
+                                    {
+                                        <tr class="@(cabinet.Active ? "" : "table-secondary")">
+                                            <td class="text-start text-nowrap">@cabinet.CabinetCode</td>
+                                            <td class="text-start text-nowrap">@cabinet.Description</td>
+                                            <td class="text-end text-nowrap">@cabinet.Unit</td>
+                                            <td class="text-end text-nowrap">@cabinet.CurrentPrice.ToString("N2") €</td>
+                                            <td class="text-emd text-nowrap">
+                                                @if (cabinet.Active)
+                                                {
+                                                    <span class="badge rounded-pill bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Ναι
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill bg-secondary">
+                                                        <i class="bi bi-dash-lg me-1"></i>Όχι
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            @if (isAdmin)
+                                            {
+                                                <td class="text-end">
+                                                    <a asp-action="EditCabinet"
+                                                       asp-route-id="@cabinet.CabinetID"
+                                                       class="btn btn-outline-secondary btn-sm app-btn-sm"
+                                                       title="Επεξεργασία">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    @if (group.TotalCabinetPages > 1)
+                    {
+                        <div id="cabinet-pagination-@group.SupplierID"
+                             class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                            <span class="text-muted small">
+                                Σελίδα @group.CurrentCabinetPage από @group.TotalCabinetPages
+                            </span>
+
+                            <div class="d-flex gap-2">
+                                @{
+                                    var prevCabinetRoutes = new Dictionary<string, string?>()
+                                    {
+                                        ["searchTerm"] = Model.SearchTerm,
+                                        ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                        ["supplierFilter"] = Model.SupplierFilter,
+                                        ["supplierPage"] = Model.SupplierPage.ToString(),
+                                        ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                        ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                        [$"materialPage_{group.SupplierID}"] = group.CurrentMaterialPage.ToString(),
+                                        [$"cabinetPage_{group.SupplierID}"] = (group.CurrentCabinetPage - 1).ToString(),
+                                        ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                        ["cabinetsPerSupplier"] = Model.CabinetsPerSupplier.ToString(),
+                                        ["scrollTo"] = $"cabinet-pagination-{group.SupplierID}",
+                                    };
+
+                                    var nextCabinetRoutes = new Dictionary<string, string?>()
+                                    {
+                                        ["searchTerm"] = Model.SearchTerm,
+                                        ["supplierId"] = Model.SupplierFilterId?.ToString(),
+                                        ["supplierFilter"] = Model.SupplierFilter,
+                                        ["supplierPage"] = Model.SupplierPage.ToString(),
+                                        ["suppliersPerPage"] = Model.SuppliersPerPage.ToString(),
+                                        ["materialsPerSupplier"] = Model.MaterialsPerSupplier.ToString(),
+                                        [$"materialPage_{group.SupplierID}"] = group.CurrentMaterialPage.ToString(),
+                                        [$"cabinetPage_{group.SupplierID}"] = (group.CurrentCabinetPage + 1).ToString(),
+                                        ["expandedSupplierId"] = group.SupplierID.ToString(),
+                                        ["cabinetsPerSupplier"] = Model.CabinetsPerSupplier.ToString(),
+                                        ["scrollTo"] = $"cabinet-pagination-{group.SupplierID}",
+                                    };
+                                }
+
+                                <a class="btn btn-sm btn-outline-secondary @(group.CurrentCabinetPage == 1 ? "disabled" : "")"
+                                   asp-action="Index"
+                                   asp-all-route-data="prevCabinetRoutes">
+                                    Προηγούμενα Ερμάρια
+                                </a>
+
+                                <a class="btn btn-sm btn-outline-secondary @(group.CurrentCabinetPage == group.TotalCabinetPages ? "disabled" : "")"
+                                   asp-action="Index"
+                                   asp-all-route-data="nextCabinetRoutes">
+                                    Επόμενα Ερμάρια
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                    
+
+            </div>
+        </div>
+    }
+</div>

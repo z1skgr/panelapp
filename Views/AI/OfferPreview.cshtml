@@ -1,0 +1,416 @@
+﻿@model panelapp.ViewModels.AiOffers.OfferAiPreviewViewModel
+
+@{
+
+    var resolvedMaterials = Model.Materials.Count(x => x.IsResolved);
+    var unresolvedMaterials = Model.Materials.Count(x => !x.IsResolved);
+
+    var resolvedCabinets = Model.Cabinets.Count(x => x.IsResolved);
+    var unresolvedCabinets = Model.Cabinets.Count(x => !x.IsResolved);
+
+    var totalExtraItems = Model.ExtraItems.Count;
+    
+    var materialsTotal = Model.Materials
+        .Where(x => x.IsResolved && x.UnitPrice.HasValue)
+        .Sum(x => x.Quantity * x.UnitPrice!.Value);
+
+    var cabinetsTotal = Model.Cabinets
+        .Where(x => x.IsResolved && x.UnitPrice.HasValue)
+        .Sum(x => x.Quantity * x.UnitPrice!.Value);
+
+    var extraItemsTotal = Model.ExtraItems
+        .Sum(x => x.Quantity * x.UnitPrice * (1 - x.DiscountPercent / 100m));
+
+    var estimatedTotal = materialsTotal + cabinetsTotal + extraItemsTotal + Model.Draft.LaborCost + Model.Draft.ProfitAmount;
+
+    ViewData["Title"] = "AI Preview Προσφοράς";
+}
+
+<div class="container-fluid ai-page">
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-stars"></i>
+            AI Preview Προσφοράς
+        </h1>
+
+        <p class="page-subtitle">
+            Έλεγχος αντιστοιχίσεων πριν δημιουργηθεί η προσφορά.
+        </p>
+    </div>
+
+    <div class="page-header-actions">
+            <a asp-controller="Offers" asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>
+                Επιστροφή
+        </a>
+    </div>
+</div>
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Υλικά</div>
+
+                    <div class="h4 mb-1">
+                        @resolvedMaterials/@Model.Materials.Count
+                    </div>
+
+                    <div class="small text-success">
+                        @resolvedMaterials βρέθηκαν
+                    </div>
+
+                    @if (unresolvedMaterials > 0)
+                    {
+                        <div class="small text-danger">
+                            @unresolvedMaterials unresolved
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Ερμάρια</div>
+
+                    <div class="h4 mb-1">
+                        @resolvedCabinets/@Model.Cabinets.Count
+                    </div>
+
+                    <div class="small text-success">
+                        @resolvedCabinets βρέθηκαν
+                    </div>
+
+                    @if (unresolvedCabinets > 0)
+                    {
+                        <div class="small text-danger">
+                            @unresolvedCabinets unresolved
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Λοιπά Υλικά</div>
+
+                    <div class="h4 mb-1">
+                        @totalExtraItems
+                    </div>
+
+                    <div class="small text-muted">
+                        custom γραμμές
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Εκτίμηση</div>
+
+                    <div class="h4 mb-1 text-success">
+                        @estimatedTotal.ToString("N2") €
+                    </div>
+
+                    <div class="small text-muted">
+                        συνολικό draft
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="text-muted small mb-1">Πελάτης</div>
+
+        @if (Model.ResolvedCustomerID.HasValue)
+        {
+            <div class="fw-semibold text-success">
+                <i class="bi bi-check-circle me-1"></i>
+                @Model.ResolvedCustomerName
+            </div>
+        }
+        else
+        {
+            <div class="text-danger fw-semibold">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Δεν βρέθηκε πελάτης
+            </div>
+        }
+
+        <hr />
+
+        <div class="text-muted small mb-1">Αρχική περιγραφή</div>
+        <div>@Model.OriginalPrompt</div>
+            @if (!Model.CanCreate)
+            {
+                <div class="alert alert-warning mt-3 mb-0">
+                    <div class="fw-bold mb-1">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Χρειάζεται έλεγχος πριν τη δημιουργία
+                    </div>
+                    <div class="small">
+                        Κάποιες γραμμές δεν αντιστοιχίστηκαν σε καταχωρημένα υλικά ή ερμάρια.
+                        Έλεγξε τους κωδικούς και ξαναδοκίμασε.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success mt-3 mb-0">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Όλες οι γραμμές αντιστοιχίστηκαν επιτυχώς. Η προσφορά είναι έτοιμη για δημιουργία.
+                </div>
+            }
+    </div>
+</div>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header border-0">
+            <h5 class="mb-0">
+                <i class="bi bi-calculator me-1"></i>
+                Κοστολόγηση
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="ai-cost-grid">
+                <div>
+                    <div class="text-muted small">Εργατικά</div>
+                    <div class="fw-semibold text-nowrap">
+                        @Model.Draft.LaborCost.ToString("N2") €
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-muted small">Κέρδος</div>
+                    <div class="fw-semibold text-nowrap">
+                        @Model.Draft.ProfitAmount.ToString("N2") €
+                    </div>
+                </div>
+                <div>
+                    <div class="text-muted small">Εκτίμηση Συνόλου</div>
+                    <div class="h5 mb-0 fw-bold text-success text-nowrap">
+                        @estimatedTotal.ToString("N2") €
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0">
+            <i class="bi bi-box-seam me-1"></i>
+            Υλικά
+        </h5>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.Materials.Any())
+        {
+            <div class="p-4 text-muted">Δεν εντοπίστηκαν υλικά.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ζητήθηκε</th>
+                            <th>Προμηθευτής</th>
+                            <th>Ποσότητα</th>
+                            <th>Αντιστοίχιση</th>
+                            <th class="text-end">Τιμή</th>
+                            <th>Κατάσταση</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Materials)
+                        {
+                            <tr>
+                                <td>@item.CodeOrDescription</td>
+                                <td>@(item.SupplierName ?? "-")</td>
+                                <td>@item.Quantity.ToString("N2")</td>
+                                <td>
+                                    @if (item.IsResolved)
+                                    {
+                                        <strong>@item.ResolvedCode</strong>
+                                        <div class="small text-muted">@item.ResolvedDescription</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    @(item.UnitPrice.HasValue ? item.UnitPrice.Value.ToString("N2") + " €" : "-")
+                                </td>
+                                <td>
+                                    @if (item.IsResolved)
+                                    {
+                                        <span class="badge bg-success">Βρέθηκε</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Δεν βρέθηκε</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0">
+            <i class="bi bi-grid-3x3-gap me-1"></i>
+            Ερμάρια
+        </h5>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.Cabinets.Any())
+        {
+            <div class="p-4 text-muted">Δεν εντοπίστηκαν ερμάρια.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ζητήθηκε</th>
+                            <th>Προμηθευτής</th>
+                            <th>Ποσότητα</th>
+                            <th>Αντιστοίχιση</th>
+                            <th class="text-end">Τιμή</th>
+                            <th>Κατάσταση</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Cabinets)
+                        {
+                            <tr>
+                                <td>@item.CodeOrDescription</td>
+                                <td>@(item.SupplierName ?? "-")</td>
+                                <td>@item.Quantity.ToString("N2")</td>
+                                <td>
+                                    @if (item.IsResolved)
+                                    {
+                                        <strong>@item.ResolvedCode</strong>
+                                        <div class="small text-muted">@item.ResolvedDescription</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    @(item.UnitPrice.HasValue ? item.UnitPrice.Value.ToString("N2") + " €" : "-")
+                                </td>
+                                <td>
+                                    @if (item.IsResolved)
+                                    {
+                                        <span class="badge bg-success">Βρέθηκε</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Δεν βρέθηκε</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0">
+            <i class="bi bi-plus-square me-1"></i>
+            Λοιπά Υλικά
+        </h5>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.ExtraItems.Any())
+        {
+            <div class="p-4 text-muted">Δεν εντοπίστηκαν λοιπά υλικά.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Περιγραφή</th>
+                            <th>Μονάδα</th>
+                            <th class="text-end">Ποσότητα</th>
+                            <th class="text-end">Τιμή</th>
+                            <th class="text-end">Σύνολο</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ExtraItems)
+                        {
+                            var total = item.Quantity * item.UnitPrice * (1 - item.DiscountPercent / 100m);
+
+                            <tr>
+                                <td>@item.Description</td>
+                                <td>@item.Unit</td>
+                                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                                <td class="text-end">@item.UnitPrice.ToString("N2") €</td>
+                                <td class="text-end fw-semibold">@total.ToString("N2") €</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+
+    @if (!Model.CanCreate)
+    {
+        <div class="alert alert-warning">
+            Δεν μπορεί να δημιουργηθεί ακόμα η προσφορά.
+            Διόρθωσε τους κωδικούς στο prompt και ζήτησε ξανά preview από το AI chat.
+        </div>
+    }
+else
+{
+        <div class="d-flex justify-content-end">
+            <form asp-controller="AI"
+                  asp-action="CreateOfferFromPreview"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="serializedDraft"
+                       value="@Model.SerializedDraft" />
+
+                <button type="submit" class="btn btn-success app-btn">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Δημιουργία Προσφοράς
+                </button>
+            </form>
+        </div>
+}
+
+</div>

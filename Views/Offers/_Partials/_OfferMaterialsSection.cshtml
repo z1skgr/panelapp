@@ -1,0 +1,198 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+@using System.Globalization
+
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div class="card offer-card border-0 mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0"><i class="bi bi-box-seam text-purple me-2"></i>Υλικά Προσφοράς</h5>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!offer.OfferMaterials.Any())
+        {
+            <div class="p-4 text-muted">Δεν υπάρχουν υλικά στην προσφορά.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        a
+                        <tr>
+                            <th>Κωδικός</th>
+                            <th>Περιγραφή</th>
+                            <th>Προμηθευτής</th>
+                            <th class="text-end text-nowrap">Ποσότητα</th>
+                            <th class="text-end text-nowrap">Τιμή</th>
+                            <th class="text-end text-nowrap">Έκπτωση</th>
+                            <th class="text-end text-nowrap">Σύνολο</th>
+                            <th class="text-end text-nowrap">Ενέργειες</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in offer.OfferMaterials)
+                        {
+                            <tr>
+                                <td>@item.Material?.MaterialCode</td>
+                                <td>
+                                    @item.Material?.Description
+                                    @if (item.IsManualPrice && !string.IsNullOrWhiteSpace(item.ManualPriceReason))
+                                    {
+                                        <div class="small text-muted">Χειροκίνητη τιμή: @item.ManualPriceReason</div>
+                                    }
+                                </td>
+                                <td>@item.Supplier?.SupplierName</td>
+                                <td class="text-end text-nowrap">@item.Quantity.ToString("N2")</td>
+                                <td class="text-end text-nowrap">@item.UnitPrice.ToString("N2") €</td>
+                                <td class="text-end text-nowrap">@item.DiscountPercent.ToString("N2") %</td>
+                                <td class="text-end text-nowrap"><strong>@item.LineNetTotal.ToString("N2") €</strong></td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary icon-btn-sm"
+                                                title="Επεξεργασία"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editMaterialModal_@item.OfferMaterialID">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                        <form asp-controller="Offers"
+                                              asp-action="DeleteMaterial"
+                                              asp-route-id="@item.OfferMaterialID"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Να αφαιρεθεί το υλικό από την προσφορά;');">
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger icon-btn-sm"
+                                                    title="Διαγραφή">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot class="border-top">
+                        <tr class="bg-body-tertiary">
+                            <td colspan="6" class="text-end"><strong>Σύνολο Υλικών</strong></td>
+                            <td class="text-end text-nowrap"><strong>@Model.MaterialsNetTotal.ToString("N2") €</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            @foreach (var item in offer.OfferMaterials)
+            {
+                <div class="modal fade" id="editMaterialModal_@item.OfferMaterialID" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content bg-body text-body">
+                            <form asp-controller="Offers" asp-action="UpdateMaterial" method="post">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden" name="OfferMaterialID" value="@item.OfferMaterialID" />
+                                <input type="hidden" name="OfferID" value="@offer.OfferID" />
+                                <input type="hidden" name="RowVersion" value="@Convert.ToBase64String(item.RowVersion)" />
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Επεξεργασία Υλικού</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <strong>@item.Material?.MaterialCode</strong>
+                                        <div class="text-body-secondary">@item.Material?.Description</div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Ποσότητα</label>
+                                            <input name="Quantity"
+                                                   value="@item.Quantity.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0.01" />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Τιμή Μονάδας</label>
+                                            <input name="UnitPrice"
+                                                   value="@item.UnitPrice.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0" />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Έκπτωση %</label>
+                                            <input name="DiscountPercent"
+                                                   value="@item.DiscountPercent.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0"
+                                                   max="100" />
+                                        </div>
+
+                                        <input type="hidden" name="IsManualPrice" value="false" />
+
+                                        <div class="col-md-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="IsManualPrice"
+                                                       value="true"
+                                                @(item.IsManualPrice ? "checked" : "") />
+
+                                                <label class="form-check-label">Χειροκίνητη τιμή</label>
+                                            </div>
+
+                                            <div class="form-text">
+                                                Αν δεν είναι ενεργό, η τιμή θα ενημερωθεί από τον τρέχοντα κατάλογο υλικών.
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">Αιτιολογία χειροκίνητης τιμής</label>
+                                            <textarea name="ManualPriceReason"
+                                                      class="form-control"
+                                                      rows="3">@item.ManualPriceReason</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        Ακύρωση
+                                    </button>
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        <i class="bi bi-save"></i>
+                                        Αποθήκευση
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

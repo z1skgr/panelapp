@@ -20,7 +20,7 @@
             }
 
     function isValidEmail(value) {
-                return value.includes("@@") && value.includes(".");
+                return value.includes("@") && value.includes(".");
             }
 
     function renderContacts() {

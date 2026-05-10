@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace panelapp.Models
 {
     public class PanelMaterial
@@ -14,5 +16,8 @@ namespace panelapp.Models
         public int? AddedByUserID { get; set; }
         public DateTime DateAdded { get; set; }
         public DateTime LastModifiedDate { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

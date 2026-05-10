@@ -1,0 +1,109 @@
+﻿@model panelapp.Models.Cabinet
+
+@{
+    ViewData["Title"] = "Νέο Ερμάριο";
+}
+
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-box"></i>
+            Νέο Ερμάριο
+        </h1>
+
+        <p class="page-subtitle">
+            Καταχώριση νέου ερμαρίου σε προμηθευτή
+        </p>
+    </div>
+
+    <div class="page-header-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>
+            Επιστροφή
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form asp-action="CreateCabinet" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label asp-for="SupplierID" class="form-label">Προμηθευτής</label>
+                    <select asp-for="SupplierID"
+                            asp-items="ViewBag.Suppliers"
+                            class="form-select searchable-select"
+                            data-placeholder="Αναζήτηση προμηθευτή..."
+                            data-max-options="15">
+                        <option value="">-- Επιλογή Προμηθευτή --</option>
+                    </select>
+                    <span asp-validation-for="SupplierID" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="CabinetCode" class="form-label">Κωδικός</label>
+                    <input asp-for="CabinetCode" class="form-control" />
+                    <span asp-validation-for="CabinetCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Unit" class="form-label">Μονάδα</label>
+                    <select asp-for="Unit" class="form-select">
+                        <option value="pcs">pcs</option>
+                        <option value="meters">meters</option>
+                    </select>
+                    <span asp-validation-for="Unit" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="Description" class="form-label">Περιγραφή</label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="CurrentPrice" class="form-label">Τρέχουσα Τιμή</label>
+                    <input asp-for="CurrentPrice"
+                           class="form-control"
+                           type="number"
+                           step="0.01"
+                           min="0" />
+                    <span asp-validation-for="CurrentPrice" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input asp-for="Active" class="form-check-input" checked />
+                        <label asp-for="Active" class="form-check-label">Ενεργό</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    Αποθήκευση
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Ακύρωση
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

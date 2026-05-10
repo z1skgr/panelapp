@@ -1,0 +1,90 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        panelapp.Constants.PanelStatuses.Normalize(Model.Panel.Status),
+        panelapp.Constants.PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+@if (!panelLocked)
+{
+    <div class="card border-0 shadow-sm mb-4 app-section-card">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Προσθήκη Υλικού</h2>
+
+            <form asp-action="AddMaterialInline" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Προμηθευτής</label>
+                        <select id="supplierSelect" name="SupplierID" class="form-select">
+                            <option value="">-- Όλοι οι προμηθευτές --</option>
+
+                            @foreach (var supplier in Model.AddMaterialForm.Suppliers)
+                            {
+                                if (Model.AddMaterialForm.SupplierID == int.Parse(supplier.Value))
+                                {
+                                    <option value="@supplier.Value" selected>@supplier.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@supplier.Value">@supplier.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">Αναζήτηση Υλικού</label>
+                        <input id="materialSearch"
+                               name="MaterialSearch"
+                               value="@Model.AddMaterialForm.MaterialSearch"
+                               class="form-control"
+                               placeholder="Κωδικός ή περιγραφή..." />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Υλικό</label>
+                        <select id="materialSelect" name="MaterialID" class="form-select">
+                            <option value="">-- Επιλογή Υλικού --</option>
+                        </select>
+                        <div id="materialMessage" class="text-muted mt-1 small"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Ποσότητα</label>
+                        <input name="Quantity" value="1" class="form-control" type="number" min="1" step="1" />
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Έκπτωση %</label>
+                        <input name="DiscountPercent" value="0" class="form-control" type="number" min="0" max="100" step="0.01" />
+                    </div>
+
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary app-btn">
+                            <i class="bi bi-plus-circle me-1"></i>Προσθήκη
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary mb-4">
+        Δεν επιτρέπεται προσθήκη ή αλλαγή υλικών σε ολοκληρωμένο πίνακα από απλό χρήστη.
+    </div>
+}

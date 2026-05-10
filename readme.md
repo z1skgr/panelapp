@@ -1,13 +1,16 @@
-# ⚡ ZL PanelApp
+
+# ⚡ PanelApp
 
 ![.NET](https://img.shields.io/badge/.NET-8-blue)
 ![ASP.NET MVC](https://img.shields.io/badge/ASP.NET-MVC-green)
 ![SQL Server](https://img.shields.io/badge/Database-SQL%20Server-red)
 ![Status](https://img.shields.io/badge/Status-Development-orange)
 
-> Internal ERP-style platform for managing electrical distribution panel production, material pricing, supplier relationships and project costing.
+> Internal ERP-style platform for managing electrical distribution panel production, quotations, material pricing, supplier relationships and project costing.
 
----
+----
+
+
 
 # 📑 Table of Contents
 
@@ -15,216 +18,201 @@
 * [Current Capabilities](#-current-capabilities)
 * [Technologies](#-technologies)
 * [Architecture](#-architecture)
-* [Database](#-database)
 * [Folder Structure](#-folder-structure)
 * [UI Preview](#-ui-preview)
-* [Development Setup](#-development-setup)
-* [Database Setup](#-database-setup)
-* [Authentication & Roles](#-authentication--roles)
+* [Development Setup](#-development-setup
+* [Database Setup](#-database-setup))
 * [Features](#-features)
+* [Code Highlights](#-code-highlights)
 * [Excel Import](#-excel-import)
-* [Activity Logging](#-activity-logging)
-* [User Experience](#-user-experience)
-* [Deployment](#-deployment)
-* [VM Setup](#-vm-setup)
-* [CI/CD](#-cicd)
+* [Authentication](#-authentication)
+* [AI Assistant](#-ai-assistant)
+* [Gemini Integration](#-gemini-integration)
 * [Future Improvements](#-future-improvements)
 * [Acknowledgements](#-acknowledgements)
-* [Version](#-version)
 
----
+
+----
+
 
 # 📌 General Information
 
-**ZL PanelApp** is an ASP.NET Core MVC application designed for managing materials used in low-voltage electrical distribution panels.
+PanelApp is an ASP.NET Core MVC ERP-style platform designed for electrical distribution panel manufacturing workflows.
 
 The platform focuses on:
+- panel costing
+- quotation management
+- material catalog management
+- supplier & customer organization
+- AI-assisted quotation workflows
+- Excel-based imports
+- production workflow support
+- operational tracking
 
-* material management
-* supplier & customer organization
-* panel cost calculation
-* Excel-based bulk imports
-* production workflow support
-* pricing consistency
-* internal operational tracking
-
-The application is designed for real-world production usage within industrial electrical panel environments.
-
----
+----
 
 # 🚀 Current Capabilities
 
-✅ Panel cost calculation  
-✅ Snapshot pricing per panel  
+✅ Panel management  
+✅ Offer / quotation management  
+✅ AI-powered quotation assistant  
+✅ AI quotation preview workflow  
 ✅ Material catalog management  
-✅ Supplier & contact management  
-✅ Customer management  
-✅ Bulk Excel imports  
-✅ Activity logging system  
+✅ Supplier & customer management  
+✅ Excel imports  
+✅ Activity logging  
 ✅ Role-based authentication  
-✅ Dark / Light mode UI  
-✅ Automatic theme switching  
-✅ Duplicate prevention  
-✅ Transaction-safe imports  
-✅ Optimized large-file processing  
-✅ Responsive Bootstrap interface  
-✅ Real production material catalog support  
+✅ Dark / Light mode  
+✅ Snapshot pricing logic  
+✅ Material auto-matching  
+✅ Cabinet auto-matching  
+✅ Extra item support  
+✅ Labor & profit calculations  
+✅ Responsive Bootstrap UI  
 
----
+----
 
 # 🧱 Technologies
 
-* ASP.NET Core MVC (.NET 8)
-* Entity Framework Core
-* SQL Server / SQL Express
-* Bootstrap 5
-* ClosedXML
-* Session-based Authentication
-* Bootstrap Icons
-* LINQ / EF Core Query Optimization
-
----
+- ASP.NET Core MVC (.NET 8)
+- Entity Framework Core
+- SQL Server
+- Bootstrap 5
+- Bootstrap Icons
+- ClosedXML
+- Session-based Authentication
+- LINQ / EF Core Query Optimization
+- Google Gemini API
+- JSON-based AI parsing
 
 # 🏗️ Architecture
 
 ```text
-[ Browser ]
-     |
-     v
+[ Browser UI ]
+       |
+       v
 [ MVC Controllers ]
-     |
-     v
-[ Business Logic ]
-     |
-     v
-[ Entity Framework Core ]
-     |
-     v
-[ SQL Server ]
+       |
+       +-------------------+
+       |                   |
+       v                   v
+[ AI Services ]     [ Business Logic ]
+       |                   |
+       +---------+---------+
+                 |
+                 v
+      [ Entity Framework Core ]
+                 |
+                 v
+           [ SQL Server ]
 ```
-----
-
-# 🗃️ Database (ER Diagram)
-
-```text
-Users
------
-UserID (PK)
-Username
-PasswordHash
-Role
-
-Suppliers
----------
-SupplierID (PK)
-SupplierName
-Active
-
-Materials
----------
-MaterialID (PK)
-MaterialCode
-Description
-CurrentPrice
-SupplierID (FK)
-
-Panels
-------
-PanelID (PK)
-PanelCode
-CreatedDate
-
-PanelMaterials
---------------
-PanelMaterialID (PK)
-PanelID (FK)
-MaterialID (FK)
-Quantity
-UnitPrice
-DiscountPercent
-
-Activity logs
---------------
-```
-----
-
-## Relationships
-```
-* Supplier → Materials (1:N)
-* Supplier → ContactPersons (1:N)
-* Panel → PanelMaterials (1:N)
-* Material → PanelMaterials (1:N)
-* Customer → Panels (1:N)
-* User → ActivityLogs (1:N)
-```
-👉 The system preserves pricing snapshots per panel line.
-
-
 
 ```mermaid
----
-title: PanelAPP
-config:
-  layout: elk
----
-erDiagram
-    USERS :::colpurp{
-        int UserID PK
-        string Username
-        string PasswordHash
-        string Role
-    }
+flowchart TD
 
-    SUPPLIERS :::colred{
-        int SupplierID PK
-        string SupplierName
-        boolean Active
-    }
+    subgraph UI["Frontend UI Layer"]
+        A[User opens AI Chat Popup]
+        B[User writes natural language quotation request]
+        C[ai-chat.js sends AJAX POST request]
+    end
 
-    MATERIALS :::colgre{
-        int MaterialID PK
-        string MaterialCode
-        string Description
-        decimal CurrentPrice
-        int SupplierID FK
-    }
+    subgraph MVC["ASP.NET MVC Layer"]
+        D[AIController.Chat]
+        E[OfferPreview.cshtml]
+        F[CreateOfferFromPreview]
+    end
 
-    PANELS ::: colblue{
-        int PanelID PK
-        string PanelCode
-        date CreatedDate
-    }
+    subgraph AISERVICES["AI Service Layer"]
+        G[IOfferAiParser Interface]
+        H[OfferAiParser Service]
+        I[Prompt Engineering]
+        J[JSON Sanitization]
+        K[Structured Draft Parsing]
+    end
 
-    PANELMATERIALS :::colora {
-        int PanelMaterialID PK
-        int PanelID FK
-        int MaterialID FK
-        decimal Quantity
-        decimal UnitPrice
-        decimal DiscountPercent
-    }
-	ACTIVITYLOGS :::coloras {
-        int PanelMaterialID PK
-        int PanelID FK
-        int MaterialID FK
-        decimal Quantity
-        decimal UnitPrice
-        decimal DiscountPercent
-    }
+    subgraph GEMINI["Google Gemini API"]
+        L[Gemini Flash Model]
+        M[LLM Natural Language Understanding]
+        N[Structured JSON Response]
+    end
 
-    SUPPLIERS ||--o{ MATERIALS : **supplies**
-    PANELS ||--o{ PANELMATERIALS : contains
-    MATERIALS ||--o{ PANELMATERIALS : used_in
+    subgraph BUSINESS["Business Logic Layer"]
+        O[Resolve Customer]
+        P[Resolve Materials]
+        Q[Resolve Cabinets]
+        R[Validate Extra Items]
+        S[Calculate Totals]
+        T[Preview Validation]
+    end
 
-    classDef colora fill:#FFA500
-    classDef colblue fill:#3B82F6
-    classDef colgre fill:#22C55E
-    classDef colred fill:#EF4444
-    classDef colpurp fill:#8B5CF6
-	classDef coloras fill:#3A5CB1
-    
+    subgraph DATA["Persistence Layer"]
+        U[Entity Framework Core]
+        V[(SQL Server)]
+    end
+
+    subgraph AUDIT["Operational Tracking"]
+        W[Activity Logger]
+        X[AI Preview Logs]
+        Y[AI Offer Creation Logs]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+
+    D --> G
+    G --> H
+
+    H --> I
+    I --> J
+    J --> L
+
+    L --> M
+    M --> N
+
+    N --> K
+    K --> D
+
+    D --> O
+    D --> P
+    D --> Q
+    D --> R
+
+    O --> S
+    P --> S
+    Q --> S
+    R --> S
+
+    S --> T
+    T --> E
+
+    E -->|User Confirms| F
+
+    F --> U
+    U --> V
+
+    D --> W
+    F --> W
+
+    W --> X
+    W --> Y
+
+    classDef ui fill:#2563eb,color:#ffffff,stroke:#1e3a8a
+    classDef mvc fill:#7c3aed,color:#ffffff,stroke:#581c87
+    classDef ai fill:#0f766e,color:#ffffff,stroke:#134e4a
+    classDef gem fill:#ea580c,color:#ffffff,stroke:#9a3412
+    classDef logic fill:#16a34a,color:#ffffff,stroke:#166534
+    classDef data fill:#dc2626,color:#ffffff,stroke:#7f1d1d
+    classDef audit fill:#475569,color:#ffffff,stroke:#0f172a
+
+    class A,B,C ui
+    class D,E,F mvc
+    class G,H,I,J,K ai
+    class L,M,N gem
+    class O,P,Q,R,S,T logic
+    class U,V data
+    class W,X,Y audit
 ```
-
 ----
 
 
@@ -237,25 +225,36 @@ ZL_panelapp/
 │
 ├── Controllers/
 │   ├── PanelsController.cs
+│   ├── AiController.cs
 │   ├── MaterialsController.cs
 │   ├── HomeController.cs
 │   ├── SuppliersController.cs
 │   ├── ActivityLogsController.cs
+│   ├── CustomersController.cs
 │   ├── MaterialsController.cs
 │   └── AccountController.cs
 │
 ├── Models/
 │   ├── Panel.cs
+│   ├── PanelMaterial.cs
+│   ├── PanelCabinet.cs
+│   ├── PanelExtraItem.cs
+│   ├── Offer.cs
+│   ├── OfferMaterial.cs
+│   ├── OfferCabinet.cs
+│   ├── OfferExtraItem.cs
 │   ├── Material.cs
 │   ├── Supplier.cs
 │   ├── ActivityLog.cs
 │   ├── Customer.cs
-│   ├── PanelMaterial.cs
+│   ├── Cabinet.cs
 │   ├── SupplierContactPerson.cs
 │   └── User.cs
 │
 ├── Views/
+│   ├── AI/
 │   ├── Panels/
+│   ├── Offers/
 │   ├── Materials/
 │   ├── Suppliers/
 │   ├── Home/
@@ -283,9 +282,8 @@ ZL_panelapp/
     └── css / js / images
 ```
 
-
-
 ----
+
 
 # 🖼️ UI Preview
 
@@ -309,10 +307,7 @@ ZL_panelapp/
 ![Materials](docs/screenshots/panels.png)
 
 
-
 ----
-
-
 
 # 🛠️ Development Setup Guide
 
@@ -430,9 +425,20 @@ For version, select
 ----
 
 ## Create DB
-
 ```sql
-CREATE DATABASE paneldb;
+USE paneldb;
+GO
+
+CREATE TABLE Users (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    Username NVARCHAR(100) NOT NULL,
+    PasswordHash NVARCHAR(500) NOT NULL,
+    FullName NVARCHAR(150) NOT NULL,
+    RoleName NVARCHAR(50) NOT NULL,
+    Active BIT NOT NULL DEFAULT 1,
+    CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+GO
 ```
 
 ----
@@ -451,44 +457,17 @@ For named sql server: `SQLEXPRESS` and database: `paneldb`
 ----
 
 ## Seed
-Edw tha valw kapoio script pou kanw add user h kati tetoio
-* Create Admin user
-* Create Supplier
+```sql
+USE paneldb;
+GO
 
-----
-
-
-
-
-# 🔐 Authentication & Roles
-
-**Admin**
-
-
-*full access
-*Excel imports
-*supplier management
-*customer management
-*activity log access
-*panel editing
-
-**User**
-
-* panel management
-* materials browsing
-* limited activity visibility
-
-----
-
-# ✅ Run & Verification
-
-* Open: http://localhost:5100
-* Login works
-* Materials load
-* Panels load
-* Suppliers load
-* Customers load
-* Import works
+-- USERS
+INSERT INTO Users (Username, PasswordHash, FullName, RoleName, Active)
+VALUES
+('admin', 'admin', N'User Administrator', 'Admin', 1),
+('user', 'user', N'User Demo', 'User', 1);
+GO
+```
 
 ----
 
@@ -502,12 +481,20 @@ flowchart TD
     A --> D[Supplier management]
     A --> E[Excel import]
     A --> F[Export]
+	A --> G[Offers]
+	A --> H[AI Bot]
 
     E --> E1[Insert]
     E --> E2[Update]
 
     F --> F1[Excel]
     F --> F2[CSV]
+	
+	G --> G1[Offer Preview]
+	G --> G2[Convert To Panel]
+	
+	H --> G1[Offer Preview]
+
 
     style A fill:#1f,color:#ffffff,stroke:#111827,stroke-width:2px
     style B fill:#8b5cf6,color:#ffffff,stroke:#7c3aed
@@ -515,6 +502,8 @@ flowchart TD
     style D fill:#22c55e,color:#ffffff,stroke:#16a34a
     style E fill:#f97316,color:#ffffff,stroke:#ea580c
     style F fill:#ef4444,color:#ffffff,stroke:#dc2626
+	style G fill:#a12316,color:#ffffff,stroke:#eb580d
+    style H fill:#bf4344,color:#ffffff,stroke:#dc1626
     style E1 fill:#fed7aa,color:#111827,stroke:#f97316
     style E2 fill:#fed7aa,color:#111827,stroke:#f97316
     style F1 fill:#fecaca,color:#111827,stroke:#ef4444
@@ -553,17 +542,8 @@ await transaction.CommitAsync();
 ```
 
 
-
 ----
 
-# 🧠 Data Integrity & Safety
-
-* Unique: `(SupplierID + MaterialCode)`
-* Duplicate prevention
-* Transaction-safe imports
-* Controlled updates
-
-----
 
 # 📊 Excel Import
 
@@ -583,107 +563,102 @@ Rules:
 
 ----
 
-# 🚀 Deployment Guide
+# 🔐 Authentication 
 
-## Publish
+**Admin**
 
-Visual Studio → Publish → Folder
+* Full access
+* Excel imports
+* Supplier management
+* Customer management
+* Activity log access
+* Panel editing
+
+**User**
+
+* Panel management
+* Materials browsing
+* Limited activity visibility
+
+----
+
+
+# 🤖 AI Assistant
+
+PanelApp includes an integrated AI assistant focused on accelerating quotation workflows.
+
+The assistant can:
+- generate quotation drafts from natural language
+- identify customers from prompts
+- resolve materials from the catalog
+- resolve cabinet references
+- create custom extra items
+- estimate labor & profit
+- validate unresolved catalog lines
+- generate preview workflows before persistence
+
+Example prompt:
 
 ```text
-bin/Release/net8.0/publish/
+Create an offer for customer X with:
+2x ODE-3-120023-1F12
+1x cabinet CAB-001
+20 meters testing cable at 1.50€/m
+Labor 100€
+Profit 50€
 ```
 
----
-
-## Deploy
-
-```text
-C:\Deploy\ZLPanelApp
-```
+Workflow:
+1. User submits prompt
+2. AI generates structured draft
+3. System validates references
+4. Preview is generated
+5. User confirms creation
+6. Offer is persisted to SQL Server
 
 ----
 
-## Run
+# 🤖 Gemini Integration
+```mermaid
+flowchart TD
+    A[User writes prompt in AI Chat Popup] --> B[ai-chat.js sends POST /AI/Chat]
 
-```bash
-dotnet ZL_panelapp.dll
+    B --> C[AIController.Chat]
+    C --> D[IOfferAiParser]
+    D --> E[OfferAiParser]
 
-or
+    E --> F[Gemini API]
+    F --> G[Structured JSON Draft]
 
-Run C:\Deploy\ZLPanelApp\ZLPanelApp.exe
+    G --> H[OfferAiDraftViewModel]
+    H --> I[AIController creates Preview Model]
 
+    I --> J[Resolve Customer]
+    I --> K[Resolve Materials]
+    I --> L[Resolve Cabinets]
+    I --> M[Keep Extra Items]
+
+    J --> N[OfferPreview.cshtml]
+    K --> N
+    L --> N
+    M --> N
+
+    N --> O{User Confirms?}
+
+    O -->|Yes| P[CreateOfferFromPreview]
+    P --> Q[Create Offer]
+    P --> R[Create OfferMaterials]
+    P --> S[Create OfferCabinets]
+    P --> T[Create OfferExtraItems]
+
+    Q --> U[SQL Server]
+    R --> U
+    S --> U
+    T --> U
+
+    P --> V[Activity Log]
+    P --> W[Redirect to Offer Details]
 ```
-
-----
-
-## IIS 
-Validity IIS using browser
-
-### Windows GUI
-
-1. Enable → Control Panel → Programs → Turn Windows features on or off
-
-2. 
-- ✅Web Management Tools
-- ✅Internet Information Services
-- ✅World Wide Web Services 
-   - Application Development Features
-		- ✔️ .NET Extensibility
-		- ✔️ ASP.NET
-		- ✔️ ISAPI Extensions
-3. ΟΚ → Install
-
-	```- C:\inetpub```
-
-
-
-----
-
-### PowerShell
-1. IIS Enable
-
-```Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole -All```
-
-2. For ASP.NET:
-
-`Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45`
-
-----
-
-### config
-1. IIS Manager (inetmgr)
-
-* Sites → Add Website
-	- Site name: MyApp
-	- Physical path: `C:\inetpub\myapp`
-	- Binding:
-		- Type: http
-		- IP: 192.168.200.200
-		- Port: 8080
-		
-2. IIS → Application Pools
-* Name: panelapp
-* .NET CLR: v8.0
-* Managed pipeline: No managed code
-
-3. Firewall
-```
-New-NetFirewallRule -zlpanelapprule "HTTP" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
-```
-
-4. **PERMISSION RULES**
-
-5. Verify port listen
-
-```bash
-ipconfig
-netstat -ano | findstr :8080
-```
-6. Local Network access
-```
-http://192.168.200.200
-```
-
 
 ----
 
@@ -691,6 +666,7 @@ http://192.168.200.200
 Assuming that the application is developed within the VM
 * Hosting Bundle
 * IIS
+* mssql-server
 
 Minimum
 * Windows 8 VM 80+ GB
@@ -704,40 +680,18 @@ Recommended
 * SQL Express 2022
 
 
----
-
-# ⚙️ CI/CD Pipeline
-
-```text
-Git Push → Build → Publish → Deploy
-```
-
-```bash
-dotnet build
-dotnet publish -c Release -o C:\Deploy\ZLPanelApp
-```
-
----
+----
 
 # 🔮 Future Improvements
 
-* Material categories
-* Dashboard analytics
-* Logging system
-* Performance optimization
-* Cloud deployment
+- AI panel generation
+- AI material recommendations
+- Semantic search
+- AI production summaries
+- Dashboard AI insights
+- Cost optimization suggestions
 
-* 📂 Categories για materials (ABB / Schneider / etc)
-* 🔍 Advanced search & filters
-* 📊 Dashboard metrics (costs, totals)
-* 🧾 Audit logs
-* 👥 Full user management UI
-* ⚡ Bulk import performance optimization
-* ☁️ Cloud deployment (Azure / AWS)
-
-![Future Diagram](graphviz.svg)
-
-
+![Future Diagram](graphviz.png)
 
 ----
 
@@ -745,13 +699,10 @@ dotnet publish -c Release -o C:\Deploy\ZLPanelApp
 
 Developed for recording electrical distribution panel equipment for the company **Company**.
 
-----
-
-# 📌 Version
-
-v0.1 – Development
+v0.3 – AI Offer Workflow Integration
 
 
 ```
 TO BE CONTINUED
 ```
+----

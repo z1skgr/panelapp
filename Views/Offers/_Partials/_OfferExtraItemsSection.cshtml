@@ -1,0 +1,198 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+@using System.Globalization
+
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div class="card offer-card border-0 mb-4">
+    <div class="card-header border-0">
+        <h5 class="mb-0"><i class="bi bi-plus-square text-orange me-2"></i>Λοιπά Υλικά Προσφοράς</h5>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!offer.OfferExtraItems.Any())
+        {
+            <div class="p-4 text-muted">Δεν υπάρχουν λοιπά υλικά στην προσφορά.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Κωδικός</th>
+                            <th>Περιγραφή</th>
+                            <th>Μονάδα</th>
+                            <th class="text-end text-nowrap">Ποσότητα</th>
+                            <th class="text-end text-nowrap">Τιμή</th>
+                            <th class="text-end text-nowrap">Έκπτωση</th>
+                            <th class="text-end text-nowrap">Σύνολο</th>
+                            <th class="text-end text-nowrap">Ενέργειες</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in offer.OfferExtraItems)
+                        {
+                            <tr>
+                                <td>@item.ItemCode</td>
+                                <td>@item.Description</td>
+                                <td>@item.Unit</td>
+                                <td class="text-end text-nowrap">@item.Quantity.ToString("N2")</td>
+                                <td class="text-end text-nowrap">@item.UnitPrice.ToString("N2") €</td>
+                                <td class="text-end text-nowrap">@item.DiscountPercent.ToString("N2") %</td>
+                                <td class="text-end text-nowrap"><strong>@item.LineNetTotal.ToString("N2") €</strong></td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary icon-btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editExtraItemModal_@item.OfferExtraItemID"
+                                                title="Επεξεργασία">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                        <form asp-controller="Offers"
+                                              asp-action="DeleteExtraItem"
+                                              asp-route-id="@item.OfferExtraItemID"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Να αφαιρεθεί το λοιπό υλικό από την προσφορά;');">
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger icon-btn-sm"
+                                                    title="Διαγραφή">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot class="border-top">
+                        <tr class="bg-body-tertiary">
+                            <td colspan="6" class="text-end"><strong>Σύνολο Λοιπών Υλικών</strong></td>
+                            <td class="text-end text-nowrap"><strong>@Model.ExtraItemsNetTotal.ToString("N2") €</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            @foreach (var item in offer.OfferExtraItems)
+            {
+                <div class="modal fade"
+                     id="editExtraItemModal_@item.OfferExtraItemID"
+                     tabindex="-1">
+
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content bg-body text-body">
+
+                            <form asp-controller="Offers"
+                                  asp-action="UpdateExtraItem"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden" name="OfferExtraItemID" value="@item.OfferExtraItemID" />
+                                <input type="hidden" name="OfferID" value="@offer.OfferID" />
+                                <input type="hidden"
+                                       name="RowVersion"
+                                       value="@Convert.ToBase64String(item.RowVersion)" />
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Επεξεργασία Λοιπού Υλικού</h5>
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Κωδικός</label>
+                                            <input name="ItemCode"
+                                                   value="@item.ItemCode"
+                                                   class="form-control" />
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <label class="form-label">Περιγραφή</label>
+                                            <input name="Description"
+                                                   value="@item.Description"
+                                                   class="form-control"
+                                                   required />
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Μονάδα</label>
+                                            <select name="Unit" class="form-select">
+                                                <option value="pcs" selected="@(item.Unit == "pcs")">pcs</option>
+                                                <option value="meters" selected="@(item.Unit == "meters")">meters</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Ποσότητα</label>
+                                            <input name="Quantity"
+                                                   value="@item.Quantity.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0.01" />
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Τιμή</label>
+                                            <input name="UnitPrice"
+                                                   value="@item.UnitPrice.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0" />
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Έκπτωση %</label>
+                                            <input name="DiscountPercent"
+                                                   value="@item.DiscountPercent.ToString("0.##", CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0"
+                                                   max="100" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        Ακύρωση
+                                    </button>
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        <i class="bi bi-save"></i>
+                                        Αποθήκευση
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

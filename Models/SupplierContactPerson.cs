@@ -24,6 +24,8 @@ namespace panelapp.Models
 
         public Supplier? Supplier { get; set; }
 
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
     }
 }

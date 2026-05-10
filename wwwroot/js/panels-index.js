@@ -7,6 +7,8 @@
 
     const shouldRefocus = sessionStorage.getItem('panelsSearchFocus') === 'true';
 
+
+
     if (shouldRefocus && searchInput) {
         searchInput.focus();
 
@@ -34,4 +36,8 @@
             pageSizeForm.submit();
         });
     }
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+
 })();

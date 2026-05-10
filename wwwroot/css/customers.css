@@ -1,0 +1,72 @@
+﻿/* ================================
+   Customers Index
+================================ */
+
+.customers-index-page {
+    width: 100%;
+}
+
+    .customers-index-page .card,
+    .customers-index-page .accordion-item {
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .customers-index-page .accordion-button {
+        padding: 1rem 1.1rem;
+        font-weight: 750;
+    }
+
+        .customers-index-page .accordion-button:not(.collapsed) {
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--app-text);
+            box-shadow: none;
+        }
+
+    .customers-index-page .accordion-body {
+        background: var(--app-surface);
+    }
+
+    .customers-index-page table.table {
+        font-size: .9rem;
+    }
+
+        .customers-index-page table.table > thead > tr > th {
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+    .customers-index-page .table-actions,
+    .customers-index-page .accordion-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    .customers-index-page .filter-control {
+        height: 44px;
+    }
+
+/* Dark mode */
+body.dark-mode .customers-index-page .accordion-item,
+body.dark-mode .customers-index-page .accordion-body {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(51, 65, 85, 0.88)) !important;
+    color: var(--app-text);
+    border-color: var(--app-border) !important;
+}
+
+body.dark-mode .customers-index-page .accordion-button {
+    background: rgba(30, 41, 59, 0.96) !important;
+    color: var(--app-text) !important;
+}
+
+    body.dark-mode .customers-index-page .accordion-button:not(.collapsed) {
+        background: rgba(37, 99, 235, 0.18) !important;
+    }
+
+body.dark-mode .customers-index-page .bg-light,
+body.dark-mode .customers-index-page .bg-light-subtle {
+    background-color: rgba(15, 23, 42, 0.35) !important;
+}

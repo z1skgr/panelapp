@@ -1,0 +1,84 @@
+﻿@model panelapp.ViewModels.CustomerIndexViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Πελάτες";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var customers = Model.Customers;
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch);
+
+}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+    <form id="customerOptionsForm" method="get" asp-action="Index" class="d-flex flex-wrap align-items-center gap-3">
+        <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+        <input type="hidden" name="expandedCustomerId" value="@Model.ExpandedCustomerId" />
+        <input type="hidden" name="page" value="1" />
+
+        <div class="d-flex align-items-center gap-2">
+            <label for="customerPageSize" class="form-label mb-0">Πελάτες</label>
+            <select id="customerPageSize" name="customerPageSize" class="form-select form-select-sm select-width-sm">
+                <option value="5" selected="@(Model.CustomerPageSize == 5)">5</option>
+                <option value="10" selected="@(Model.CustomerPageSize == 10)">10</option>
+                <option value="15" selected="@(Model.CustomerPageSize == 15)">15</option>
+                <option value="20" selected="@(Model.CustomerPageSize == 20)">20</option>
+            </select>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <label for="panelsPerCustomer" class="form-label mb-0">Πίνακες ανά πελάτη</label>
+            <select id="panelsPerCustomer" name="panelsPerCustomer" class="form-select form-select-sm select-width-sm">
+                <option value="5" selected="@(Model.PanelsPerCustomer == 5)">5</option>
+                <option value="10" selected="@(Model.PanelsPerCustomer == 10)">10</option>
+                <option value="15" selected="@(Model.PanelsPerCustomer == 15)">15</option>
+                <option value="20" selected="@(Model.PanelsPerCustomer == 20)">20</option>
+            </select>
+        </div>
+    </form>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Σελιδοποίηση πελατών">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-customerPageSize="@Model.CustomerPageSize"
+                       asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                       asp-route-page="@(Model.CurrentPage - 1)">
+                        Προηγούμενη
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-searchTerm="@Model.SearchTerm"
+                           asp-route-customerPageSize="@Model.CustomerPageSize"
+                           asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                           asp-route-page="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-customerPageSize="@Model.CustomerPageSize"
+                       asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                       asp-route-page="@(Model.CurrentPage + 1)">
+                        Επόμενη
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

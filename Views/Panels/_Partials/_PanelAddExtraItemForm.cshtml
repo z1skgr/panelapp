@@ -1,0 +1,76 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        PanelStatuses.Normalize(Model.Panel.Status),
+        PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+
+@if (!panelLocked)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Προσθήκη Λοιπού Υλικού</h2>
+
+            <form asp-controller="Panels" asp-action="AddExtraItem" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Κωδικός</label>
+                        <input name="ItemCode" class="form-control" placeholder="Προαιρετικό" />
+                    </div>
+
+                    <div class="col-md-9">
+                        <label class="form-label">Περιγραφή</label>
+                        <input name="Description" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Μονάδα</label>
+                        <select name="Unit" class="form-select">
+                            <option value="pcs">pcs</option>
+                            <option value="meters">meters</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Ποσότητα</label>
+                        <input name="Quantity" value="1" class="form-control" type="number" step="0.01" min="0.01" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Τιμή</label>
+                        <input name="UnitPrice" value="0" class="form-control" type="number" step="0.01" min="0" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Έκπτωση %</label>
+                        <input name="DiscountPercent" value="0" class="form-control" type="number" step="0.01" min="0" max="100" />
+                    </div>
+
+                    <div class="col-md-12 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary app-btn">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Προσθήκη
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+
+           
+        </div>
+    </div>
+}

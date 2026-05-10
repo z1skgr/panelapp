@@ -1,0 +1,60 @@
+﻿/* ================================
+   Dark Mode - Forms / Buttons
+================================ */
+
+body.dark-mode label,
+body.dark-mode .form-label,
+body.dark-mode .control-label,
+body.dark-mode .col-form-label {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .form-select,
+body.dark-mode .form-control {
+    background-color: rgba(15, 23, 42, 0.72);
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+
+    body.dark-mode .form-select option {
+        background-color: #0f172a;
+        color: #f8fafc;
+    }
+
+body.dark-mode .btn-outline-secondary {
+    color: #e2e8f0;
+    border-color: rgba(226, 232, 240, 0.35);
+}
+
+    body.dark-mode .btn-outline-secondary:hover {
+        background: rgba(226, 232, 240, 0.10);
+        color: #fff;
+    }
+
+body.dark-mode .theme-toggle-btn {
+    color: #facc15;
+    border-color: rgba(250, 204, 21, 0.45);
+    background: rgba(250, 204, 21, 0.08);
+}
+
+/* ================================
+   Filter - Materials Form Style
+================================ */
+
+.filter-control {
+    height: 44px;
+}
+
+    .filter-control.form-control,
+    .filter-control.form-select {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+.select-width-sm {
+    width: 90px;
+}
+
+.select-width-md {
+    width: 100px;
+}

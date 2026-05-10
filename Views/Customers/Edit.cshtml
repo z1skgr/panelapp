@@ -4,15 +4,25 @@
     ViewData["Title"] = "Επεξεργασία Πελάτη";
     var hasPanels = ViewBag.HasPanels != null && (bool)ViewBag.HasPanels;
 }
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 mb-1">Επεξεργασία Πελάτη</h1>
-        <p class="text-muted mb-0">Ενημέρωση στοιχείων πελάτη και επικοινωνίας</p>
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-person-gear"></i>
+            Επεξεργασία Πελάτη
+        </h1>
+
+        <p class="page-subtitle">
+            Ενημέρωση στοιχείων πελάτη και επικοινωνίας
+        </p>
     </div>
 
-    <a asp-action="Index" class="btn btn-outline-secondary app-btn-sm">
-        <i class="bi bi-arrow-left me-1"></i>Επιστροφή
-    </a>
+    <div class="page-header-actions">
+        <a asp-action="Index"
+           class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left"></i>
+            <span>Επιστροφή</span>
+        </a>
+    </div>
 </div>
 <div class="row justify-content-center">
     <div class="col-lg-8">

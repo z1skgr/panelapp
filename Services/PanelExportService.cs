@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using panelapp.Data;
+using System.Globalization;
 using System.Text;
 
 namespace panelapp.Services
@@ -16,39 +17,111 @@ namespace panelapp.Services
 
         public async Task<byte[]> ExportCsvAsync(int panelId)
         {
-            var rows = await GetPanelExportRowsAsync(panelId);
+            var panel = await _context.Panels
+                .Include(p => p.PanelCabinets)
+                    .ThenInclude(x => x.Cabinet)
+                .Include(p => p.PanelCabinets)
+                    .ThenInclude(x => x.Supplier)
+                .Include(p => p.PanelExtraItems)
+                .FirstOrDefaultAsync(p => p.PanelID == panelId);
+
+            if (panel == null)
+                return Array.Empty<byte>();
+
+            var materialRows = await GetPanelExportRowsAsync(panelId);
 
             var csv = new StringBuilder();
 
-            csv.AppendLine("Κωδικός,Περιγραφή,Προμηθευτής,Ποσότητα,Τιμή Μονάδας,ΤΙΜΗ ΚΑΤ,Έκπτωση %,Έκπτωση Αξία,ΤΙΜΗ ΝΕΤ");
+            csv.AppendLine("Κατηγορία,Κωδικός,Περιγραφή,Προμηθευτής,Μονάδα,Ποσότητα,Τιμή Μονάδας,ΤΙΜΗ ΚΑΤ,Έκπτωση %,Έκπτωση Αξία,ΤΙΜΗ ΝΕΤ");
 
-            decimal totalCatalog = 0m;
-            decimal totalDiscount = 0m;
-            decimal totalNet = 0m;
+            decimal materialsNetTotal = 0m;
+            decimal cabinetsNetTotal = 0m;
+            decimal extraItemsNetTotal = 0m;
 
-            foreach (var item in rows)
+            void AppendRow(
+                string category,
+                string code,
+                string description,
+                string supplier,
+                string unit,
+                decimal quantity,
+                decimal unitPrice,
+                decimal discountPercent)
             {
-                totalCatalog += item.CatalogTotal;
-                totalDiscount += item.DiscountValue;
-                totalNet += item.NetTotal;
+                var catalogTotal = quantity * unitPrice;
+                var netTotal = catalogTotal * (1 - discountPercent / 100m);
+                var discountValue = catalogTotal - netTotal;
 
                 csv.AppendLine(string.Join(",",
-                    CsvEscape(item.MaterialCode),
-                    CsvEscape(item.Description),
-                    CsvEscape(item.Supplier),
-                    item.Quantity.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
-                    item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
-                    item.CatalogTotal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
-                    item.DiscountPercent.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
-                    item.DiscountValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
-                    item.NetTotal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
+                    CsvEscape(category),
+                    CsvEscape(code),
+                    CsvEscape(description),
+                    CsvEscape(supplier),
+                    CsvEscape(unit),
+                    quantity.ToString("0.00", CultureInfo.InvariantCulture),
+                    unitPrice.ToString("0.00", CultureInfo.InvariantCulture),
+                    catalogTotal.ToString("0.00", CultureInfo.InvariantCulture),
+                    discountPercent.ToString("0.00", CultureInfo.InvariantCulture),
+                    discountValue.ToString("0.00", CultureInfo.InvariantCulture),
+                    netTotal.ToString("0.00", CultureInfo.InvariantCulture)
                 ));
             }
 
+            foreach (var item in materialRows)
+            {
+                AppendRow(
+                    "Ηλεκτρολογικά Υλικά",
+                    item.MaterialCode,
+                    item.Description,
+                    item.Supplier,
+                    item.Unit,
+                    item.Quantity,
+                    item.UnitPrice,
+                    item.DiscountPercent);
+
+                materialsNetTotal += item.NetTotal;
+            }
+
+            foreach (var item in panel.PanelCabinets)
+            {
+                AppendRow(
+                    "Ερμάρια",
+                    item.Cabinet?.CabinetCode ?? "",
+                    item.Cabinet?.Description ?? "",
+                    item.Supplier?.SupplierName ?? "",
+                    item.Cabinet?.Unit ?? "pcs",
+                    item.Quantity,
+                    item.UnitPrice,
+                    item.DiscountPercent);
+
+                cabinetsNetTotal += item.LineNetTotal;
+            }
+
+            foreach (var item in panel.PanelExtraItems)
+            {
+                AppendRow(
+                    "Λοιπά Υλικά",
+                    item.ItemCode ?? "",
+                    item.Description,
+                    "",
+                    item.Unit,
+                    item.Quantity,
+                    item.UnitPrice,
+                    item.DiscountPercent);
+
+                extraItemsNetTotal += item.LineNetTotal;
+            }
+
+            var netTotal = materialsNetTotal + cabinetsNetTotal + extraItemsNetTotal;
+            var finalTotal = netTotal + panel.LaborCost + panel.ProfitAmount;
+
             csv.AppendLine();
-            csv.AppendLine($"ΣΥΝΟΛΟ ΤΙΜΗ ΚΑΤ,,,,,{totalCatalog.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"ΣΥΝΟΛΟ ΕΚΠΤΩΣΗΣ,,,,,,,{totalDiscount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"ΣΥΝΟΛΟ ΤΙΜΗ ΝΕΤ,,,,,,,,{totalNet.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΥΛΙΚΑ NET,,,,,,,,,,{materialsNetTotal.ToString("0.00", CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΕΡΜΑΡΙΑ NET,,,,,,,,,,{cabinetsNetTotal.ToString("0.00", CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΛΟΙΠΑ ΥΛΙΚΑ NET,,,,,,,,,,{extraItemsNetTotal.ToString("0.00", CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΕΡΓΑΤΙΚΑ,,,,,,,,,,{panel.LaborCost.ToString("0.00", CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΚΕΡΔΟΣ,,,,,,,,,,{panel.ProfitAmount.ToString("0.00", CultureInfo.InvariantCulture)}");
+            csv.AppendLine($"ΣΥΝΟΛΟ ΚΟΣΤΟΛΟΓΗΣΗΣ,,,,,,,,,,{finalTotal.ToString("0.00", CultureInfo.InvariantCulture)}");
 
             var preamble = Encoding.UTF8.GetPreamble();
             var content = Encoding.UTF8.GetBytes(csv.ToString());
@@ -59,14 +132,17 @@ namespace panelapp.Services
         public async Task<byte[]> ExportExcelAsync(int panelId)
         {
             var panel = await _context.Panels
+                .Include(p => p.PanelCabinets)
+                    .ThenInclude(x => x.Cabinet)
+                .Include(p => p.PanelCabinets)
+                    .ThenInclude(x => x.Supplier)
+                .Include(p => p.PanelExtraItems)
                 .FirstOrDefaultAsync(p => p.PanelID == panelId);
 
             if (panel == null)
-            {
                 return Array.Empty<byte>();
-            }
 
-            var rows = await GetPanelExportRowsAsync(panelId);
+            var materialRows = await GetPanelExportRowsAsync(panelId);
 
             using var workbook = new XLWorkbook();
             var ws = workbook.Worksheets.Add("Panel Export");
@@ -100,29 +176,52 @@ namespace panelapp.Services
             ws.Range("A3:A7").Style.Font.Bold = true;
             ws.Range("A3:A7").Style.Fill.BackgroundColor = XLColor.AliceBlue;
 
-            int headerRow = 10;
+            int row = 10;
 
-            ws.Cell(headerRow, 1).Value = "Κωδικός";
-            ws.Cell(headerRow, 2).Value = "Περιγραφή";
-            ws.Cell(headerRow, 3).Value = "Προμηθευτής";
-            ws.Cell(headerRow, 4).Value = "Μονάδα";
-            ws.Cell(headerRow, 5).Value = "Ποσότητα";
-            ws.Cell(headerRow, 6).Value = "Τιμή Μονάδας";
-            ws.Cell(headerRow, 7).Value = "ΤΙΜΗ ΚΑΤ";
-            ws.Cell(headerRow, 8).Value = "Έκπτωση %";
-            ws.Cell(headerRow, 9).Value = "Έκπτωση Αξία";
-            ws.Cell(headerRow, 10).Value = "ΤΙΜΗ ΝΕΤ";
+            void WriteSectionHeader(string title)
+            {
+                ws.Cell(row, 1).Value = title;
+                ws.Range(row, 1, row, 10).Merge();
+                ws.Cell(row, 1).Style.Font.Bold = true;
+                ws.Cell(row, 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                row++;
 
-            var headerRange = ws.Range(headerRow, 1, headerRow, 10);
-            headerRange.Style.Font.Bold = true;
-            headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
-            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-            headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                ws.Cell(row, 1).Value = "Κωδικός";
+                ws.Cell(row, 2).Value = "Περιγραφή";
+                ws.Cell(row, 3).Value = "Προμηθευτής";
+                ws.Cell(row, 4).Value = "Μονάδα";
+                ws.Cell(row, 5).Value = "Ποσότητα";
+                ws.Cell(row, 6).Value = "Τιμή Μονάδας";
+                ws.Cell(row, 7).Value = "ΤΙΜΗ ΚΑΤ";
+                ws.Cell(row, 8).Value = "Έκπτωση %";
+                ws.Cell(row, 9).Value = "Έκπτωση Αξία";
+                ws.Cell(row, 10).Value = "ΤΙΜΗ ΝΕΤ";
 
-            int row = headerRow + 1;
+                var headerRange = ws.Range(row, 1, row, 10);
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-            foreach (var item in rows)
+                row++;
+            }
+
+            void StyleSectionData(int startRow, int endRow)
+            {
+                if (endRow < startRow)
+                    return;
+
+                var dataRange = ws.Range(startRow, 1, endRow, 10);
+                dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Hair;
+            }
+
+            WriteSectionHeader("ΗΛΕΚΤΡΟΛΟΓΙΚΑ ΥΛΙΚΑ");
+
+            int materialsStartRow = row;
+
+            foreach (var item in materialRows)
             {
                 ws.Cell(row, 1).Value = item.MaterialCode;
                 ws.Cell(row, 2).Value = item.Description;
@@ -138,25 +237,111 @@ namespace panelapp.Services
                 row++;
             }
 
-            int dataStartRow = headerRow + 1;
-            int dataEndRow = row - 1;
+            int materialsEndRow = row - 1;
+            StyleSectionData(materialsStartRow, materialsEndRow);
 
-            if (dataEndRow >= dataStartRow)
+            row += 2;
+
+            WriteSectionHeader("ΕΡΜΑΡΙΑ");
+
+            int cabinetsStartRow = row;
+
+            foreach (var item in panel.PanelCabinets)
             {
-                var dataRange = ws.Range(dataStartRow, 1, dataEndRow, 10);
-                dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Hair;
+                var catalogTot = item.Quantity * item.UnitPrice;
+                var netTot = item.LineNetTotal;
+                var discountValue = catalogTot - netTot;
+
+                ws.Cell(row, 1).Value = item.Cabinet?.CabinetCode ?? "";
+                ws.Cell(row, 2).Value = item.Cabinet?.Description ?? "";
+                ws.Cell(row, 3).Value = item.Supplier?.SupplierName ?? "";
+                ws.Cell(row, 4).Value = item.Cabinet?.Unit ?? "pcs";
+                ws.Cell(row, 5).Value = item.Quantity;
+                ws.Cell(row, 6).Value = item.UnitPrice;
+                ws.Cell(row, 7).Value = catalogTot;
+                ws.Cell(row, 8).Value = item.DiscountPercent / 100m;
+                ws.Cell(row, 9).Value = discountValue;
+                ws.Cell(row, 10).Value = netTot;
+
+                row++;
             }
 
-            ws.Cell(row, 6).Value = "Σύνολα";
-            ws.Cell(row, 6).Style.Font.Bold = true;
-            ws.Cell(row, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+            int cabinetsEndRow = row - 1;
+            StyleSectionData(cabinetsStartRow, cabinetsEndRow);
 
-            ws.Cell(row, 7).FormulaA1 = dataEndRow >= dataStartRow ? $"SUM(G{dataStartRow}:G{dataEndRow})" : "0";
-            ws.Cell(row, 9).FormulaA1 = dataEndRow >= dataStartRow ? $"SUM(I{dataStartRow}:I{dataEndRow})" : "0";
-            ws.Cell(row, 10).FormulaA1 = dataEndRow >= dataStartRow ? $"SUM(J{dataStartRow}:J{dataEndRow})" : "0";
+            row += 2;
 
-            var totalRange = ws.Range(row, 6, row, 10);
+            WriteSectionHeader("ΛΟΙΠΑ ΥΛΙΚΑ");
+
+            int extraItemsStartRow = row;
+
+            foreach (var item in panel.PanelExtraItems)
+            {
+                var catalogT = item.Quantity * item.UnitPrice;
+                var netT = item.LineNetTotal;
+                var discountValue = catalogT - netT;
+
+                ws.Cell(row, 1).Value = item.ItemCode ?? "";
+                ws.Cell(row, 2).Value = item.Description;
+                ws.Cell(row, 3).Value = "";
+                ws.Cell(row, 4).Value = item.Unit;
+                ws.Cell(row, 5).Value = item.Quantity;
+                ws.Cell(row, 6).Value = item.UnitPrice;
+                ws.Cell(row, 7).Value = catalogT;
+                ws.Cell(row, 8).Value = item.DiscountPercent / 100m;
+                ws.Cell(row, 9).Value = discountValue;
+                ws.Cell(row, 10).Value = netT;
+
+                row++;
+            }
+
+            int extraItemsEndRow = row - 1;
+            StyleSectionData(extraItemsStartRow, extraItemsEndRow);
+
+            var materialsNetTotal = materialRows.Sum(x => x.NetTotal);
+            var materialsCatalogTotal = materialRows.Sum(x => x.CatalogTotal);
+            var materialsDiscountTotal = materialRows.Sum(x => x.DiscountValue);
+
+            var cabinetsNetTotal = panel.PanelCabinets.Sum(x => x.LineNetTotal);
+            var cabinetsCatalogTotal = panel.PanelCabinets.Sum(x => x.Quantity * x.UnitPrice);
+            var cabinetsDiscountTotal = cabinetsCatalogTotal - cabinetsNetTotal;
+
+            var extraItemsNetTotal = panel.PanelExtraItems.Sum(x => x.LineNetTotal);
+            var extraItemsCatalogTotal = panel.PanelExtraItems.Sum(x => x.Quantity * x.UnitPrice);
+            var extraItemsDiscountTotal = extraItemsCatalogTotal - extraItemsNetTotal;
+
+            var catalogTotal = materialsCatalogTotal + cabinetsCatalogTotal + extraItemsCatalogTotal;
+            var discountTotal = materialsDiscountTotal + cabinetsDiscountTotal + extraItemsDiscountTotal;
+            var netTotal = materialsNetTotal + cabinetsNetTotal + extraItemsNetTotal;
+
+            var finalTotal = netTotal + panel.LaborCost + panel.ProfitAmount;
+
+            row += 2;
+
+            ws.Cell(row, 9).Value = "Υλικά NET";
+            ws.Cell(row, 10).Value = materialsNetTotal;
+            row++;
+
+            ws.Cell(row, 9).Value = "Ερμάρια NET";
+            ws.Cell(row, 10).Value = cabinetsNetTotal;
+            row++;
+
+            ws.Cell(row, 9).Value = "Λοιπά Υλικά NET";
+            ws.Cell(row, 10).Value = extraItemsNetTotal;
+            row++;
+
+            ws.Cell(row, 9).Value = "Εργατικά";
+            ws.Cell(row, 10).Value = panel.LaborCost;
+            row++;
+
+            ws.Cell(row, 9).Value = "Κέρδος";
+            ws.Cell(row, 10).Value = panel.ProfitAmount;
+            row++;
+
+            ws.Cell(row, 9).Value = "Σύνολο Κοστολόγησης";
+            ws.Cell(row, 10).Value = finalTotal;
+
+            var totalRange = ws.Range(row - 5, 9, row, 10);
             totalRange.Style.Font.Bold = true;
             totalRange.Style.Fill.BackgroundColor = XLColor.LightYellow;
             totalRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
@@ -168,6 +353,17 @@ namespace panelapp.Services
             ws.Column(8).Style.NumberFormat.Format = "0.00%";
             ws.Column(9).Style.NumberFormat.Format = "#,##0.00 €";
             ws.Column(10).Style.NumberFormat.Format = "#,##0.00 €";
+
+            ws.Column(1).Width = 20;
+            ws.Column(2).Width = 45;
+            ws.Column(3).Width = 24;
+            ws.Column(4).Width = 12;
+            ws.Column(5).Width = 12;
+            ws.Column(6).Width = 16;
+            ws.Column(7).Width = 16;
+            ws.Column(8).Width = 14;
+            ws.Column(9).Width = 16;
+            ws.Column(10).Width = 18;
 
             ws.Columns().AdjustToContents();
 

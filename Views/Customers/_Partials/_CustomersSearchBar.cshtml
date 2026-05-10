@@ -1,0 +1,49 @@
+﻿@model panelapp.ViewModels.CustomerIndexViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Πελάτες";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var customers = Model.Customers;
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch);
+
+}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="customersSearchForm" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="customerPageSize" value="@Model.CustomerPageSize" />
+            <input type="hidden" name="panelsPerCustomer" value="@Model.PanelsPerCustomer" />
+
+            <div class="col-md-10">
+                <label for="searchTerm" class="form-label">Αναζήτηση Πελάτη</label>
+                <div class="position-relative">
+                    <input type="text"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@currentSearch"
+                           class="form-control filter-control"
+                           placeholder="Όνομα πελάτη ή ΑΦΜ..." />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                   asp-route-customerPageSize="@Model.CustomerPageSize"
+                   asp-route-panelsPerCustomer="@Model.PanelsPerCustomer"
+                   class="btn btn-outline-secondary app-btn-sm w-100 filter-control d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

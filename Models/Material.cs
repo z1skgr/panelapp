@@ -29,5 +29,8 @@ namespace panelapp.Models
         public DateTime LastModifiedDate { get; set; }
 
         public Supplier? Supplier { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

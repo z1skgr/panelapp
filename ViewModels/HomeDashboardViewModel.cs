@@ -27,6 +27,27 @@
         public List<ActivityFeedRow> ActivityFeed { get; set; } = new();
 
         public string ChartDataJson { get; set; } = "[]";
+
+
+        public int TotalOffers { get; set; }
+        public int DraftOffers { get; set; }
+        public int SentOffers { get; set; }
+        public int AcceptedOffers { get; set; }
+        public int ConvertedOffers { get; set; }
+        public int RejectedOffers { get; set; }
+
+        public int OffersThisMonth { get; set; }
+
+        public decimal EstimatedAcceptedOfferValue { get; set; }
+        public decimal EstimatedConvertedOfferValue { get; set; }
+        public decimal EstimatedOfferProfit { get; set; }
+
+        public int TotalCabinets { get; set; }
+        public int ActiveCabinets { get; set; }
+
+        public decimal OfferAcceptanceRate { get; set; }
+
+        public decimal OfferConversionRate { get; set; }
     }
 
     public class RecentPanelRow

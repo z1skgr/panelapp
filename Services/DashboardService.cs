@@ -114,6 +114,42 @@ namespace panelapp.Services
                     .Sum(x => x.Count)
             }).ToList();
 
+            var totalOffers = await _context.Offers.CountAsync();
+
+            var draftOffers = await _context.Offers.CountAsync(x => x.Status == "Draft");
+            var sentOffers = await _context.Offers.CountAsync(x => x.Status == "Sent");
+            var acceptedOffers = await _context.Offers.CountAsync(x => x.Status == "Accepted");
+            var convertedOffers = await _context.Offers.CountAsync(x => x.Status == "Converted");
+            var rejectedOffers = await _context.Offers.CountAsync(x => x.Status == "Rejected");
+
+            var offersThisMonth = await _context.Offers
+                .CountAsync(x => x.CreatedDate >= monthStart);
+
+            var acceptedOfferProfit = await _context.Offers
+                .Where(x => x.Status == "Accepted" || x.Status == "Converted")
+                .SumAsync(x => x.ProfitAmount);
+
+            var acceptedOfferLabor = await _context.Offers
+                .Where(x => x.Status == "Accepted")
+                .SumAsync(x => x.LaborCost + x.ProfitAmount);
+
+            var convertedOfferLabor = await _context.Offers
+                .Where(x => x.Status == "Converted")
+                .SumAsync(x => x.LaborCost + x.ProfitAmount);
+
+            var estimatedAcceptedOfferValue = acceptedOfferLabor;
+            var estimatedConvertedOfferValue = convertedOfferLabor;
+
+            var offerAcceptanceRate =
+                totalOffers == 0
+                    ? 0
+                    : Math.Round((decimal)acceptedOffers / totalOffers * 100, 1);
+
+            var offerConversionRate =
+                acceptedOffers == 0
+                    ? 0
+                    : Math.Round((decimal)convertedOffers / acceptedOffers * 100, 1);
+
             var model = new HomeDashboardViewModel
             {
                 TotalPanels = totalPanels,
@@ -150,7 +186,28 @@ namespace panelapp.Services
                 RecentPanels = recentPanels,
                 ActivityFeed = activityFeed,
 
-                ChartDataJson = JsonConvert.SerializeObject(allCustomersData)
+                ChartDataJson = JsonConvert.SerializeObject(allCustomersData),
+
+                TotalOffers = totalOffers,
+                DraftOffers = draftOffers,
+                SentOffers = sentOffers,
+                AcceptedOffers = acceptedOffers,
+                ConvertedOffers = convertedOffers,
+                RejectedOffers = rejectedOffers,
+
+                OffersThisMonth = offersThisMonth,
+
+                EstimatedAcceptedOfferValue = estimatedAcceptedOfferValue,
+                EstimatedConvertedOfferValue = estimatedConvertedOfferValue,
+                EstimatedOfferProfit = acceptedOfferProfit,
+
+                TotalCabinets = await _context.Cabinets.CountAsync(),
+                ActiveCabinets = await _context.Cabinets.CountAsync(x => x.Active),
+
+                OfferAcceptanceRate = offerAcceptanceRate,
+                OfferConversionRate = offerConversionRate
+
+
             };
 
             return model;
@@ -168,6 +225,13 @@ namespace panelapp.Services
                 ("Customer", "Created") => "bi-person-plus",
                 ("Supplier", "Created") => "bi-building-add",
                 ("Import", "Imported") => "bi-file-earmark-excel",
+                ("Offer", "Created") => "bi-file-earmark-plus",
+                ("Offer", "Updated") => "bi-file-earmark-text",
+                ("Offer", "Converted") => "bi-arrow-right-circle",
+                ("Offer", "Exported") => "bi-download",
+                ("Cabinet", "Created") => "bi-box-seam",
+                ("Cabinet", "Updated") => "bi-pencil-square",
+                ("Panel", "Exported") => "bi-download",
                 _ => "bi-clock-history"
             };
         }
@@ -180,6 +244,8 @@ namespace panelapp.Services
                 "Updated" => "bg-primary",
                 "Deleted" => "bg-danger",
                 "Imported" => "bg-info text-dark",
+                "Converted" => "bg-warning text-dark",
+                "Exported" => "bg-info text-dark",
                 _ => "bg-secondary"
             };
         }

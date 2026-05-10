@@ -1,0 +1,29 @@
+﻿/* ================================
+   Design Tokens
+================================ */
+
+:root {
+    --app-bg-start: #f3f7fb;
+    --app-bg-mid: #eef3f8;
+    --app-bg-end: #f8fafc;
+    --app-surface: #ffffff;
+    --app-surface-soft: #f8fafc;
+    --app-text: #0f172a;
+    --app-muted: #64748b;
+    --app-border: rgba(15, 23, 42, 0.08);
+    --app-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+    --app-primary: #2563eb;
+    --app-primary-soft: rgba(37, 99, 235, 0.10);
+}
+
+body.dark-mode {
+    --app-bg-start: #020617;
+    --app-bg-mid: #0f172a;
+    --app-bg-end: #111827;
+    --app-surface: rgba(30, 41, 59, 0.96);
+    --app-surface-soft: rgba(51, 65, 85, 0.88);
+    --app-text: #f8fafc;
+    --app-muted: #cbd5e1;
+    --app-border: rgba(148, 163, 184, 0.24);
+    --app-shadow: 0 20px 42px rgba(0, 0, 0, 0.30);
+}

@@ -1,0 +1,182 @@
+﻿@using panelapp.Helpers
+@model panelapp.ViewModels.OfferDetailsViewModel
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div class="offer-page-header mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <span class="offer-page-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </span>
+
+            <div>
+                <h2 class="offer-page-title mb-1">@offer.OfferCode</h2>
+                <div class="offer-page-subtitle">Πελάτης: @offer.CustomerName</div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 offer-header-actions">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle hero-action-btn"
+                        type="button"
+                        data-bs-toggle="dropdown">
+                    <i class="bi bi-download"></i>
+                    <span>Εξαγωγή</span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item"
+                           asp-action="ExportCustomerOfferPdf"
+                           asp-route-id="@offer.OfferID">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            PDF Προσφοράς
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item"
+                           asp-action="ExportExcel"
+                           asp-route-id="@offer.OfferID">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Excel
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
+                    <li>
+                        <button type="button"
+                                class="dropdown-item"
+                                id="copyOfferButton">
+                            <i class="bi bi-clipboard"></i>
+                            Αντιγραφή
+                        </button>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
+                    <li>
+                        <form asp-action="Duplicate"
+                              asp-route-id="@offer.OfferID"
+                              method="post">
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-files"></i>
+                                Νέα Προσφορά από αυτή
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-secondary hero-action-btn"
+                    id="copyOfferButtonTop">
+                <i class="bi bi-clipboard"></i>
+                <span>Αντιγραφή</span>
+            </button>
+
+            <a asp-action="Edit"
+               asp-route-id="@offer.OfferID"
+               class="btn btn-outline-primary hero-action-btn">
+                <i class="bi bi-pencil-square"></i>
+                <span>Επεξεργασία</span>
+            </a>
+
+            <a asp-action="Index" class="btn btn-outline-secondary hero-action-btn">
+                <i class="bi bi-arrow-left"></i>
+                <span>Επιστροφή</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="offer-meta-strip mb-3">
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Κατάσταση</div>
+        <span class="badge rounded-pill @OfferStatusBadgeHelper.GetBadgeClass(offer.Status)">
+            @OfferStatusBadgeHelper.GetGreekLabel(offer.Status)
+        </span>
+
+        <form asp-controller="Offers"
+              asp-action="UpdateStatus"
+              method="post"
+              class="d-flex gap-2 mt-2 offer-status-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="offerId" value="@offer.OfferID" />
+
+            <select name="status" class="form-select form-select-sm">
+                @foreach (var status in panelapp.Constants.OfferStatuses.All)
+                {
+                    <option value="@status" selected="@(offer.Status == status)">
+                        @OfferStatusBadgeHelper.GetGreekLabel(status)
+                    </option>
+                }
+            </select>
+
+            <button type="submit"
+                    class="btn btn-sm btn-outline-primary icon-btn-sm"
+                    title="Ενημέρωση">
+                <i class="bi bi-save"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Ημερομηνία</div>
+        <div class="offer-meta-value">
+            <i class="bi bi-calendar3 me-1"></i>
+            @offer.CreatedDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+        </div>
+    </div>
+
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Συνδεδεμένος Πίνακας</div>
+        @if (offer.PanelID.HasValue && offer.Panel != null)
+        {
+            <a asp-controller="Panels"
+               asp-action="Details"
+               asp-route-id="@offer.PanelID"
+               class="offer-meta-link">
+                <i class="bi bi-grid"></i>
+                @offer.Panel.PanelCode
+            </a>
+        }
+        else
+        {
+            <span class="offer-meta-muted">Δεν έχει μετατραπεί</span>
+        }
+    </div>
+
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Σύνολο Ειδών</div>
+        <div class="offer-meta-value">
+            <i class="bi bi-box"></i>
+            @(offer.OfferMaterials.Count + offer.OfferCabinets.Count + offer.OfferExtraItems.Count)
+        </div>
+        <div class="offer-meta-muted small">
+            Υλικά: @offer.OfferMaterials.Count | Ερμάρια: @offer.OfferCabinets.Count | Λοιπά: @offer.OfferExtraItems.Count
+        </div>
+    </div>
+
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Περιγραφή</div>
+        <div class="offer-meta-value text-wrap">
+            @(string.IsNullOrWhiteSpace(offer.Description) ? "-" : offer.Description)
+        </div>
+    </div>
+
+    <div class="offer-meta-item">
+        <div class="offer-meta-label">Σημειώσεις</div>
+        <div class="offer-meta-value text-wrap">
+            @(string.IsNullOrWhiteSpace(offer.Notes) ? "-" : offer.Notes)
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+﻿@model panelapp.ViewModels.MaterialIndexViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Κατάλογος Υλικών";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var currentSearch = Model.SearchTerm ?? string.Empty;
+    var currentSupplierId = Model.SupplierFilterId;
+
+    var supplierFilter = Model.SupplierFilter ?? "all";
+    var hasFilters = !string.IsNullOrWhiteSpace(currentSearch)
+                     || currentSupplierId.HasValue
+                     || supplierFilter != "all";
+}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form id="materialsSearchForm" method="get" asp-action="Index" class="row g-3 align-items-end">
+            <input type="hidden" name="supplierPage" value="1" />
+            <input type="hidden" name="suppliersPerPage" value="@Model.SuppliersPerPage" />
+            <input type="hidden" name="materialsPerSupplier" value="@Model.MaterialsPerSupplier" />
+
+            <div class="col-md-4">
+                <label for="searchTerm" class="form-label">Αναζήτηση</label>
+                <div class="position-relative">
+                    <input type="text"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@currentSearch"
+                           class="form-control filter-control"
+                           placeholder="Κωδικός ή περιγραφή υλικού..." />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="supplierFilter" class="form-label">Τύπος προμηθευτών</label>
+                <select id="supplierFilter" name="supplierFilter" class="form-select filter-control">
+
+                    
+                    @if (supplierFilter == "all")
+                    {
+                        <option value="all" selected="@(supplierFilter == "all")">Όλοι οι προμηθευτές</option>
+                    }
+                    else
+                    {
+                        <option value="all">Όλοι οι προμηθευτές</option>
+                    }
+
+                    @if (supplierFilter == "active")
+                    {
+                        <option value="active" selected="@(supplierFilter == "active")">Ενεργοί προμηθευτές</option>
+                    }
+                    else
+                    {
+                        <option value="active">Ενεργοί προμηθευτές</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="supplierId" class="form-label">Προμηθευτής</label>
+                <select id="supplierId" name="supplierId" class="form-select filter-control">
+                    <option value="">Όλοι</option>
+
+                    @foreach (var supplier in Model.SupplierOptions)
+                    {
+                        var label = supplier.Active
+                            ? supplier.SupplierName
+                            : $"{supplier.SupplierName} (ανενεργός)";
+
+                        if (currentSupplierId == supplier.SupplierID)
+                        {
+                            <option value="@supplier.SupplierID" selected>@label</option>
+                        }
+                        else
+                        {
+                            <option value="@supplier.SupplierID">@label</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <a asp-action="Index"
+                   asp-route-supplierFilter="active"
+                   asp-route-suppliersPerPage="@Model.SuppliersPerPage"
+                   asp-route-materialsPerSupplier="@Model.MaterialsPerSupplier"
+                   class="btn btn-outline-secondary app-btn-sm w-100 filter-control d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-x-circle me-1"></i>Καθαρισμός
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

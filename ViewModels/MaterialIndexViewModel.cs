@@ -1,5 +1,3 @@
-using ZL_panelapp.ViewModels;
-
 namespace panelapp.ViewModels
 {
     public class MaterialIndexViewModel
@@ -20,5 +18,7 @@ namespace panelapp.ViewModels
         public string SupplierFilter { get; set; } = "all";
 
         public int? ExpandedSupplierId { get; set; }
+
+        public int CabinetsPerSupplier { get; set; } = 100;
     }
 }

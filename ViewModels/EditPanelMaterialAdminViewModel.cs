@@ -19,5 +19,7 @@ namespace panelapp.ViewModels
 
         public bool IsManualPrice { get; set; }
         public string? ManualPriceReason { get; set; }
+
+        public string RowVersion { get; set; } = string.Empty;
     }
 }

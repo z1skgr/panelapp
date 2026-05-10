@@ -1,0 +1,268 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        PanelStatuses.Normalize(Model.Panel.Status),
+        PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 mt-4">
+    <div>
+        <h2 class="h5 mb-1">Ερμάρια Πίνακα</h2>
+        <p class="text-muted mb-0">Ξεχωριστή λίστα ερμαρίων και υπολογισμός κόστους</p>
+    </div>
+</div>
+@if (!Model.Cabinets.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-4 text-center">
+            <i class="bi bi-box-seam fs-1 text-muted"></i>
+            <h3 class="h5 mt-3">Δεν έχουν προστεθεί ακόμα ερμάρια</h3>
+            <p class="text-muted mb-0">Μπορείς να προσθέσεις ερμάρια από την παραπάνω φόρμα.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Κωδικός</th>
+                            <th>Περιγραφή</th>
+                            <th>Προμηθευτής</th>
+                            <th class="text-end text-nowrap">Ποσότητα</th>
+                            <th class="text-end text-nowrap">Τιμή Μονάδας €</th>
+                            <th class="text-end text-nowrap">Τιμή KAT €</th>
+                            <th class="text-end text-nowrap">Έκπτωση %</th>
+                            <th class="text-end text-nowrap">Τιμή NET €</th>
+                            <th>Χειρ. τιμή</th>
+                            <th class="text-end text-nowrap">Ενέργειες</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Cabinets)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.CabinetCode</td>
+                                <td>
+                                    @item.CabinetDescription
+
+                                    @if (item.IsManualPrice && !string.IsNullOrWhiteSpace(item.ManualPriceReason))
+                                    {
+                                        <div class="small text-muted mt-1">
+                                            @item.ManualPriceReason
+                                        </div>
+                                    }
+                                </td>
+                                <td>@item.SupplierName</td>
+
+                                <td class="text-end text-nowrap">
+                                    @item.Quantity.ToString("N2")
+                                </td>
+
+                                <td class="text-end text-nowrap">
+                                    @item.UnitPrice.ToString("0.00€")
+                                </td>
+
+                                <td class="text-end text-nowrap">
+                                    @item.OriginalTotalPrice.ToString("0.00€")
+                                </td>
+
+                                <td class="text-end text-nowrap">
+                                    @item.DiscountPercent.ToString("0.##")
+                                </td>
+
+                                <td class="text-end text-nowrap fw-semibold">
+                                    @item.TotalPrice.ToString("0.00€")
+                                </td>
+
+                                <td>
+                                    @if (item.IsManualPrice)
+                                    {
+                                        <span class="badge bg-warning text-dark">Ναι</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border">Όχι</span>
+                                    }
+                                </td>
+
+                                <td class="text-end text-nowrap">
+                                    @if (!panelLocked || isAdmin)
+                                    {
+                                        <div class="d-inline-flex gap-1">
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editCabinetModal_@item.PanelCabinetID">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+
+                                            <form asp-controller="Panels"
+                                                  asp-action="DeleteCabinet"
+                                                  asp-route-id="@item.PanelCabinetID"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Να αφαιρεθεί το ερμάριο από τον πίνακα;');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+
+                                
+                        }
+                    </tbody>
+
+                        
+                    <tfoot class="border-top">
+                        <tr class="bg-body-tertiary">
+                            <td colspan="7" class="text-end fw-bold">
+                                Σύνολο Ερμαρίων
+                            </td>
+                            <td class="text-end text-nowrap fw-bold">
+                                @Model.CabinetsGrandTotal.ToString("N2") €
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+            @foreach (var item in Model.Cabinets)
+            {
+                <div class="modal fade"
+                     id="editCabinetModal_@item.PanelCabinetID"
+                     tabindex="-1">
+
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content bg-body text-body">
+
+                            <form asp-controller="Panels"
+                                  asp-action="UpdateCabinet"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden" name="PanelCabinetID" value="@item.PanelCabinetID" />
+                                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+                                <input type="hidden"
+                                       name="RowVersion"
+                                       value="@Convert.ToBase64String(item.RowVersion)" />
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Επεξεργασία Ερμαρίου</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <strong>@item.CabinetCode</strong>
+                                        <div class="text-body-secondary">@item.CabinetDescription</div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Ποσότητα</label>
+                                            <input name="Quantity"
+                                                   value="@item.Quantity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0.01" />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Τιμή Μονάδας</label>
+                                            <input name="UnitPrice"
+                                                   value="@item.UnitPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0" />
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Έκπτωση %</label>
+                                            <input name="DiscountPercent"
+                                                   value="@item.DiscountPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                                   class="form-control"
+                                                   type="number"
+                                                   step="0.01"
+                                                   min="0"
+                                                   max="100" />
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-check">
+                                                <input type="hidden" name="IsManualPrice" value="false" />
+
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="IsManualPrice"
+                                                       value="true"
+                                                @(item.IsManualPrice ? "checked" : "") />
+
+                                                <label class="form-check-label">
+                                                    Χειροκίνητη τιμή
+                                                </label>
+                                            </div>
+
+                                            <div class="form-text">
+                                                Αν δεν είναι ενεργό, η τιμή θα ενημερωθεί από τον τρέχοντα κατάλογο ερμαρίων.
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">Αιτιολογία χειροκίνητης τιμής</label>
+                                            <textarea name="ManualPriceReason"
+                                                      class="form-control"
+                                                      rows="3">@item.ManualPriceReason</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        Ακύρωση
+                                    </button>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i>
+                                        Αποθήκευση
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

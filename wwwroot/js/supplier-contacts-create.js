@@ -10,6 +10,11 @@
     const errorBox = document.getElementById("contactError");
     const emailInput = document.getElementById("contactEmail");
 
+    if (!nameInput || !phoneInput || !emailInput || !addBtn || !table || !wrapper || !hidden || !errorBox) {
+        console.warn("Supplier contact create elements not found.");
+        return;
+    }
+
     function escapeHtml(value) {
         return String(value ?? "")
             .replaceAll("&", "&amp;")
@@ -20,7 +25,7 @@
     }
 
     function isValidEmail(value) {
-        return value.includes("@@") && value.includes(".");
+        return value.indexOf("@") > -1 && value.indexOf(".") > -1;
     }
 
     function renderContacts() {
@@ -29,26 +34,26 @@
 
         contacts.forEach((contact, index) => {
             table.insertAdjacentHTML("beforeend", `
-                    <tr>
-                        <td>${escapeHtml(contact.fullName)}</td>
-                        <td>${contact.phone ? escapeHtml(contact.phone) : "-"}</td>
-                        <td>${contact.email ? escapeHtml(contact.email) : "-"}</td>
-                        <td class="text-end">
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    data-index="${index}"
-                                    title="Αφαίρεση υπευθύνου">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    `);
+                <tr>
+                    <td>${escapeHtml(contact.fullName)}</td>
+                    <td>${contact.phone ? escapeHtml(contact.phone) : "-"}</td>
+                    <td>${contact.email ? escapeHtml(contact.email) : "-"}</td>
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-index="${index}"
+                                title="Αφαίρεση υπευθύνου">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `);
 
             hidden.insertAdjacentHTML("beforeend", `
-                        <input type="hidden" name="ContactPersons[${index}].FullName" value="${escapeHtml(contact.fullName)}">
-                        <input type="hidden" name="ContactPersons[${index}].Phone" value="${escapeHtml(contact.phone || "")}">
-                        <input type="hidden" name="ContactPersons[${index}].Email" value="${escapeHtml(contact.email || "")}">
-                    `);
+                <input type="hidden" name="ContactPersons[${index}].FullName" value="${escapeHtml(contact.fullName)}">
+                <input type="hidden" name="ContactPersons[${index}].Phone" value="${escapeHtml(contact.phone || "")}">
+                <input type="hidden" name="ContactPersons[${index}].Email" value="${escapeHtml(contact.email || "")}">
+            `);
         });
 
         wrapper.classList.toggle("d-none", contacts.length === 0);
@@ -73,14 +78,12 @@
             errorBox.classList.remove("d-none");
             return;
         }
+
         if (email && !isValidEmail(email)) {
             errorBox.textContent = "Το email δεν είναι έγκυρο.";
             errorBox.classList.remove("d-none");
             return;
         }
-
-
-
 
         contacts.push({ fullName, phone, email });
 

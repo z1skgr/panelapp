@@ -1,0 +1,25 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div id="offerCopyText" class="d-none">
+    Προσφορά: @offer.OfferCode
+    Πελάτης: @offer.CustomerName
+    Περιγραφή: @offer.Description
+
+    Υλικά:
+    @foreach (var item in offer.OfferMaterials)
+    {
+        <text>- @item.Material?.MaterialCode | @item.Material?.Description | Προμηθευτής: @item.Supplier?.SupplierName | Ποσότητα: @item.Quantity.ToString("N2") | Τιμή: @item.UnitPrice.ToString("N2") € | Έκπτωση: @item.DiscountPercent.ToString("N2") % | Σύνολο: @item.LineNetTotal.ToString("N2") €</text>
+    }
+
+    Υλικά NET: @Model.MaterialsNetTotal.ToString("N2") €
+    Εργατικά: @offer.LaborCost.ToString("N2") €
+    Κέρδος: @offer.ProfitAmount.ToString("N2") €
+    Τελική Προσφορά: @Model.FinalOfferTotal.ToString("N2") €
+</div>

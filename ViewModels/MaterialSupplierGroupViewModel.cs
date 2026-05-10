@@ -1,6 +1,4 @@
-using panelapp.ViewModels;
-
-namespace ZL_panelapp.ViewModels
+namespace panelapp.ViewModels
 {
     public class MaterialSupplierGroupViewModel
     {
@@ -14,5 +12,15 @@ namespace ZL_panelapp.ViewModels
         public int TotalMaterialCount { get; set; }
 
         public bool SupplierActive { get; set; }
+
+        public List<CabinetListRow> Cabinets { get; set; } = new();
+
+        public int TotalCabinetCount { get; set; }
+
+        public int CurrentCabinetPage { get; set; }
+
+        public int TotalCabinetPages { get; set; }
+
+        public int TotalCatalogCount => TotalMaterialCount + TotalCabinetCount;
     }
 }

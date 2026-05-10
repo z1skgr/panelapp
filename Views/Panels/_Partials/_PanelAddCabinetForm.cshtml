@@ -1,0 +1,107 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        PanelStatuses.Normalize(Model.Panel.Status),
+        PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+
+
+@if (!panelLocked)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Προσθήκη Ερμαρίου</h2>
+
+            <form asp-controller="Panels" asp-action="AddCabinetInline" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Προμηθευτής</label>
+
+                        <select id="cabinetSupplierSelect"
+                                name="SupplierID"
+                                class="form-select">
+                            <option value="">-- Επιλογή Προμηθευτή --</option>
+
+                            @foreach (var supplier in Model.AddCabinetForm.Suppliers)
+                            {
+                                <option value="@supplier.Value">
+                                    @supplier.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">Αναζήτηση Ερμαρίου</label>
+
+                        <input id="cabinetSearchInput"
+                               class="form-control"
+                               placeholder="Κωδικός ή περιγραφή ερμαρίου..." />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Ερμάριο</label>
+
+                        <select id="cabinetSelect"
+                                name="CabinetID"
+                                class="form-select">
+                            <option value="">-- Πρώτα επίλεξε προμηθευτή --</option>
+                        </select>
+
+                        <div id="cabinetSearchMessage" class="text-muted mt-1 small">
+                            Επίλεξε προμηθευτή για να δεις ερμάρια.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Ποσότητα</label>
+
+                        <input name="Quantity"
+                               value="1"
+                               class="form-control"
+                               type="number"
+                               min="0.01"
+                               step="0.01" />
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Έκπτωση %</label>
+
+                        <input name="DiscountPercent"
+                               value="0"
+                               class="form-control"
+                               type="number"
+                               min="0"
+                               max="100"
+                               step="0.01" />
+                    </div>
+
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary app-btn">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Προσθήκη
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+

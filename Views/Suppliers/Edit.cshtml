@@ -4,17 +4,22 @@
     ViewData["Title"] = "Επεξεργασία Προμηθευτή";
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 mb-1">Επεξεργασία Προμηθευτή</h1>
-        <p class="text-muted mb-0">
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-building-gear"></i>
+            Επεξεργασία Προμηθευτή
+        </h1>
+
+        <p class="page-subtitle">
             Ενημέρωση στοιχείων προμηθευτή και υπευθύνων επικοινωνίας
         </p>
     </div>
 
-    <div>
+    <div class="page-header-actions">
         <a asp-action="Index" class="btn btn-outline-secondary app-btn">
-            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+            <i class="bi bi-arrow-left me-1"></i>
+            Επιστροφή
         </a>
     </div>
 </div>
@@ -226,5 +231,5 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
+    <script src="~/js/supplier-contacts-edit.js" asp-append-version="true"></script>
 }

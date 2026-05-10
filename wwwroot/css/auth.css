@@ -140,3 +140,48 @@
 .auth-footer {
     padding: 0 1rem 1rem;
 }
+
+
+/* ================================
+   Auth - Login polish
+================================ */
+
+.auth-card {
+    animation: authCardEnter .28s ease both;
+}
+
+@keyframes authCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-password-group .auth-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.auth-password-toggle {
+    border: 1px solid rgba(148, 163, 184, 0.42);
+    border-left: 0;
+    border-radius: 0 16px 16px 0;
+    background: rgba(255, 255, 255, 0.86);
+    color: #64748b;
+    padding-inline: 1rem;
+}
+
+    .auth-password-toggle:hover {
+        background: #fff;
+        color: #2563eb;
+    }
+
+.auth-password-group:focus-within .auth-password-toggle {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.22rem rgba(37, 99, 235, 0.14);
+}

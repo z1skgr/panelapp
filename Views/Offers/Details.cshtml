@@ -1,0 +1,44 @@
+﻿@model panelapp.ViewModels.OfferDetailsViewModel
+
+@{
+    ViewData["Title"] = "Προσφορά";
+    ViewData["FullWidth"] = true;
+    var offer = Model.Offer;
+}
+
+<div class="container-fluid offer-details-page">
+
+    <partial name="_Partials/_OfferHeader" model="Model" />
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+            <partial name="_Partials/_OfferAddMaterialForm" model="Model" />
+            <partial name="_Partials/_OfferMaterialsSection" model="Model" />
+
+            <partial name="_Partials/_OfferAddCabinetForm" model="Model" />
+            <partial name="_Partials/_OfferCabinetsSection" model="Model" />
+
+            <partial name="_Partials/_OfferAddExtraItemForm" model="Model" />
+            <partial name="_Partials/_OfferExtraItemsSection" model="Model" />
+        </div>
+
+        <div class="col-lg-4">
+            <partial name="_Partials/_OfferSideBar" model="Model" />
+        </div>
+
+    </div>
+
+</div>
+
+<partial name="_Partials/_OfferCopyText" model="Model" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/offer-details-cabinets.js" asp-append-version="true"></script>
+    <script src="~/js/offer-details-materials.js" asp-append-version="true"></script>
+    <script src="~/js/offer-details.js" asp-append-version="true"></script>
+}

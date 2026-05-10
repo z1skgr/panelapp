@@ -6,15 +6,22 @@
     var suppliers = ViewBag.Suppliers as List<SelectListItem> ?? new List<SelectListItem>();
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 mb-1">Επεξεργασία Υλικού</h1>
-        <p class="text-muted mb-0">Ενημέρωση στοιχείων υλικού του καταλόγου</p>
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-pencil-square"></i>
+            Επεξεργασία Υλικού
+        </h1>
+
+        <p class="page-subtitle">
+            Ενημέρωση στοιχείων υλικού του καταλόγου
+        </p>
     </div>
 
-    <div>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+    <div class="page-header-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>
+            Επιστροφή
         </a>
     </div>
 </div>
@@ -27,6 +34,9 @@
             <input type="hidden" asp-for="CreatedDate" />
             <input type="hidden" asp-for="LastModifiedDate" />
             <input type="hidden" asp-for="PriceUpdatedDate" />
+            <input type="hidden"
+                   name="RowVersion"
+                   value="@Convert.ToBase64String(Model.RowVersion)" />
 
             @if (!ViewData.ModelState.IsValid)
             {
@@ -67,7 +77,11 @@
 
                 <div class="col-md-6">
                     <label asp-for="SupplierID" class="form-label">Προμηθευτής</label>
-                    <select asp-for="SupplierID" asp-items="suppliers" class="form-select">
+                    <select asp-for="SupplierID"
+                            asp-items="suppliers"
+                            class="form-select searchable-select"
+                            data-placeholder="Αναζήτηση προμηθευτή..."
+                            data-max-options="15">
                         <option value="">-- Επιλογή Προμηθευτή --</option>
                     </select>
                     <span asp-validation-for="SupplierID" class="text-danger small"></span>

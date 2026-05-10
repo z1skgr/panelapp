@@ -1,0 +1,268 @@
+﻿html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* ================================
+   Base
+================================ */
+
+body {
+    margin-bottom: 60px;
+    color: var(--app-text);
+    background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 32%), radial-gradient(circle at top right, rgba(20, 184, 166, 0.10), transparent 30%), linear-gradient(180deg, var(--app-bg-start) 0%, var(--app-bg-mid) 45%, var(--app-bg-end) 100%);
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.card {
+    border-radius: 20px;
+}
+
+.app-btn,
+.app-btn-sm {
+    border-radius: 999px;
+}
+
+.icon-btn,
+.icon-btn-sm {
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+}
+
+.icon-btn-sm {
+    width: 30px;
+    height: 30px;
+}
+
+    .icon-btn i,
+    .icon-btn-sm i,
+    .hero-action-btn i {
+        margin: 0 !important;
+    }
+
+/* ================================
+   Dark Mode - Surfaces
+================================ */
+
+body.dark-mode .card,
+body.dark-mode .dashboard-table-card,
+body.dark-mode .dashboard-actions-card,
+body.dark-mode .dashboard-chart-card,
+body.dark-mode .accordion-item {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(51, 65, 85, 0.88) 100%) !important;
+    color: var(--app-text);
+    border: 1px solid var(--app-border) !important;
+    box-shadow: var(--app-shadow) !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+    background-color: rgba(30, 41, 59, 0.96) !important;
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .card-body,
+body.dark-mode .card-title,
+body.dark-mode .card-text,
+body.dark-mode .list-group-item {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .list-group-item {
+    background-color: rgba(30, 41, 59, 0.96) !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* ================================
+   Dark Mode - Typography
+================================ */
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode .stat-value,
+body.dark-mode .quick-action-tile-text strong,
+body.dark-mode .dashboard-title,
+body.dark-mode .text-dark,
+body.dark-mode .fw-semibold.text-dark,
+body.dark-mode .page-title,
+body.dark-mode .section-title,
+body.dark-mode .display-6,
+body.dark-mode .lead {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .stat-label,
+body.dark-mode .stat-subtext,
+body.dark-mode .quick-action-tile-text small,
+body.dark-mode .text-muted,
+body.dark-mode .small.text-muted,
+body.dark-mode .breadcrumb,
+body.dark-mode .breadcrumb-item,
+body.dark-mode .breadcrumb-item a {
+    color: var(--app-muted) !important;
+}
+
+/* ================================
+   Dark Mode - Accordion
+================================ */
+
+body.dark-mode .accordion-button {
+    background: linear-gradient(180deg, rgba(51, 65, 85, 0.96), rgba(30, 41, 59, 0.96)) !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+}
+
+    body.dark-mode .accordion-button.collapsed {
+        color: #f8fafc !important;
+    }
+
+    body.dark-mode .accordion-button::after {
+        filter: invert(1) grayscale(1);
+    }
+
+body.dark-mode .accordion-body {
+    background: rgba(15, 23, 42, 0.20) !important;
+    color: #f8fafc !important;
+}
+
+    body.dark-mode .accordion-button .text-muted,
+    body.dark-mode .accordion-body .text-muted {
+        color: #cbd5e1 !important;
+    }
+
+
+
+/* ================================
+   Global Page Header
+================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.page-header-content {
+    min-width: 0;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 850;
+    letter-spacing: -.03em;
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    color: var(--app-text);
+}
+
+.page-subtitle {
+    margin: .35rem 0 0;
+    color: var(--app-muted);
+    font-size: .95rem;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: .65rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+@media (max-width: 767.98px) {
+    .page-header {
+        align-items: flex-start;
+    }
+
+    .page-title {
+        font-size: 1.55rem;
+    }
+}
+
+/* ================================
+   Global Fix names
+================================ */
+/* ================================
+   Global Dark Mode - Select Fix
+================================ */
+
+/* Select2 / searchable select dark mode fix */
+body.dark-mode .searchable-select,
+body.dark-mode select.searchable-select,
+body.dark-mode .select2-container--default .select2-selection--single {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+    body.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f8fafc !important;
+    }
+
+body.dark-mode .select2-dropdown,
+body.dark-mode .select2-search__field,
+body.dark-mode .select2-results__option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+body.dark-mode .select2-results__option--highlighted {
+    background-color: #2563eb !important;
+    color: #fff !important;
+}
+
+
+
+/* ================================
+   Global App Shell
+================================ */
+
+.app-shell {
+    width: 100%;
+    min-height: calc(100vh - 150px);
+}
+
+.app-content {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding: 1.5rem;
+}
+
+@media (max-width: 767.98px) {
+    .app-content {
+        padding: 1rem;
+    }
+}

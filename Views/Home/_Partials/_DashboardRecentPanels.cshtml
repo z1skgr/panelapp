@@ -1,0 +1,104 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+@using panelapp.Constants
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    string GetStatusLabel(string status) => PanelStatuses.ToDisplayLabel(status);
+
+    string GetStatusBadgeClass(string status) => PanelStatuses.Normalize(status) switch
+    {
+        PanelStatuses.Completed => "bg-success",
+        PanelStatuses.Cancelled => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+
+
+<div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100 dashboard-table-card">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Πρόσφατοι Πίνακες</h2>
+                        <p class="text-muted small mb-0">Οι τελευταίοι πίνακες με βάση την τελευταία αλλαγή</p>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <select id="recentPanelsFilter" class="form-select form-select-sm dashboard-filter-select">
+                            <option value="all">Όλοι</option>
+                            <option value="@PanelStatuses.UnderConstruction">Υπό Κατασκευή</option>
+                            <option value="@PanelStatuses.Completed">Ολοκληρωμένοι</option>
+                            <option value="@PanelStatuses.Cancelled">Ακυρωμένοι</option>
+                        </select>
+
+                        <a asp-controller="Panels" asp-action="Index" class="btn btn-outline-secondary btn-sm app-btn-sm">
+                            Προβολή όλων
+                        </a>
+                    </div>
+                </div>
+
+                @if (!Model.RecentPanels.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="dashboard-empty-icon mb-3">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <p class="text-muted mb-0">Δεν υπάρχουν ακόμη πίνακες.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 dashboard-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Κωδικός</th>
+                                    <th>Πελάτης</th>
+                                    <th>Κατάσταση</th>
+                                    <th>Τελευταία Αλλαγή</th>
+                                    <th class="text-end">Ενέργεια</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var panel in Model.RecentPanels)
+                                {
+                                    <tr class="recent-panel-row" data-status="@PanelStatuses.Normalize(panel.Status)">
+                                        <td class="fw-semibold">@panel.PanelCode</td>
+                                        <td>@panel.CustomerName</td>
+                                        <td>
+                                            <span class="badge rounded-pill @GetStatusBadgeClass(panel.Status)">
+                                                @GetStatusLabel(panel.Status)
+                                            </span>
+                                        </td>
+                                        <td>@panel.LastModifiedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="text-end">
+                                            <a asp-controller="Panels"
+                                               asp-action="Details"
+                                               asp-route-id="@panel.PanelID"
+                                               class="btn btn-sm btn-outline-primary icon-btn"
+                                               title="Προβολή">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="recentPanelsEmptyFilter" class="text-center py-4 d-none">
+                        <p class="text-muted mb-0">Δεν υπάρχουν πρόσφατοι πίνακες με αυτό το φίλτρο.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>

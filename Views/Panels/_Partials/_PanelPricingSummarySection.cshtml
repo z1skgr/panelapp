@@ -1,0 +1,111 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        PanelStatuses.Normalize(Model.Panel.Status),
+        PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+
+@if (!panelLocked)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-2">
+            <form asp-action="UpdateOfferPricing" method="post"
+                  class="d-flex flex-wrap align-items-end gap-2">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+                <input type="hidden" name="PanelCode" value="@Model.Panel.PanelCode" />
+                <input type="hidden" name="panelId" value="@Model.Panel.PanelID" />
+                <input type="hidden"
+                       name="RowVersion"
+                       value="@Convert.ToBase64String(Model.Panel.RowVersion)" />
+
+                <div style="width: 150px;">
+                    <label class="form-label small mb-1">Εργατικά</label>
+                    <input name="LaborCost"
+                           value="@Model.OfferPricingForm.LaborCost"
+                           type="number"
+                           step="0.1"
+                           min="0"
+                           class="form-control form-control-sm" />
+                </div>
+
+                <div style="width: 150px;">
+                    <label class="form-label small mb-1">Κέρδος</label>
+                    <input name="ProfitAmount"
+                           value="@Model.OfferPricingForm.ProfitAmount"
+                           type="number"
+                           step="0.1"
+                           min="0"
+                           class="form-control form-control-sm" />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm app-btn-sm">
+                    <i class="bi bi-check-circle me-1"></i>Ενημέρωση
+                </button>
+
+                <button type="submit"
+                        formaction="@Url.Action("ClearOfferPricing", "Panels")"
+                        class="btn btn-outline-danger btn-sm app-btn-sm"
+                        onclick="return confirm('Να αφαιρεθούν τα εργατικά και το κέρδος;');">
+                    <i class="bi bi-x-circle me-1"></i>Αφαίρεση
+                </button>
+            </form>
+        </div>
+    </div>
+}
+
+    
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="text-muted small">Υλικά NET</div>
+                <div class="fw-semibold text-nowrap">@Model.OfferSummary.MaterialsNetTotal.ToString("N2") €</div>
+            </div>
+
+            <div>
+                <div class="text-muted small">Ερμάρια NET</div>
+                <div class="fw-semibold text-nowrap">
+                    @Model.OfferSummary.CabinetsNetTotal.ToString("N2") €
+                </div>
+            </div>
+
+            <div>
+                <div class="text-muted small">Λοιπά Υλικά NET</div>
+                <div class="fw-semibold text-nowrap">
+                    @Model.OfferSummary.ExtraItemsNetTotal.ToString("N2") €
+                </div>
+            </div>
+
+            <div>
+                <div class="text-muted small">Εργατικά €</div>
+                <div class="fw-semibold text-nowrap">@Model.OfferSummary.LaborCost.ToString("N2") €</div>
+            </div>
+
+            <div>
+                <div class="text-muted small">Κέρδος €</div>
+                <div class="fw-semibold text-nowrap">@Model.OfferSummary.ProfitAmount.ToString("N2") €</div>
+            </div>
+
+            <div class="text-end border-start ps-3">
+                <div class="text-muted small">Σύνολο προσφοράς</div>
+                <div class="h5 mb-0 fw-bold text-success text-nowrap">
+                    @Model.OfferSummary.FinalOfferTotal.ToString("N2") €
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

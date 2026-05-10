@@ -30,5 +30,8 @@ namespace panelapp.Models
         public ICollection<Material> Materials { get; set; } = new List<Material>();
 
         public ICollection<SupplierContactPerson> ContactPersons { get; set; } = new List<SupplierContactPerson>();
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

@@ -1,0 +1,48 @@
+﻿<div class="ai-popup" id="aiAssistantPopup">
+    <button type="button" class="ai-popup-toggle" id="aiPopupToggle">
+        <i class="bi bi-stars"></i>
+    </button>
+
+    <div class="ai-popup-window" id="aiPopupWindow">
+        <div class="ai-popup-header">
+            <div>
+                <strong>PanelApp Assistant</strong>
+                <div>AI για προσφορές & πίνακες</div>
+            </div>
+
+            <button type="button" class="ai-popup-close" id="aiPopupClose">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="ai-popup-body ai-chat-messages" id="aiChatMessages">
+            <div class="ai-chat-message ai-chat-message-bot">
+                Γεια σου! 👋
+
+                Μπορώ να δημιουργήσω draft προσφοράς από απλή περιγραφή.
+
+                Παράδειγμα:
+                <br />
+                <span class="small">
+                    Προσφορά για "ΠΕΛΑΤΗ" με 2 τεμάχια ODE-3-120023-1F12, εργατικά 100€, κέρδος 50€.
+                </span>
+            </div>
+        </div>
+
+        <div class="ai-popup-footer">
+            <form id="aiChatForm" class="w-100 d-flex gap-2 align-items-end">
+                @Html.AntiForgeryToken()
+
+                <textarea id="aiChatInput"
+                          class="form-control"
+                          rows="2"
+                          placeholder="Γράψε τι θέλεις να κάνουμε..."></textarea>
+
+                <button type="submit"
+                        class="btn btn-primary app-btn ai-chat-send-btn">
+                    <i class="bi bi-send"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

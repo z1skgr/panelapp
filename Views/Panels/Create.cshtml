@@ -5,15 +5,22 @@
     ViewData["Title"] = "Νέος Πίνακας";
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h1 class="h3 mb-1">Νέος Πίνακας</h1>
-        <p class="text-muted mb-0">Δημιουργία νέου πίνακα έργου και βασικών στοιχείων</p>
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="bi bi-lightning-charge"></i>
+            Νέος Πίνακας
+        </h1>
+
+        <p class="page-subtitle">
+            Δημιουργία νέου πίνακα έργου και βασικών στοιχείων
+        </p>
     </div>
 
-    <div>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>Επιστροφή
+    <div class="page-header-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn">
+            <i class="bi bi-arrow-left me-1"></i>
+            Επιστροφή
         </a>
     </div>
 </div>
@@ -37,7 +44,9 @@
 
                 <div class="col-md-8">
                     <label asp-for="CustomerID" class="form-label">Πελάτης</label>
-                    <select asp-for="CustomerID" asp-items="Model.Customers" class="form-select">
+                    <select asp-for="CustomerID"
+                            asp-items="Model.Customers"
+                            class="form-select searchable-select">
                         <option value="">-- Επιλογή Πελάτη --</option>
                     </select>
                     <span asp-validation-for="CustomerID" class="text-danger small"></span>

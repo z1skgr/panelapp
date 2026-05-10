@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace panelapp.Models
 {
     public class Panel
@@ -16,5 +18,23 @@ namespace panelapp.Models
         public DateTime LastModifiedDate { get; set; }
 
         public List<PanelMaterial> PanelMaterials { get; set; } = new();
+
+        public List<PanelCabinet> PanelCabinets { get; set; } = new();
+
+        public List<PanelExtraItem> PanelExtraItems { get; set; } = new();
+
+        public decimal LaborCost { get; set; }
+
+        public decimal ProfitAmount { get; set; }
+
+        public int? SourceOfferID { get; set; }
+
+        public Offer? SourceOffer { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

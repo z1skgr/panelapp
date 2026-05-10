@@ -39,7 +39,10 @@
                     @Model.ErrorMessage
                 </div>
             }
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger auth-alert"></div>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger auth-alert"></div>
+            }
 
             <form asp-action="Login" asp-controller="Account" method="post">
                 @Html.AntiForgeryToken()
@@ -56,12 +59,24 @@
 
                 <div class="mb-4">
                     <label asp-for="Password" class="form-label">Κωδικός</label>
-                    <input asp-for="Password"
-                           asp-format=""
-                           type="password"
-                           class="form-control form-control-lg auth-input"
-                           placeholder="Εισάγετε τον κωδικό"
-                           autocomplete="current-password" />
+
+                    <div class="input-group auth-password-group">
+                        <input asp-for="Password"
+                               asp-format=""
+                               type="password"
+                               class="form-control form-control-lg auth-input"
+                               placeholder="Εισάγετε τον κωδικό"
+                               autocomplete="current-password"
+                               id="passwordInput" />
+
+                        <button class="btn auth-password-toggle"
+                                type="button"
+                                id="togglePasswordButton"
+                                aria-label="Εμφάνιση ή απόκρυψη κωδικού">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
 
@@ -79,4 +94,24 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById("passwordInput");
+            const togglePasswordButton = document.getElementById("togglePasswordButton");
+
+            if (!passwordInput || !togglePasswordButton) return;
+
+            togglePasswordButton.addEventListener("click", function () {
+                const isPassword = passwordInput.type === "password";
+
+                passwordInput.type = isPassword ? "text" : "password";
+                togglePasswordButton.innerHTML = isPassword
+                    ? '<i class="bi bi-eye-slash"></i>'
+                    : '<i class="bi bi-eye"></i>';
+            });
+        });
+    </script>
+
 }

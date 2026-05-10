@@ -4,7 +4,8 @@ using panelapp.Data;
 using panelapp.Models;
 
 using panelapp.Services;
-
+using panelapp.Services.AI;
+using QuestPDF.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,8 +29,20 @@ builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IMaterialImportService, MaterialImportService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IPanelService, PanelService>();
+builder.Services.AddScoped<IPanelOfferPdfService, PanelOfferPdfService>();
+
+builder.Services.AddScoped<IOfferCodeService, OfferCodeService>();
+builder.Services.AddScoped<IOfferExportService, OfferExportService>();
+builder.Services.AddScoped<IOfferPdfService, OfferPdfService>();
+builder.Services.AddScoped<ICabinetImportService, CabinetImportService>();
+builder.Services.Configure<GeminiOptions>(
+    builder.Configuration.GetSection("Gemini"));
+
+builder.Services.AddHttpClient<IOfferAiParser, OfferAiParser>();
 
 
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllersWithViews();
 
@@ -44,6 +57,8 @@ builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 
 var app = builder.Build();

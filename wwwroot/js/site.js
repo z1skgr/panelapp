@@ -24,10 +24,7 @@
 
     function getAutoTheme() {
         const hour = new Date().getHours();
-
-        return (hour >= 8 && hour < 20)
-            ? "light"
-            : "dark";
+        return hour >= 7 && hour < 20 ? "light" : "dark";
     }
 
     const savedTheme = localStorage.getItem(storageKey);
@@ -51,13 +48,19 @@
     }
 })();
 
-    document.addEventListener("DOMContentLoaded", function () {
-                const alerts = document.querySelectorAll(".auto-dismiss-alert");
+document.addEventListener("DOMContentLoaded", function () {
+    const alerts = document.querySelectorAll(".auto-dismiss-alert");
 
     alerts.forEach(function (alertElement) {
         setTimeout(function () {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(alertElement);
             bsAlert.close();
         }, 4500);
-                });
-            });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+});

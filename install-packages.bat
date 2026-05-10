@@ -8,6 +8,8 @@ dotnet add package Microsoft.Extensions.Logging.EventLog --version 8.*
 dotnet add package ClosedXML
 dotnet add package Newtonsoft.Json
 
+dotnet add package QuestPDF
+
 dotnet restore
 dotnet build
 

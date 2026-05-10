@@ -1,0 +1,54 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+
+
+<div class="quick-actions-grid compact-actions-grid">
+    <a asp-controller="Offers" asp-action="Create" class="quick-action-tile">
+        <span class="quick-action-tile-icon">
+            <i class="bi bi-file-earmark-plus"></i>
+        </span>
+        <span class="quick-action-tile-text">
+            <strong>Νέα Προσφορά</strong>
+            <small>Καταχώρηση νέας προσφοράς</small>
+        </span>
+    </a>
+    <a asp-controller="Customers" asp-action="Create" class="quick-action-tile">
+        <span class="quick-action-tile-icon"><i class="bi bi-person-plus"></i></span>
+        <span class="quick-action-tile-text">
+            <strong>Νέος Πελάτης</strong>
+            <small>Καταχώριση νέου πελάτη</small>
+        </span>
+    </a>
+
+    <a asp-controller="Suppliers" asp-action="Create" class="quick-action-tile">
+        <span class="quick-action-tile-icon"><i class="bi bi-building-add"></i></span>
+        <span class="quick-action-tile-text">
+            <strong>Νέος Προμηθευτής</strong>
+            <small>Καταχώριση supplier</small>
+        </span>
+    </a>
+
+    @if (isAdmin)
+    {
+        <a asp-controller="Materials" asp-action="Index" class="quick-action-tile">
+            <span class="quick-action-tile-icon"><i class="bi bi-box-seam"></i></span>
+            <span class="quick-action-tile-text">
+                <strong>Νέο Υλικό</strong>
+                <small>Προσθήκη νέου υλικού</small>
+            </span>
+        </a>
+    }
+
+</div>

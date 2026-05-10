@@ -1,0 +1,194 @@
+﻿@model panelapp.ViewModels.PanelDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using panelapp.Constants
+
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    var isCompleted = string.Equals(
+        PanelStatuses.Normalize(Model.Panel.Status),
+        PanelStatuses.Completed,
+        StringComparison.OrdinalIgnoreCase);
+
+    var panelLocked = isCompleted && !isAdmin;
+}
+
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Υλικά Πίνακα</h2>
+        <p class="text-muted mb-0">Λίστα υλικών και υπολογισμός κόστους</p>
+    </div>
+
+    @if (Model.Materials.Any())
+    {
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <div class="dropdown">
+                <button class="btn btn-outline-success dropdown-toggle px-4"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <i class="bi bi-download me-1"></i>
+                </button>
+
+                <ul class="dropdown-menu shadow-sm">
+                    <li>
+                        <a class="dropdown-item"
+                           asp-action="ExportCSV"
+                           asp-route-id="@Model.Panel.PanelID">
+                            CSV
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item"
+                           asp-action="ExportExcel"
+                           asp-route-id="@Model.Panel.PanelID">
+                            Excel
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-danger dropdown-toggle px-4"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                </button>
+
+                <ul class="dropdown-menu shadow-sm">
+
+                    <li>
+                        <a class="dropdown-item"
+                           asp-action="ExportInternalOfferPdf"
+                           asp-route-id="@Model.Panel.PanelID">
+                            Εσωτερική Κοστολόγηση
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <a asp-action="Copy"
+               asp-route-id="@Model.Panel.PanelID"
+               class="btn btn-outline-primary px-4">
+                <i class="bi bi-files me-1"></i>
+            </a>
+        </div>
+    }
+</div>
+
+@if (!Model.Materials.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-5 text-center">
+            <i class="bi bi-box-seam fs-1 text-muted"></i>
+            <h3 class="h5 mt-3">Δεν έχουν προστεθεί ακόμα υλικά</h3>
+            <p class="text-muted mb-0">Μπορείς να προσθέσεις υλικά από την παραπάνω φόρμα.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Κωδικός</th>
+                            <th>Περιγραφή</th>
+                            <th>Προμηθευτής</th>
+                            <th>Ποσότητα</th>
+                            <th class="text-end text-nowrap">Τιμή Μονάδας €</th>
+                            <th class="text-end text-nowrap">Τιμή KAT €</th>
+                            <th class="text-end text-nowrap">Έκπτωση %</th>
+                            <th class="text-end text-nowrap">Τιμή NET €</th>
+                            <th>Χειρ. τιμή</th>
+                            <th class="text-end">Ενέργειες</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Materials)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.MaterialCode</td>
+                                <td>@item.MaterialDescription</td>
+                                <td>@item.SupplierName</td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end text-nowrap">@item.UnitPrice.ToString("0.00€")</td>
+                                <td class="text-end text-nowrap">@item.OriginalTotalPrice.ToString("0.00€")</td>
+                                <td class="text-end text-nowrap">@item.DiscountPercent.ToString("0.##")</td>
+                                <td class="fw-semibold">@item.NetValue.ToString("0.00€")</td>
+                                <td>
+                                    @if (item.IsManualPrice)
+                                    {
+                                        <span class="badge bg-warning text-dark">Ναι</span>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.ManualPriceReason))
+                                        {
+                                            <div class="small text-muted mt-1">@item.ManualPriceReason</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border">Όχι</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        @if (isAdmin)
+                                        {
+                                            <a asp-action="EditMaterialAdmin"
+                                               asp-route-id="@item.PanelMaterialID"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Επεξεργασία από Admin">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <form asp-action="RemoveMaterial" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="panelMaterialId" value="@item.PanelMaterialID" />
+                                                <input type="hidden" name="panelId" value="@Model.Panel.PanelID" />
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm app-btn-sm"
+                                                        title="Αφαίρεση"
+                                                        onclick="return confirm('Θέλεις σίγουρα να αφαιρέσεις αυτό το υλικό από τον πίνακα;');">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else if (!panelLocked)
+                                        {
+                                            <a asp-action="EditMaterial"
+                                               asp-route-id="@item.PanelMaterialID"
+                                               class="btn btn-outline-secondary btn-sm app-btn-sm"
+                                               title="Επεξεργασία">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <form asp-action="RemoveMaterial" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="panelMaterialId" value="@item.PanelMaterialID" />
+                                                <input type="hidden" name="panelId" value="@Model.Panel.PanelID" />
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm app-btn-sm"
+                                                        title="Αφαίρεση"
+                                                        onclick="return confirm('Θέλεις σίγουρα να αφαιρέσεις αυτό το υλικό από τον πίνακα;');">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

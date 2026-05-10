@@ -1,0 +1,81 @@
+﻿@model panelapp.ViewModels.HomeDashboardViewModel
+
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Αρχική";
+
+    var roleName = Context.Session.GetString("RoleName");
+    var isAdmin = string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase);
+
+
+
+    var totalSuppliers = Model.TotalSuppliers > 0
+        ? Model.TotalSuppliers
+        : Model.ActiveSuppliers + Model.InactiveSuppliers;
+}
+                @if (Model.ActivityFeed == null || !Model.ActivityFeed.Any())
+                {
+                    <div class="text-center py-4">
+                        <div class="dashboard-empty-icon mb-3">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <p class="text-muted mb-0">Δεν υπάρχει ακόμη δραστηριότητα.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="activity-feed">
+                        @foreach (var item in Model.ActivityFeed)
+                        {
+                            var activityUrl = Url.Action("Index", "ActivityLogs");
+
+                            switch (item.EntityType)
+                            {
+                                case "Panel":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Details", "Panels", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Customer":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Edit", "Customers", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Supplier":
+                                    if (item.EntityID.HasValue)
+                                    {
+                                        activityUrl = Url.Action("Edit", "Suppliers", new { id = item.EntityID.Value });
+                                    }
+                                    break;
+
+                                case "Material":
+                                    activityUrl = Url.Action("Index", "Materials");
+                                    break;
+
+                                case "Import":
+                                    activityUrl = Url.Action("Index", "ActivityLogs");
+                                    break;
+                            }
+
+                            <a href="@activityUrl" class="activity-item">
+                                <span class="activity-icon @item.BadgeClass">
+                                    <i class="bi @item.Icon"></i>
+                                </span>
+
+                                <span class="activity-content">
+                                    <strong>@item.Title</strong>
+                                    <small>@item.Description</small>
+                                    <span class="activity-time">
+                                        @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </span>
+                            </a>
+
+                        }
+                    </div>
+                }
