@@ -743,7 +743,7 @@ dotnet publish -c Release -o C:\Deploy\ZLPanelApp
 
 # 🙏 Acknowledgements
 
-Developed for recording electrical distribution panel equipment for the company **Zalikas Liontas & SIA**.
+Developed for recording electrical distribution panel equipment for the company **Company**.
 
 ----
 
