@@ -196,6 +196,7 @@ namespace panelapp.Controllers
                 Address = model.Address,
                 Notes = model.Notes,
                 Active = model.Active,
+                DefaultDiscountPercent = model.DefaultDiscountPercent,
                 CreatedDate = DateTime.Now,
                 LastModifiedDate = DateTime.Now
             };
@@ -251,6 +252,7 @@ namespace panelapp.Controllers
                 Email = supplier.Email,
                 Address = supplier.Address,
                 Notes = supplier.Notes,
+                DefaultDiscountPercent = supplier.DefaultDiscountPercent,
                 Active = supplier.Active,
                 ExistingContactPersons = supplier.ContactPersons
                     .OrderBy(c => c.FullName)
@@ -330,6 +332,7 @@ namespace panelapp.Controllers
             supplier.Email = model.Email;
             supplier.Address = model.Address;
             supplier.Notes = model.Notes;
+            supplier.DefaultDiscountPercent = model.DefaultDiscountPercent;
             supplier.Active = model.Active;
             supplier.LastModifiedDate = DateTime.Now;
 

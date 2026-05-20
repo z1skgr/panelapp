@@ -33,6 +33,7 @@ namespace panelapp.Services
             }
 
             var material = await _context.Materials
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(m => m.MaterialID == model.MaterialID && m.Active);
 
             if (material == null)
@@ -53,7 +54,9 @@ namespace panelapp.Services
                 SupplierID = material.SupplierID,
                 Quantity = model.Quantity,
                 UnitPrice = material.CurrentPrice,
-                DiscountPercent = model.DiscountPercent,
+                DiscountPercent = model.DiscountPercent > 0
+                    ? model.DiscountPercent
+                    : material.Supplier?.DefaultDiscountPercent ?? 0,
                 IsManualPrice = false,
                 ManualPriceReason = null,
                 DateAdded = DateTime.Now,

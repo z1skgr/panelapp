@@ -445,3 +445,16 @@ body:not(.dark-mode) .offers-index-page table.table {
         padding-inline: .75rem;
     }
 }
+
+
+.offer-page-header,
+.offer-page-header .dropdown,
+.offer-header-actions {
+    position: relative;
+    overflow: visible !important;
+    z-index: 20;
+}
+
+    .offer-page-header .dropdown-menu {
+        z-index: 2000;
+    }

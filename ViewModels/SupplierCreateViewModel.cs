@@ -21,5 +21,8 @@ namespace panelapp.ViewModels
         public bool Active { get; set; } = true;
 
         public List<SupplierContactPersonInputViewModel> ContactPersons { get; set; } = new();
+
+        [Range(0, 100, ErrorMessage = "Η έκπτωση πρέπει να είναι από 0 έως 100.")]
+        public decimal DefaultDiscountPercent { get; set; }
     }
 }

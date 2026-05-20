@@ -27,6 +27,8 @@ namespace panelapp.ViewModels
 
         public decimal ExtraItemsGrandTotal => ExtraItems.Sum(x => x.TotalPrice);
 
+        public List<SupplierDiscountInfoViewModel> SupplierDiscounts { get; set; } = new();
+
 
 
     }

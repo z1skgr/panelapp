@@ -229,6 +229,7 @@
                             <th>Ποσότητα</th>
                             <th>Αντιστοίχιση</th>
                             <th class="text-end">Τιμή</th>
+                            <th class="text-end no-wrap">Έκπτωση</th>
                             <th>Κατάσταση</th>
                         </tr>
                     </thead>
@@ -253,6 +254,9 @@
                                 <td class="text-end text-nowrap">
                                     @(item.UnitPrice.HasValue ? item.UnitPrice.Value.ToString("N2") + " €" : "-")
                                 </td>
+                                    <td class="text-end text-nowrap">
+                                        @item.DiscountPercent.ToString("N2") %
+                                    </td>
                                 <td>
                                     @if (item.IsResolved)
                                     {

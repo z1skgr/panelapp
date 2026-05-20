@@ -25,6 +25,9 @@ namespace panelapp.ViewModels
         public List<SupplierContactPersonEditItem> ExistingContactPersons { get; set; } = new();
 
         public List<SupplierContactPersonInputViewModel> NewContactPersons { get; set; } = new();
+
+        [Range(0, 100, ErrorMessage = "Η έκπτωση πρέπει να είναι από 0 έως 100.")]
+        public decimal DefaultDiscountPercent { get; set; }
     }
 
     public class SupplierContactPersonEditItem

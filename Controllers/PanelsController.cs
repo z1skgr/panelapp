@@ -387,6 +387,8 @@ namespace panelapp.Controllers
                 Cabinets = cabinetRows,
                 ExtraItems = extraItemRows,
 
+                SupplierDiscounts = await GetSupplierDiscountsAsync(),
+
                 OfferPricingForm = new PanelOfferPricingViewModel
                 {
                     PanelID = panel.PanelID,
@@ -484,6 +486,7 @@ namespace panelapp.Controllers
 
             var material = await _context.Materials
                 .AsNoTracking()
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(m => m.MaterialID == model.MaterialID);
 
 
@@ -500,7 +503,9 @@ namespace panelapp.Controllers
                 SupplierID = material.SupplierID,
                 Quantity = model.Quantity,
                 UnitPrice = material.CurrentPrice,
-                DiscountPercent = model.DiscountPercent,
+                DiscountPercent = model.DiscountPercent > 0
+                    ? model.DiscountPercent
+                    : material.Supplier?.DefaultDiscountPercent ?? 0,
                 IsManualPrice = false,
                 ManualPriceReason = null,
                 DateAdded = DateTime.Now,
@@ -1266,6 +1271,7 @@ namespace panelapp.Controllers
 
             var cabinet = await _context.Cabinets
                 .AsNoTracking()
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(x => x.CabinetID == model.CabinetID && x.Active);
 
             if (cabinet == null)
@@ -1293,7 +1299,9 @@ namespace panelapp.Controllers
                 SupplierID = cabinet.SupplierID,
                 Quantity = model.Quantity,
                 UnitPrice = cabinet.CurrentPrice,
-                DiscountPercent = model.DiscountPercent,
+                DiscountPercent = model.DiscountPercent > 0
+                ? model.DiscountPercent
+                : cabinet.Supplier?.DefaultDiscountPercent ?? 0,
                 IsManualPrice = false,
                 ManualPriceReason = null,
                 DateAdded = DateTime.UtcNow,
@@ -1592,7 +1600,24 @@ namespace panelapp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private async Task<List<SupplierDiscountInfoViewModel>> GetSupplierDiscountsAsync()
+        {
+            return await _context.Suppliers
+                .AsNoTracking()
+                .Where(x => x.Active)
+                .OrderBy(x => x.SupplierName)
+                .Select(x => new SupplierDiscountInfoViewModel
+                {
+                    SupplierID = x.SupplierID,
+                    SupplierName = x.SupplierName,
+                    DefaultDiscountPercent = x.DefaultDiscountPercent
+                })
+                .ToListAsync();
+        }
+
     }
+
+
 
 
 }

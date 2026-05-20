@@ -29,5 +29,7 @@ namespace panelapp.ViewModels
         public AddCabinetToOfferViewModel AddCabinetForm { get; set; } = new();
 
         public AddOfferExtraItemViewModel AddExtraItemForm { get; set; } = new();
+
+        public List<SupplierDiscountInfoViewModel> SupplierDiscounts { get; set; } = new();
     }
 }

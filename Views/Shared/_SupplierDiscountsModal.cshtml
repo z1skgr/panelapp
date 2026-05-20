@@ -1,0 +1,55 @@
+﻿@model List<panelapp.ViewModels.SupplierDiscountInfoViewModel>
+
+<div class="modal fade" id="supplierDiscountsModal" tabindex="-1" aria-labelledby="supplierDiscountsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="supplierDiscountsModalLabel">
+                    <i class="bi bi-percent me-1"></i>
+                    Default Εκπτώσεις Προμηθευτών
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Κλείσιμο"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="text-muted">
+                        Δεν υπάρχουν ενεργοί προμηθευτές.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Προμηθευτής</th>
+                                    <th class="text-end">Default Έκπτωση</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var supplier in Model)
+                                {
+                                    <tr>
+                                        <td>@supplier.SupplierName</td>
+                                        <td class="text-end fw-semibold">
+                                            @supplier.DefaultDiscountPercent.ToString("N2") %
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary app-btn" data-bs-dismiss="modal">
+                    Κλείσιμο
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

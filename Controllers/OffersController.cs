@@ -166,6 +166,8 @@ namespace panelapp.Controllers
             {
                 Offer = offer,
 
+                SupplierDiscounts = await GetSupplierDiscountsAsync(),
+
                 AddMaterialForm = new AddMaterialToOfferViewModel
                 {
                     OfferID = offer.OfferID,
@@ -250,6 +252,7 @@ namespace panelapp.Controllers
                 return NotFound();
 
             var material = await _context.Materials
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(x => x.MaterialID == offerMaterial.MaterialID);
 
             if (material == null)
@@ -280,6 +283,11 @@ namespace panelapp.Controllers
 
                 return View(offerMaterial);
             }
+            var defaultDiscount = material!.Supplier?.DefaultDiscountPercent ?? 0;
+
+            offerMaterial.DiscountPercent = offerMaterial.DiscountPercent > 0
+                ? offerMaterial.DiscountPercent
+                : defaultDiscount;
 
             offerMaterial.SupplierID = material!.SupplierID;
             offerMaterial.UnitPrice = offerMaterial.IsManualPrice
@@ -332,6 +340,7 @@ namespace panelapp.Controllers
 
             var material = await _context.Materials
                 .AsNoTracking()
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(x => x.MaterialID == model.MaterialID && x.Active);
 
             if (material == null)
@@ -352,6 +361,12 @@ namespace panelapp.Controllers
                 return RedirectToAction(nameof(Details), new { id = model.OfferID });
             }
 
+            var defaultDiscount = material.Supplier?.DefaultDiscountPercent ?? 0;
+
+            var discountPercent = model.DiscountPercent > 0
+                ? model.DiscountPercent
+                : defaultDiscount;
+
             var offerMaterial = new OfferMaterial
             {
                 OfferID = model.OfferID,
@@ -359,7 +374,7 @@ namespace panelapp.Controllers
                 SupplierID = material.SupplierID,
                 Quantity = model.Quantity,
                 UnitPrice = material.CurrentPrice,
-                DiscountPercent = model.DiscountPercent,
+                DiscountPercent = discountPercent,
                 IsManualPrice = false,
                 ManualPriceReason = null,
                 DateAdded = DateTime.Now,
@@ -897,6 +912,7 @@ namespace panelapp.Controllers
 
             var cabinet = await _context.Cabinets
                 .AsNoTracking()
+                .Include(x => x.Supplier)
                 .FirstOrDefaultAsync(x => x.CabinetID == model.CabinetID && x.Active);
 
             if (cabinet == null)
@@ -917,6 +933,12 @@ namespace panelapp.Controllers
                 return RedirectToAction(nameof(Details), new { id = model.OfferID });
             }
 
+            var defaultDiscount = cabinet.Supplier?.DefaultDiscountPercent ?? 0;
+
+            var discountPercent = model.DiscountPercent > 0
+                ? model.DiscountPercent
+                : defaultDiscount;
+
             var offerCabinet = new OfferCabinet
             {
                 OfferID = model.OfferID,
@@ -924,7 +946,7 @@ namespace panelapp.Controllers
                 SupplierID = cabinet.SupplierID,
                 Quantity = model.Quantity,
                 UnitPrice = cabinet.CurrentPrice,
-                DiscountPercent = model.DiscountPercent,
+                DiscountPercent = discountPercent,
                 IsManualPrice = false,
                 ManualPriceReason = null,
                 DateAdded = DateTime.UtcNow,
@@ -1216,6 +1238,22 @@ namespace panelapp.Controllers
                 $"Η προσφορά {offer.OfferCode} διαγράφηκε επιτυχώς.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+
+        private async Task<List<SupplierDiscountInfoViewModel>> GetSupplierDiscountsAsync()
+        {
+            return await _context.Suppliers
+                .AsNoTracking()
+                .Where(x => x.Active)
+                .OrderBy(x => x.SupplierName)
+                .Select(x => new SupplierDiscountInfoViewModel
+                {
+                    SupplierID = x.SupplierID,
+                    SupplierName = x.SupplierName,
+                    DefaultDiscountPercent = x.DefaultDiscountPercent
+                })
+                .ToListAsync();
         }
     }
 }

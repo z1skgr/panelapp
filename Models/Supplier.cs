@@ -33,5 +33,9 @@ namespace panelapp.Models
 
         [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        [Range(0, 100, ErrorMessage = "Η έκπτωση πρέπει να είναι από 0 έως 100.")]
+        public decimal DefaultDiscountPercent { get; set; } = 0;
+
     }
 }

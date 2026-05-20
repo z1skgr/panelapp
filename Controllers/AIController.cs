@@ -199,6 +199,7 @@ namespace panelapp.Controllers
                 }
                 else
                 {
+                    resolved.DiscountPercent = material.Supplier?.DefaultDiscountPercent ?? 0;
                     resolved.ResolvedItemID = material.MaterialID;
                     resolved.ResolvedSupplierID = material.SupplierID;
                     resolved.ResolvedCode = material.MaterialCode;
@@ -261,6 +262,7 @@ namespace panelapp.Controllers
                 }
                 else
                 {
+                    resolved.DiscountPercent = cabinet.Supplier?.DefaultDiscountPercent ?? 0;
                     resolved.ResolvedItemID = cabinet.CabinetID;
                     resolved.ResolvedSupplierID = cabinet.SupplierID;
                     resolved.ResolvedCode = cabinet.CabinetCode;
@@ -410,6 +412,7 @@ namespace panelapp.Controllers
                 return RedirectToAction("Index", "Offers");
             }
 
+
             var offer = new Offer
             {
                 OfferCode = await GenerateOfferCodeAsync(cancellationToken),
@@ -423,6 +426,7 @@ namespace panelapp.Controllers
                 LastModifiedDate = DateTime.UtcNow,
                 IsDeleted = false
             };
+
 
             _context.Offers.Add(offer);
             await _context.SaveChangesAsync(cancellationToken);
@@ -442,6 +446,8 @@ namespace panelapp.Controllers
                 if (material == null)
                     continue;
 
+                var defaultDiscount = material.Supplier?.DefaultDiscountPercent ?? 0;
+
                 _context.OfferMaterials.Add(new OfferMaterial
                 {
                     OfferID = offer.OfferID,
@@ -449,7 +455,9 @@ namespace panelapp.Controllers
                     SupplierID = material.SupplierID,
                     Quantity = line.Quantity,
                     UnitPrice = material.CurrentPrice,
-                    DiscountPercent = 0,
+                    DiscountPercent = line.DiscountPercent > 0
+                        ? line.DiscountPercent
+                        : defaultDiscount,
                     IsManualPrice = false,
                     DateAdded = DateTime.UtcNow,
                     LastModifiedDate = DateTime.UtcNow
@@ -471,6 +479,8 @@ namespace panelapp.Controllers
                 if (cabinet == null)
                     continue;
 
+                var defaultDiscount = cabinet.Supplier?.DefaultDiscountPercent ?? 0;
+
                 _context.OfferCabinets.Add(new OfferCabinet
                 {
                     OfferID = offer.OfferID,
@@ -478,7 +488,9 @@ namespace panelapp.Controllers
                     SupplierID = cabinet.SupplierID,
                     Quantity = line.Quantity,
                     UnitPrice = cabinet.CurrentPrice,
-                    DiscountPercent = 0,
+                    DiscountPercent = line.DiscountPercent > 0
+                        ? line.DiscountPercent
+                        : defaultDiscount,
                     IsManualPrice = false,
                     DateAdded = DateTime.UtcNow,
                     LastModifiedDate = DateTime.UtcNow
