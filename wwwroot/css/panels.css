@@ -59,22 +59,7 @@ body:has(.panel-details-page) .container {
         vertical-align: middle;
     }
 
-body.dark-mode .panel-details-page table.table {
-    --bs-table-color: #f8fafc !important;
-    --bs-table-bg: transparent !important;
-    --bs-table-border-color: rgba(148,163,184,.22) !important;
-    --bs-table-hover-bg: rgba(96,165,250,.14) !important;
-    color: #f8fafc !important;
-}
 
-    body.dark-mode .panel-details-page table.table thead th {
-        background-color: rgba(2,6,23,.45) !important;
-        color: #f8fafc !important;
-    }
-
-    body.dark-mode .panel-details-page table.table tbody td {
-        color: #f8fafc !important;
-    }
 
 body:not(.dark-mode) .panel-details-page .card {
     background: #ffffff !important;

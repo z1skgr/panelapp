@@ -2,6 +2,26 @@
    Shared UI Layer
 ================================ */
 
+
+.app-shell {
+    width: 100%;
+    min-height: calc(100vh - 150px);
+}
+
+.app-content {
+    width: 100%;
+    max-width: 1780px;
+    margin-inline: auto;
+    padding-inline: .75rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+@media (max-width: 767.98px) {
+    .app-content {
+        padding: 1rem;
+    }
+}
 .app-content {
     width: 100%;
     max-width: 1780px;
@@ -201,3 +221,133 @@ body.dark-mode .accordion-item {
 .app-muted {
     color: var(--app-muted);
 }
+
+
+/* Accordions */
+.accordion-item {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+body.dark-mode .accordion-button {
+    background: var(--app-surface) !important;
+    color: var(--app-text) !important;
+    box-shadow: none !important;
+}
+
+    body.dark-mode .accordion-button:not(.collapsed) {
+        background: rgba(37, 99, 235, .18) !important;
+    }
+
+    body.dark-mode .accordion-button::after {
+        filter: invert(1) grayscale(1);
+    }
+
+body.dark-mode .accordion-body {
+    background: rgba(15, 23, 42, .20) !important;
+    color: var(--app-text) !important;
+}
+
+
+/* Forms */
+.form-label,
+.control-label,
+.col-form-label {
+    color: var(--app-text);
+    font-weight: 700;
+}
+
+.form-control,
+.form-select {
+    border-color: var(--app-border);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: rgba(15, 23, 42, .72) !important;
+    color: var(--app-text) !important;
+    border-color: var(--app-border) !important;
+}
+
+    body.dark-mode .form-control::placeholder {
+        color: rgba(203, 213, 225, .6);
+    }
+
+    body.dark-mode .form-select option {
+        background-color: #0f172a;
+        color: #f8fafc;
+    }
+
+
+
+
+/* ================================
+   Dark Mode - Typography
+================================ */
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode .stat-value,
+body.dark-mode .quick-action-tile-text strong,
+body.dark-mode .dashboard-title,
+body.dark-mode .text-dark,
+body.dark-mode .fw-semibold.text-dark,
+body.dark-mode .page-title,
+body.dark-mode .section-title,
+body.dark-mode .display-6,
+body.dark-mode .lead {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .stat-label,
+body.dark-mode .stat-subtext,
+body.dark-mode .quick-action-tile-text small,
+body.dark-mode .text-muted,
+body.dark-mode .small.text-muted,
+body.dark-mode .breadcrumb,
+body.dark-mode .breadcrumb-item,
+body.dark-mode .breadcrumb-item a {
+    color: var(--app-muted) !important;
+}
+
+
+
+
+/* Supplier discounts modal - dark mode hard fix */
+
+
+body.dark-mode .supplier-discounts-modal-content {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+    body.dark-mode .supplier-discounts-modal-content .modal-header,
+    body.dark-mode .supplier-discounts-modal-content .modal-body,
+    body.dark-mode .supplier-discounts-modal-content .modal-footer {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: rgba(148, 163, 184, .22) !important;
+    }
+
+    body.dark-mode .supplier-discounts-modal-content table,
+    body.dark-mode .supplier-discounts-modal-content thead,
+    body.dark-mode .supplier-discounts-modal-content tbody,
+    body.dark-mode .supplier-discounts-modal-content tr,
+    body.dark-mode .supplier-discounts-modal-content th,
+    body.dark-mode .supplier-discounts-modal-content td {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: rgba(148, 163, 184, .18) !important;
+    }
+
+        body.dark-mode .supplier-discounts-modal-content thead th {
+            background-color: #1e293b !important;
+        }
+
+    body.dark-mode .supplier-discounts-modal-content .btn-close {
+        filter: invert(1);
+    }
