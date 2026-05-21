@@ -214,8 +214,8 @@ namespace panelapp.Controllers
         }
 
         private async Task ResolveCabinetsAsync(
-    OfferAiPreviewViewModel preview,
-    CancellationToken cancellationToken)
+            OfferAiPreviewViewModel preview,
+            CancellationToken cancellationToken)
         {
             foreach (var line in preview.Draft.Cabinets)
             {

@@ -10,10 +10,6 @@
     }
 }
 
-/* ================================
-   Base
-================================ */
-
 body {
     margin-bottom: 60px;
     color: var(--app-text);
@@ -27,11 +23,6 @@ body {
 .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
-
-
-/* ================================
-   Global Dark Mode - Select Fix
-================================ */
 
 /* Select2 / searchable select dark mode fix */
 body.dark-mode .searchable-select,
@@ -57,8 +48,3 @@ body.dark-mode .select2-results__option--highlighted {
     background-color: #2563eb !important;
     color: #fff !important;
 }
-
-
-
-
-

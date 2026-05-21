@@ -3,10 +3,7 @@
 ================================ */
 
 .panel-details-page {
-    max-width: 1880px !important;
-    width: 100% !important;
-    margin-inline: auto !important;
-    padding-inline: .35rem !important;
+    padding-inline: .15rem !important;
 }
 
 body:has(.panel-details-page) main,
@@ -427,4 +424,195 @@ body:has(.panel-details-page) main {
     position: relative;
     z-index: 60;
     overflow: visible !important;
+}
+
+
+body:has(.panel-details-page) .app-content,
+body:has(.panel-details-page) main,
+body:has(.panel-details-page) .container,
+body:has(.panel-details-page) .container-fluid {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.panel-details-page {
+    padding-inline: .35rem !important;
+}
+
+
+/* Panels Index - match Offers Index density */
+.panels-index-page table.table {
+    font-size: .95rem;
+    margin-bottom: 0;
+}
+
+.panels-index-page table.table > thead > tr > th {
+    padding: .65rem .7rem !important;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.panels-index-page table.table > tbody > tr > td {
+    padding: .7rem .7rem !important;
+    vertical-align: middle;
+}
+
+
+
+/* Panels Index - match Offers Index exactly */
+
+.panels-index-page table.table {
+    font-size: .95rem !important;
+    margin-bottom: 0;
+}
+
+    .panels-index-page table.table > thead > tr > th {
+        padding: .65rem .7rem !important;
+        font-size: .85rem !important;
+        font-weight: 850 !important;
+        white-space: nowrap;
+    }
+
+    .panels-index-page table.table > tbody > tr > td {
+        padding: .7rem .7rem !important;
+        font-size: .95rem !important;
+        vertical-align: middle !important;
+    }
+
+.panels-index-page .icon-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+.panels-index-page .badge {
+    font-size: .8rem !important;
+    font-weight: 700;
+    padding: .45rem .6rem;
+}
+
+/* =================================
+   Panels Index - Final Density Match
+================================= */
+
+.panels-index-page .card {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.panels-index-page .card-body {
+    padding: 1rem !important;
+}
+
+    .panels-index-page .card-body.p-0 {
+        padding: 0 !important;
+    }
+
+.panels-index-page .table-responsive {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.panels-index-page table.table {
+    font-size: .95rem !important;
+    margin-bottom: 0 !important;
+}
+
+    .panels-index-page table.table > thead > tr > th {
+        padding: .65rem .7rem !important;
+        font-size: .85rem !important;
+        font-weight: 850 !important;
+        white-space: nowrap;
+    }
+
+    .panels-index-page table.table > tbody > tr > td {
+        padding: .7rem .7rem !important;
+        font-size: .95rem !important;
+        vertical-align: middle !important;
+    }
+
+.panels-index-page .form-control,
+.panels-index-page .form-select {
+    min-height: 38px !important;
+    border-radius: 8px;
+}
+
+.panels-index-page .form-label {
+    font-weight: 700;
+}
+
+.panels-index-page .icon-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+.panels-index-page .badge {
+    font-size: .82rem !important;
+    font-weight: 700;
+    padding: .45rem .6rem;
+}
+
+.panels-index-page .table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+
+
+
+/* Panels Index - exact Offers Index match */
+.panels-index-page h1,
+.panels-index-page h2 {
+    font-weight: 850;
+    letter-spacing: -0.025em;
+}
+
+.panels-index-page .card {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.panels-index-page .card-body {
+    padding: 1rem !important;
+}
+
+    .panels-index-page .card-body.p-0 {
+        padding: 0 !important;
+    }
+
+.panels-index-page .table-responsive {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.panels-index-page table.table {
+    font-size: .95rem !important;
+    margin-bottom: 0 !important;
+}
+
+    .panels-index-page table.table > thead > tr > th {
+        padding: .65rem .7rem !important;
+        font-weight: 850 !important;
+        white-space: nowrap;
+    }
+
+    .panels-index-page table.table > tbody > tr > td {
+        padding: .7rem .7rem !important;
+        vertical-align: middle !important;
+    }
+
+.panels-index-page .table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.panels-index-page .icon-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
 }

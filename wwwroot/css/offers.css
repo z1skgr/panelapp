@@ -388,38 +388,6 @@ body:has(.offer-details-page) .container {
             vertical-align: middle;
         }
 
-    .offers-index-page .table-actions {
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-    }
-
-    .offers-index-page .icon-btn {
-        width: 34px;
-        height: 34px;
-        min-height: 34px;
-        padding: 0;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-body.dark-mode .offers-index-page .card {
-    background: linear-gradient(180deg, rgba(30, 41, 59, .96) 0%, rgba(51, 65, 85, .88) 100%) !important;
-    border: 1px solid rgba(148, 163, 184, .24) !important;
-    box-shadow: 0 20px 42px rgba(0, 0, 0, .30) !important;
-}
-
-
-
-
-
-body:not(.dark-mode) .offers-index-page table.table {
-    --bs-table-color: #0f172a !important;
-    --bs-table-bg: #ffffff !important;
-    color: #0f172a !important;
-}
 
 @media (max-width: 767.98px) {
     .offers-index-page {
@@ -538,10 +506,7 @@ body:has(.offer-details-page) main {
     .offer-copy-title-btn:active {
         transform: scale(.985);
     }
-body:has(.offers-index-page) .app-content {
-    max-width: 1780px !important;
-    width: min(1780px, calc(100vw - 1.5rem)) !important;
-}
+
 
 /* Offers pages full width */
 body:has(.offers-index-page) .app-content,
@@ -553,8 +518,5 @@ body:has(.offers-index-page) .container-fluid {
 }
 
 .offers-index-page {
-    max-width: 1880px !important;
-    width: 100% !important;
-    margin-inline: auto !important;
-    padding-inline: .35rem !important;
+    padding-inline: .25rem !important;
 }

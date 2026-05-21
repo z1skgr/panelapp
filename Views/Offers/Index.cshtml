@@ -9,7 +9,7 @@
     var hasFilters = !string.IsNullOrWhiteSpace(search) || !string.IsNullOrWhiteSpace(selectedStatus);
 }
 
-<div class="offers-index-page">
+<div class="offers-index-page page-width-ultra">
 
     <div class="page-header">
         <div class="page-header-content">
@@ -37,7 +37,7 @@
         <div class="card-body">
             <form method="get" asp-action="Index" class="row g-3 align-items-end">
 
-                <div class="col-md-7">
+                <div class="col-md-5">
                     <label for="offersSearchInput" class="form-label">Αναζήτηση</label>
                     <div class="position-relative">
                         <input type="text"
@@ -210,48 +210,84 @@
                 </div>
             </div>
         </div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+            <div class="d-flex align-items-center gap-2">
+                <label for="offerPageSizeSelect" class="form-label mb-0">Εμφάνιση</label>
 
-        @if (ViewBag.TotalPages > 1)
-        {
-            <nav class="mt-4">
-                <ul class="pagination justify-content-center mb-0">
+                <form id="offerPageSizeForm"
+                      method="get"
+                      asp-action="Index"
+                      class="d-flex align-items-center gap-2">
 
-                    <li class="page-item @(ViewBag.Page <= 1 ? "disabled" : "")">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-search="@ViewBag.Search"
-                           asp-route-status="@ViewBag.Status"
-                           asp-route-page="@(ViewBag.Page - 1)">
-                            Προηγούμενη
-                        </a>
-                    </li>
+                    <input type="hidden" name="search" value="@ViewBag.Search" />
+                    <input type="hidden" name="status" value="@ViewBag.Status" />
+                    <input type="hidden" name="page" value="1" />
 
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                    <select id="offerPageSizeSelect"
+                            name="pageSize"
+                            class="form-select form-select-sm select-width-sm"
+                            onchange="this.form.submit()">
+
+                        @foreach (var size in ViewBag.PageSizeOptions)
+                        {
+                            if ((int)ViewBag.PageSize == size)
+                            {
+                                <option value="@size" selected>@size</option>
+                            }
+                            else
+                            {
+                                <option value="@size">@size</option>
+                            }
+                        }
+                    </select>
+
+                    <span class="text-muted small">ανά σελίδα</span>
+                </form>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="Σελιδοποίηση προσφορών">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(ViewBag.Page <= 1 ? "disabled" : "")">
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-search="@ViewBag.Search"
                                asp-route-status="@ViewBag.Status"
-                               asp-route-page="@i">
-                                @i
+                               asp-route-pageSize="@ViewBag.PageSize"
+                               asp-route-page="@(ViewBag.Page - 1)">
+                                Προηγούμενη
                             </a>
                         </li>
-                    }
 
-                    <li class="page-item @(ViewBag.Page >= ViewBag.TotalPages ? "disabled" : "")">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-search="@ViewBag.Search"
-                           asp-route-status="@ViewBag.Status"
-                           asp-route-page="@(ViewBag.Page + 1)">
-                            Επόμενη
-                        </a>
-                    </li>
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-search="@ViewBag.Search"
+                                   asp-route-status="@ViewBag.Status"
+                                   asp-route-pageSize="@ViewBag.PageSize"
+                                   asp-route-page="@i">
+                                    @i
+                                </a>
+                            </li>
+                        }
 
-                </ul>
-            </nav>
-        }
+                        <li class="page-item @(ViewBag.Page >= ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-search="@ViewBag.Search"
+                               asp-route-status="@ViewBag.Status"
+                               asp-route-pageSize="@ViewBag.PageSize"
+                               asp-route-page="@(ViewBag.Page + 1)">
+                                Επόμενη
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
     }
 
 </div>

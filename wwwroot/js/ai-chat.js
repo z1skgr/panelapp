@@ -1,5 +1,4 @@
 ﻿(() => {
-    console.log("AI chat js loaded");
     const toggle = document.getElementById("aiPopupToggle");
     const windowEl = document.getElementById("aiPopupWindow");
     const close = document.getElementById("aiPopupClose");
@@ -10,7 +9,6 @@
     if (!toggle || !windowEl || !close || !form || !input || !messages) return;
 
     toggle.addEventListener("click", () => {
-        console.log("AI clicked");
 
         const isOpen = windowEl.classList.contains("active");
 
@@ -25,9 +23,6 @@
             windowEl.style.pointerEvents = "auto";
             input.focus();
         }
-
-        console.log("AI popup classes:", windowEl.className);
-        console.log("AI popup display:", window.getComputedStyle(windowEl).display);
     });
 
     close.addEventListener("click", () => {
@@ -59,7 +54,6 @@
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error("AI Chat error:", errorText);
                 throw new Error(errorText);
             }
 

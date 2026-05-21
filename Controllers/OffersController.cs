@@ -35,9 +35,14 @@ namespace panelapp.Controllers
         public async Task<IActionResult> Index(
             string? search,
             string? status,
-            int page = 1)
+            int page = 1,
+            int pageSize = 10)
         {
-            const int pageSize = 10;
+            var allowedPageSizes = new[] { 5, 10, 15, 25 };
+
+            if (!allowedPageSizes.Contains(pageSize))
+                pageSize = 10;
+
 
             if (page < 1)
                 page = 1;
@@ -78,8 +83,10 @@ namespace panelapp.Controllers
 
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
+            ViewBag.PageSizeOptions = allowedPageSizes;
             ViewBag.TotalItems = totalItems;
             ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
 
             return View(offers);
         }
@@ -1260,9 +1267,9 @@ namespace panelapp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateDetailsInfo(
-    int offerId,
-    string? description,
-    string? notes)
+        int offerId,
+        string? description,
+        string? notes)
         {
             var offer = await _context.Offers
                 .FirstOrDefaultAsync(x => x.OfferID == offerId && !x.IsDeleted);

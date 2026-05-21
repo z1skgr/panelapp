@@ -11,7 +11,7 @@
         ? Model.TotalSuppliers
         : Model.ActiveSuppliers + Model.InactiveSuppliers;
 }
-
+<div class="dashboard-page page-width-wide">
 <partial name="_Partials/_DashboardHero" model="Model" />
 <partial name="_Partials/_DashboardStatsCarousel" model="Model" />
 <partial name="_Partials/_DashboardKPI" model="Model" />
@@ -49,7 +49,7 @@
 </div>
 
 <partial name="_Partials/_DashboardChart" model="Model" />
-
+</div>
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

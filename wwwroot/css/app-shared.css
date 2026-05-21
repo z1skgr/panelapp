@@ -351,3 +351,25 @@ body.dark-mode .supplier-discounts-modal-content {
     body.dark-mode .supplier-discounts-modal-content .btn-close {
         filter: invert(1);
     }
+
+/* ================================
+   Page Width Utilities
+================================ */
+
+.page-width-normal {
+    max-width: 1480px;
+    margin-inline: auto;
+    width: 100%;
+}
+
+.page-width-wide {
+    max-width: 1780px;
+    margin-inline: auto;
+    width: 100%;
+}
+
+.page-width-ultra {
+    max-width: 1880px;
+    margin-inline: auto;
+    width: 100%;
+}
