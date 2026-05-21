@@ -1,8 +1,12 @@
 ﻿@model List<panelapp.ViewModels.SupplierDiscountInfoViewModel>
 
-<div class="modal fade" id="supplierDiscountsModal" tabindex="-1" aria-labelledby="supplierDiscountsModalLabel" aria-hidden="true">
+<div class="modal fade supplier-discounts-modal"
+     id="supplierDiscountsModal"
+     tabindex="-1"
+     aria-labelledby="supplierDiscountsModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content supplier-discounts-modal-content border-0 shadow">
             <div class="modal-header">
                 <h5 class="modal-title" id="supplierDiscountsModalLabel">
                     <i class="bi bi-percent me-1"></i>
@@ -23,7 +27,7 @@
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th>Προμηθευτής</th>
                                     <th class="text-end">Default Έκπτωση</th>

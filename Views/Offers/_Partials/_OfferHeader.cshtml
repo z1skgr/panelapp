@@ -50,14 +50,6 @@
 
                     <li><hr class="dropdown-divider" /></li>
 
-                    <li>
-                        <button type="button"
-                                class="dropdown-item"
-                                id="copyOfferButton">
-                            <i class="bi bi-clipboard"></i>
-                            Αντιγραφή
-                        </button>
-                    </li>
 
                     <li><hr class="dropdown-divider" /></li>
 
@@ -83,12 +75,13 @@
                 <span>Αντιγραφή</span>
             </button>
 
-            <a asp-action="Edit"
-               asp-route-id="@offer.OfferID"
-               class="btn btn-outline-primary hero-action-btn">
-                <i class="bi bi-pencil-square"></i>
-                <span>Επεξεργασία</span>
-            </a>
+            <button type="button"
+                    class="btn btn-outline-secondary hero-action-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#supplierDiscountsModal">
+                <i class="bi bi-percent"></i>
+                <span>Εκπτώσεις</span>
+            </button>
 
             <a asp-action="Index" class="btn btn-outline-secondary hero-action-btn">
                 <i class="bi bi-arrow-left"></i>

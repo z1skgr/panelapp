@@ -24,31 +24,56 @@
 
                     try {
                         await navigator.clipboard.writeText(text);
-                        showTemporaryMessage("Η προσφορά αντιγράφηκε στο πρόχειρο.", "success");
+                        showTemporaryToast("Η προσφορά αντιγράφηκε στο πρόχειρο.", "success");
                     }
                     catch {
-                        showTemporaryMessage("Δεν ήταν δυνατή η αντιγραφή.", "danger");
+                        showTemporaryToast("Δεν ήταν δυνατή η αντιγραφή.", "danger");
                     }
                 });
             });
         }
 
-        function showTemporaryMessage(message, type) {
-            const alert = document.createElement("div");
+        function showTemporaryToast(message, type = "success") {
 
-            alert.className = `alert alert-${type} js-alert mt-3`;
-            alert.textContent = message;
+            const existing = document.querySelector(".temporary-toast");
 
-            const container = document.querySelector(".container-fluid");
-            container.insertBefore(alert, container.children[1]);
+            if (existing) {
+                existing.remove();
+            }
+
+            const toast = document.createElement("div");
+
+            toast.className = `temporary-toast ${type}`;
+
+            toast.innerHTML = `
+        <div class="temporary-toast-content">
+            <i class="bi ${type === "success"
+                    ? "bi-check-circle-fill"
+                    : "bi-exclamation-triangle-fill"
+                }"></i>
+
+            <span>${message}</span>
+        </div>
+    `;
+
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.add("show");
+            });
 
             setTimeout(() => {
-                alert.classList.add("fade");
+
+                toast.classList.remove("show");
 
                 setTimeout(() => {
-                    alert.remove();
-                }, 600);
+                    toast.remove();
+                }, 250);
 
-            }, 3500);
+            }, 2600);
         }
+
+
+
+        
     });

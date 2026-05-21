@@ -20,8 +20,8 @@
 * [Architecture](#-architecture)
 * [Folder Structure](#-folder-structure)
 * [UI Preview](#-ui-preview)
-* [Development Setup](#-development-setup
-* [Database Setup](#-database-setup))
+* [Development Setup](#-development-setup)
+* [Database Setup](#-database-setup)
 * [Features](#-features)
 * [Code Highlights](#-code-highlights)
 * [Excel Import](#-excel-import)

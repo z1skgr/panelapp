@@ -6,7 +6,7 @@
     var offer = Model.Offer;
 }
 
-<div class="container-fluid offer-details-page">
+<div class="offer-details-page">
 
     <partial name="_Partials/_OfferHeader" model="Model" />
 
@@ -32,7 +32,7 @@
 </div>
 
 <partial name="_Partials/_OfferCopyText" model="Model" />
-
+<partial name="_SupplierDiscountsModal" model="Model.SupplierDiscounts" />
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

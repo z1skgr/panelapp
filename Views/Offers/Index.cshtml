@@ -9,7 +9,7 @@
     var hasFilters = !string.IsNullOrWhiteSpace(search) || !string.IsNullOrWhiteSpace(selectedStatus);
 }
 
-<div class="container-fluid offers-index-page">
+<div class="offers-index-page">
 
     <div class="page-header">
         <div class="page-header-content">
@@ -175,6 +175,14 @@
                                                title="Προβολή"
                                                data-bs-toggle="tooltip">
                                                 <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <a asp-controller="Offers"
+                                               asp-action="Edit"
+                                               asp-route-id="@offer.OfferID"
+                                               class="btn btn-outline-primary icon-btn"
+                                               title="Επεξεργασία">
+                                                <i class="bi bi-pencil-square"></i>
                                             </a>
 
 

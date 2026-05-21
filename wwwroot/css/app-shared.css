@@ -1,0 +1,203 @@
+﻿/* ================================
+   Shared UI Layer
+================================ */
+
+.app-content {
+    width: 100%;
+    max-width: 1780px;
+    margin-inline: auto;
+    padding: 1.25rem .75rem;
+}
+
+/* Page headers */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 850;
+    letter-spacing: -.03em;
+    color: var(--app-text);
+}
+
+.page-subtitle {
+    margin: .35rem 0 0;
+    color: var(--app-muted);
+    font-size: .95rem;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: .65rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Cards */
+.app-card,
+.card {
+    border-radius: 18px;
+}
+
+/* Tables */
+.app-table-card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+/* Dark tables */
+body.dark-mode table.table {
+    --bs-table-color: #f8fafc !important;
+    --bs-table-bg: transparent !important;
+    --bs-table-border-color: rgba(148, 163, 184, .22) !important;
+    --bs-table-hover-color: #ffffff !important;
+    --bs-table-hover-bg: rgba(96, 165, 250, .14) !important;
+    color: #f8fafc !important;
+}
+
+    body.dark-mode table.table > thead > tr > th {
+        color: #f8fafc !important;
+        background-color: rgba(15, 23, 42, .88) !important;
+        border-color: rgba(148, 163, 184, .24) !important;
+    }
+
+    body.dark-mode table.table > tbody > tr > td {
+        color: #f8fafc !important;
+        border-color: rgba(148, 163, 184, .18) !important;
+    }
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .app-content {
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.55rem;
+    }
+}
+
+
+
+
+/* Buttons */
+.app-btn,
+.app-btn-sm,
+.hero-action-btn,
+.icon-btn,
+.icon-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.app-btn,
+.app-btn-sm,
+.hero-action-btn {
+    border-radius: 999px !important;
+    font-weight: 800;
+}
+
+.icon-btn,
+.icon-btn-sm {
+    padding: 0 !important;
+    border-radius: 999px !important;
+    line-height: 1;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+}
+
+.icon-btn-sm {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+}
+
+.hero-action-btn {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    overflow: hidden;
+    gap: .45rem;
+    transition: width .18s ease, padding .18s ease, min-width .18s ease;
+}
+
+    .hero-action-btn span {
+        opacity: 0;
+        max-width: 0;
+        overflow: hidden;
+        display: inline-block;
+        transition: opacity .15s ease, max-width .18s ease;
+    }
+
+    .hero-action-btn:hover,
+    .hero-action-btn:focus {
+        width: auto;
+        min-width: max-content;
+        padding-inline: .9rem;
+    }
+
+        .hero-action-btn:hover span,
+        .hero-action-btn:focus span {
+            opacity: 1;
+            max-width: 360px;
+        }
+
+
+/* ================================
+   Shared Surfaces / Cards
+================================ */
+
+.app-surface,
+.app-card,
+.card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    box-shadow: var(--app-shadow);
+    border-radius: 18px;
+}
+
+/* Dark mode surfaces */
+body.dark-mode .app-surface,
+body.dark-mode .app-card,
+body.dark-mode .card,
+body.dark-mode .accordion-item {
+    background: linear-gradient( 180deg, rgba(30, 41, 59, .96) 0%, rgba(51, 65, 85, .88) 100% ) !important;
+    color: var(--app-text) !important;
+    border-color: var(--app-border) !important;
+    box-shadow: var(--app-shadow) !important;
+}
+
+/* Card body */
+.card-body {
+    color: var(--app-text);
+}
+
+/* Shared subtle backgrounds */
+.app-surface-soft {
+    background: var(--app-surface-soft);
+}
+
+/* Shared muted */
+.app-muted {
+    color: var(--app-muted);
+}

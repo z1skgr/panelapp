@@ -45,12 +45,12 @@ body.dark-mode .offer-details-page {
 }
 
 .offer-details-page .col-lg-8 {
-    width: 78% !important;
+    width: 82% !important;
     flex: 0 0 auto;
 }
 
 .offer-details-page .col-lg-4 {
-    width: 22% !important;
+    width: 18% !important;
     flex: 0 0 auto;
     position: sticky;
     top: .9rem;
@@ -143,7 +143,7 @@ body.dark-mode .offer-details-page {
         }
 
     .offer-details-page .offer-card .card-body {
-        padding: .72rem .8rem !important;
+        padding: 1rem 1rem !important;
         color: var(--offer-text);
     }
 
@@ -165,8 +165,8 @@ body.dark-mode .offer-details-page {
 
 .offer-details-page .form-control,
 .offer-details-page .form-select {
-    height: 34px !important;
-    min-height: 34px !important;
+    height: 38px !important;
+    min-height: 38px !important;
     font-size: .8rem !important;
     padding: .25rem .52rem !important;
     border-radius: 8px;
@@ -215,7 +215,7 @@ body.dark-mode .offer-details-page {
 
     .offer-details-page table.table > tbody > tr > td,
     .offer-details-page table.table > tfoot > tr > td {
-        padding: .42rem .5rem !important;
+        padding: .58rem .65rem !important;
         vertical-align: middle;
         color: var(--offer-text) !important;
         border-color: var(--offer-border-soft) !important;
@@ -334,7 +334,8 @@ body:has(.offer-details-page) .container {
 ================================ */
 
 .offers-index-page {
-    max-width: 1240px;
+    max-width: 1780px;
+    width: 100%;
     margin-inline: auto;
 }
 
@@ -447,6 +448,7 @@ body:not(.dark-mode) .offers-index-page table.table {
 }
 
 
+
 .offer-page-header,
 .offer-page-header .dropdown,
 .offer-header-actions {
@@ -458,3 +460,121 @@ body:not(.dark-mode) .offers-index-page table.table {
     .offer-page-header .dropdown-menu {
         z-index: 2000;
     }
+
+
+body:has(.offer-details-page) .app-content {
+    max-width: 1700px !important;
+    width: 100% !important;
+    padding-inline: .5rem !important;
+}
+
+body:has(.offer-details-page) main {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.offer-details-page {
+    max-width: 1700px !important;
+    width: 100% !important;
+    padding-inline: 0 !important;
+}
+
+@media (min-width: 992px) {
+    .offer-details-page .col-lg-8 {
+        width: 84% !important;
+        flex: 0 0 84% !important;
+        max-width: 84% !important;
+    }
+
+    .offer-details-page .col-lg-4 {
+        width: 16% !important;
+        flex: 0 0 16% !important;
+        max-width: 16% !important;
+    }
+}
+
+
+
+
+
+.temporary-toast {
+    position: fixed;
+    right: 5.5rem;
+    bottom: 1.25rem;
+    z-index: 120000;
+    min-width: 260px;
+    max-width: 420px;
+    padding: .85rem 1rem;
+    border-radius: 16px;
+    color: #fff;
+    background: #0f172a;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .28);
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+    .temporary-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .temporary-toast.success {
+        background: linear-gradient(135deg, #166534, #15803d);
+    }
+
+    .temporary-toast.error {
+        background: linear-gradient(135deg, #991b1b, #dc2626);
+    }
+
+.temporary-toast-content {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+}
+
+    .temporary-toast-content i {
+        font-size: 1rem;
+    }
+
+
+
+.offer-copy-title-btn {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    transition: opacity .15s ease;
+}
+
+    .offer-copy-title-btn:hover {
+        opacity: .72;
+    }
+
+    .offer-copy-title-btn:active {
+        transform: scale(.985);
+    }
+body:has(.offers-index-page) .app-content {
+    max-width: 1780px !important;
+    width: min(1780px, calc(100vw - 1.5rem)) !important;
+}
+
+/* Offers pages full width */
+body:has(.offers-index-page) .app-content,
+body:has(.offers-index-page) main,
+body:has(.offers-index-page) .container,
+body:has(.offers-index-page) .container-fluid {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.offers-index-page {
+    max-width: 1880px !important;
+    width: 100% !important;
+    margin-inline: auto !important;
+    padding-inline: .35rem !important;
+}

@@ -614,7 +614,7 @@ namespace panelapp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleMaterial(int id)
+        public async Task<IActionResult> DeleteMaterial(int id)
         {
             var offerMaterial = await _context.OfferMaterials
                 .Include(x => x.Offer)
@@ -1252,6 +1252,130 @@ namespace panelapp.Controllers
                     SupplierID = x.SupplierID,
                     SupplierName = x.SupplierName,
                     DefaultDiscountPercent = x.DefaultDiscountPercent
+                })
+                .ToListAsync();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateDetailsInfo(
+    int offerId,
+    string? description,
+    string? notes)
+        {
+            var offer = await _context.Offers
+                .FirstOrDefaultAsync(x => x.OfferID == offerId && !x.IsDeleted);
+
+            if (offer == null)
+                return NotFound();
+
+            offer.Description = string.IsNullOrWhiteSpace(description)
+                ? null
+                : description.Trim();
+
+            offer.Notes = string.IsNullOrWhiteSpace(notes)
+                ? null
+                : notes.Trim();
+
+            offer.LastModifiedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await _activityLogService.LogAsync(
+                "Offer",
+                offer.OfferID,
+                "Updated",
+                "Ενημέρωση στοιχείων προσφοράς",
+                $"Ενημερώθηκαν η περιγραφή και οι σημειώσεις της προσφοράς {offer.OfferCode}.");
+
+            TempData["SuccessMessage"] = "Τα στοιχεία της προσφοράς ενημερώθηκαν.";
+
+            return RedirectToAction(nameof(Details), new { id = offer.OfferID });
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var offer = await _context.Offers
+                .FirstOrDefaultAsync(x => x.OfferID == id && !x.IsDeleted);
+
+            if (offer == null)
+                return NotFound();
+
+            var model = new OfferEditViewModel
+            {
+                OfferID = offer.OfferID,
+                OfferCode = offer.OfferCode,
+                CustomerID = offer.CustomerID,
+                CustomerName = offer.CustomerName,
+                Description = offer.Description,
+                Notes = offer.Notes,
+                Customers = await GetCustomerOptionsAsync()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(OfferEditViewModel model)
+        {
+            var offer = await _context.Offers
+                .FirstOrDefaultAsync(x => x.OfferID == model.OfferID && !x.IsDeleted);
+
+            if (offer == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                model.Customers = await GetCustomerOptionsAsync();
+                return View(model);
+            }
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(x => x.CustomerID == model.CustomerID && x.Active);
+
+            if (customer == null)
+            {
+                ModelState.AddModelError(nameof(model.CustomerID), "Ο πελάτης δεν βρέθηκε.");
+                model.Customers = await GetCustomerOptionsAsync();
+                return View(model);
+            }
+
+            offer.CustomerID = customer.CustomerID;
+            offer.CustomerName = customer.CustomerName;
+            offer.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
+            offer.Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes.Trim();
+            offer.LastModifiedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await _activityLogService.LogAsync(
+                "Offer",
+                offer.OfferID,
+                "Updated",
+                $"Ενημερώθηκε η προσφορά {offer.OfferCode}",
+                $"Πελάτης: {offer.CustomerName}");
+
+            TempData["SuccessMessage"] = $"Η προσφορά {offer.OfferCode} ενημερώθηκε επιτυχώς.";
+
+            return RedirectToAction(nameof(Details), new { id = offer.OfferID });
+        }
+
+
+        private async Task<List<SelectListItem>> GetCustomerOptionsAsync()
+        {
+            return await _context.Customers
+                .AsNoTracking()
+                .Where(x => x.Active)
+                .OrderBy(x => x.CustomerName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.CustomerID.ToString(),
+                    Text = x.CustomerName
                 })
                 .ToListAsync();
         }

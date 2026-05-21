@@ -38,7 +38,7 @@
             letter-spacing: .03em;
         }
 
-    .customers-index-page .table-actions,
+    .customers-index-page,
     .customers-index-page .accordion-actions {
         display: inline-flex;
         align-items: center;

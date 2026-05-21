@@ -16,28 +16,34 @@
     ViewData["Title"] = "Στοιχεία Πίνακα";
 }
 
-
-<div class="container-fluid panel-details-page">
+<div class="panel-details-page">
 
     <partial name="_Partials/_PanelHeader" model="Model" />
 
-    <partial name="_Partials/_PanelAddMaterialForm" model="Model" />
+    <div class="row g-4">
+        <div class="col-lg-8">
 
-    <partial name="_Partials/_PanelMaterialsSection" model="Model" />
+            <partial name="_Partials/_PanelAddMaterialForm" model="Model" />
+            <partial name="_Partials/_PanelMaterialsSection" model="Model" />
 
-    <partial name="_Partials/_PanelAddCabinetForm" model="Model" />
+            <partial name="_Partials/_PanelAddCabinetForm" model="Model" />
+            <partial name="_Partials/_PanelCabinetsSection" model="Model" />
 
-    <partial name="_Partials/_PanelCabinetsSection" model="Model" />
+            <partial name="_Partials/_PanelAddExtraItemForm" model="Model" />
+            <partial name="_Partials/_PanelExtraItemsSection" model="Model" />
 
-    <partial name="_Partials/_PanelAddExtraItemForm" model="Model" />
+        </div>
 
-    <partial name="_Partials/_PanelExtraItemsSection" model="Model" />
+        <div class="col-lg-4">
+            <partial name="_Partials/_PanelPricingSummarySection" model="Model" />
 
-    <partial name="_Partials/_PanelPricingSummarySection" model="Model" />
+        </div>
+    </div>
 
 
 </div>
-
+<partial name="_SupplierDiscountsModal"
+         model="Model.SupplierDiscounts" />
  
 
 @section Scripts {
