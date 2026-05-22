@@ -60,17 +60,20 @@
                                               asp-action="DeleteCabinet"
                                               asp-route-id="@item.OfferCabinetID"
                                               method="post"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Να αφαιρεθεί το ερμάριο από την προσφορά;');">
+                                              class="d-inline js-confirm-form"
+                                              data-confirm-title="Διαγραφή ερμάριο υλικό"
+                                              data-confirm-message="Να αφαιρεθεί το υλικό @item.OfferCabinetID από την προσφορά @offer.OfferCode;"
+                                              data-confirm-button="Διαγραφή">
                                             @Html.AntiForgeryToken()
 
                                             <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger icon-btn-sm"
-                                                    title="Διαγραφή">
-                                                <i class="bi bi-trash"></i>
+                                                    class="btn btn-sm btn-outline-danger icon-btn"
+                                                    title="Διαγραφή"
+                                                    data-bs-toggle="tooltip">
                                             </button>
                                         </form>
                                     </div>
+
                                 </td>
                             </tr>
                         }
@@ -191,10 +194,16 @@
                                         Ακύρωση
                                     </button>
 
-                                    <button type="submit"
-                                            class="btn btn-primary">
-                                        <i class="bi bi-save"></i>
-                                        Αποθήκευση
+                                    <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
+                                        <span class="btn-text">
+                                            <i class="bi bi-save me-1"></i>
+                                            Αποθήκευση
+                                        </span>
+
+                                        <span class="btn-spinner">
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            Αποθήκευση...
+                                        </span>
                                     </button>
                                 </div>
                             </form>

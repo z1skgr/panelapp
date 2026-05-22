@@ -155,17 +155,26 @@ else
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form asp-action="RemoveMaterial" method="post" class="d-inline">
+                                            <form asp-action="RemoveMaterial" method="post" 
+                                                  class="d-inline js-confirm-form"
+                                                  data-confirm-title="Διαγραφή λοιπο υλικό"
+                                                  data-confirm-message="Να αφαιρεθεί το υλικό από τον πίνακα;"
+                                                  data-confirm-button="Διαγραφή">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="panelMaterialId" value="@item.PanelMaterialID" />
                                                 <input type="hidden" name="panelId" value="@Model.Panel.PanelID" />
                                                 <button type="submit"
-                                                        class="btn btn-outline-danger btn-sm app-btn-sm"
-                                                        title="Αφαίρεση"
-                                                        onclick="return confirm('Θέλεις σίγουρα να αφαιρέσεις αυτό το υλικό από τον πίνακα;');">
+                                                        class="btn btn-sm btn-outline-danger icon-btn"
+                                                        title="Διαγραφή"
+                                                        data-bs-toggle="tooltip">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
+                                            
+                                            
+
+                                            
+
                                         }
                                         else if (!panelLocked)
                                         {
@@ -176,17 +185,24 @@ else
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form asp-action="RemoveMaterial" method="post" class="d-inline">
+                                            <form asp-action="RemoveMaterial" method="post" 
+                                                  class="d-inline js-confirm-form"
+                                                  data-confirm-title="Διαγραφή λοιπο υλικό"
+                                                  data-confirm-message="Να αφαιρεθεί το υλικό από τον πίνακα;"
+                                                  data-confirm-button="Διαγραφή">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="panelMaterialId" value="@item.PanelMaterialID" />
                                                 <input type="hidden" name="panelId" value="@Model.Panel.PanelID" />
                                                 <button type="submit"
-                                                        class="btn btn-outline-danger btn-sm app-btn-sm"
-                                                        title="Αφαίρεση"
-                                                        onclick="return confirm('Θέλεις σίγουρα να αφαιρέσεις αυτό το υλικό από τον πίνακα;');">
+                                                        class="btn btn-sm btn-outline-danger icon-btn"
+                                                        title="Διαγραφή"
+                                                        data-bs-toggle="tooltip">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
+
+
+                                           
                                         }
                                     </div>
                                 </td>

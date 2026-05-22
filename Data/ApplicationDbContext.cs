@@ -52,6 +52,8 @@ namespace panelapp.Data
                 .HasIndex(p => p.PanelCode)
                 .IsUnique();
 
+
+
             modelBuilder.Entity<Material>()
                 .HasIndex(m => new { m.SupplierID, m.MaterialCode })
                 .IsUnique();
@@ -352,6 +354,11 @@ namespace panelapp.Data
                 .Property(x => x.RowVersion)
                 .IsRowVersion();
 
+            modelBuilder.Entity<Panel>()
+                .HasQueryFilter(x => !x.IsDeleted);
+
+            modelBuilder.Entity<Offer>()
+                .HasQueryFilter(x => !x.IsDeleted);
 
         }
 

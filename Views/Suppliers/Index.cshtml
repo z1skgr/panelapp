@@ -173,18 +173,24 @@ else
 
                                         @if (Context.Session.GetString("RoleName") == "Admin" && item.Active)
                                         {
+                                            
                                             <form asp-action="Delete"
                                                   asp-route-id="@item.SupplierID"
                                                   method="post"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Θέλετε σίγουρα να διαγράψετε τον προμηθευτή από την ενεργή λίστα;');">
+                                                  class="d-inline js-confirm-form"
+                                                  data-confirm-title="Διαγραφή προμηθευτή"
+                                                  data-confirm-message="Θέλετε σίγουρα να διαγράψετε τον προμηθευτή @item.SupplierName από την ενεργή λίστα;"
+                                                  data-confirm-button="Διαγραφή">
+
                                                 @Html.AntiForgeryToken()
 
                                                 <button type="submit"
-                                                        class="btn btn-sm btn-outline-danger app-btn-sm"
-                                                        title="Διαγραφή">
+                                                        class="btn btn-sm btn-outline-danger icon-btn"
+                                                        title="Διαγραφή"
+                                                        data-bs-toggle="tooltip">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
+
                                             </form>
                                         }
                                     </div>

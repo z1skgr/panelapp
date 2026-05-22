@@ -20,22 +20,30 @@ namespace panelapp.Services
             var now = DateTime.Now;
             var monthStart = new DateTime(now.Year, now.Month, 1);
 
-            var totalPanels = await _context.Panels.CountAsync();
+            var activePanelsQuery = _context.Panels
+                .AsNoTracking();
+
+
+            var activeOffersQuery = _context.Offers
+                .AsNoTracking();
+
+
+
+            var totalPanels = await activePanelsQuery.CountAsync();
 
             var underConstructionPanels =
-                await _context.Panels.CountAsync(p =>
+                await activePanelsQuery.CountAsync(p =>
                     p.Status == PanelStatuses.UnderConstruction);
 
             var completedPanels =
-                await _context.Panels.CountAsync(p =>
+                await activePanelsQuery.CountAsync(p =>
                     p.Status == PanelStatuses.Completed);
 
             var cancelledPanels =
-                await _context.Panels.CountAsync(p =>
+                await activePanelsQuery.CountAsync(p =>
                     p.Status == PanelStatuses.Cancelled);
 
-            var topCustomer = await _context.Panels
-                .AsNoTracking()
+            var topCustomer = await activePanelsQuery
                 .Where(p => p.CustomerName != null && p.CustomerName != "")
                 .GroupBy(p => p.CustomerName!)
                 .Select(g => new
@@ -46,8 +54,7 @@ namespace panelapp.Services
                 .OrderByDescending(x => x.Count)
                 .FirstOrDefaultAsync();
 
-            var recentPanels = await _context.Panels
-                .AsNoTracking()
+            var recentPanels = await activePanelsQuery
                 .OrderByDescending(p => p.LastModifiedDate)
                 .Take(8)
                 .Select(p => new RecentPanelRow
@@ -60,6 +67,7 @@ namespace panelapp.Services
                     LastModifiedDate = p.LastModifiedDate
                 })
                 .ToListAsync();
+
 
             var activityFeed = await _context.ActivityLogs
                 .AsNoTracking()
@@ -80,8 +88,9 @@ namespace panelapp.Services
                 })
                 .ToListAsync();
 
-            var groupedPanels = await _context.Panels
-                .AsNoTracking()
+
+            var groupedPanels = await activePanelsQuery
+
                 .Where(p => p.CustomerName != null && p.CustomerName != "")
                 .GroupBy(p => new { p.CustomerName, p.Status })
                 .Select(g => new
@@ -114,26 +123,28 @@ namespace panelapp.Services
                     .Sum(x => x.Count)
             }).ToList();
 
-            var totalOffers = await _context.Offers.CountAsync();
 
-            var draftOffers = await _context.Offers.CountAsync(x => x.Status == "Draft");
-            var sentOffers = await _context.Offers.CountAsync(x => x.Status == "Sent");
-            var acceptedOffers = await _context.Offers.CountAsync(x => x.Status == "Accepted");
-            var convertedOffers = await _context.Offers.CountAsync(x => x.Status == "Converted");
-            var rejectedOffers = await _context.Offers.CountAsync(x => x.Status == "Rejected");
+            var totalOffers = await activeOffersQuery.CountAsync();
 
-            var offersThisMonth = await _context.Offers
+
+            var draftOffers = await activeOffersQuery.CountAsync(x => x.Status == "Draft");
+            var sentOffers = await activeOffersQuery.CountAsync(x => x.Status == "Sent");
+            var acceptedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Accepted");
+            var convertedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Converted");
+            var rejectedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Rejected");
+
+            var offersThisMonth = await activeOffersQuery
                 .CountAsync(x => x.CreatedDate >= monthStart);
 
-            var acceptedOfferProfit = await _context.Offers
+            var acceptedOfferProfit = await activeOffersQuery
                 .Where(x => x.Status == "Accepted" || x.Status == "Converted")
                 .SumAsync(x => x.ProfitAmount);
 
-            var acceptedOfferLabor = await _context.Offers
+            var acceptedOfferLabor = await activeOffersQuery
                 .Where(x => x.Status == "Accepted")
                 .SumAsync(x => x.LaborCost + x.ProfitAmount);
 
-            var convertedOfferLabor = await _context.Offers
+            var convertedOfferLabor = await activeOffersQuery
                 .Where(x => x.Status == "Converted")
                 .SumAsync(x => x.LaborCost + x.ProfitAmount);
 

@@ -151,28 +151,6 @@
     <div class="container-fluid py-4 px-3">
         <main class="app-shell">
             <div class="app-content">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show auto-dismiss-alert" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle me-2"></i>
-                        <div>@TempData["SuccessMessage"]</div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Κλείσιμο"></button>
-                </div>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show auto-dismiss-alert" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <div>@TempData["ErrorMessage"]</div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Κλείσιμο"></button>
-                </div>
-            }
-
             @RenderBody()
             </div>
         </main>
@@ -218,14 +196,94 @@
             </div>
         </div>
     </footer>
+    <div class="modal fade" id="appConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content app-confirm-modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appConfirmModalTitle">
+                        Επιβεβαίωση
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
+                <div class="modal-body" id="appConfirmModalMessage">
+                    Είσαι σίγουρος;
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary app-btn" data-bs-dismiss="modal">
+                        Άκυρο
+                    </button>
+
+                    <button type="button" class="btn btn-danger app-btn" id="appConfirmModalOk">
+                        Επιβεβαίωση
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="appToastContainer"></div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    <script src="~/js/searchable-selects.js" asp-append-version="true"></script>
-    <partial name="_AiChatWidget" />
-    <script src="~/js/ai-chat.js" asp-append-version="true"></script>
+
+
+        @if (isLoggedIn)
+        {
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+        <script src="~/js/searchable-selects.js" asp-append-version="true"></script>
+        <partial name="_AiChatWidget" />
+        <script src="~/js/ai-chat.js" asp-append-version="true"></script>
+        <script src="~/js/app-toast.js" asp-append-version="true"></script>
+        <script src="~/js/app-confirm.js" asp-append-version="true"></script>
+        <script src="~/js/app-loading.js" asp-append-version="true"></script>
+                @if (TempData["SuccessMessage"] != null)
+            {
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                    showToast('success', '@Html.Raw(
+                                    TempData["SuccessMessage"]?.ToString()?.Replace("'", "\\'")
+                                )');
+                    });
+                </script>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                    showToast('error', '@Html.Raw(
+                                    TempData["ErrorMessage"]?.ToString()?.Replace("'", "\\'")
+                                )');
+                    });
+                </script>
+            }
+
+            @if (TempData["WarningMessage"] != null)
+            {
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                    showToast('warning', '@Html.Raw(
+                                    TempData["WarningMessage"]?.ToString()?.Replace("'", "\\'")
+                                )');
+                    });
+                </script>
+            }
+
+            @if (TempData["InfoMessage"] != null)
+            {
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                    showToast('info', '@Html.Raw(
+                                    TempData["InfoMessage"]?.ToString()?.Replace("'", "\\'")
+                                )');
+                    });
+                </script>
+            }
+        }
+        
     @await RenderSectionAsync("Scripts", required: false)
+    
+    
 </body>
 </html>

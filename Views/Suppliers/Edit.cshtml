@@ -134,9 +134,8 @@
                                         <td class="text-end align-middle">
                                             <button type="submit"
                                                     form="deleteContactForm_@Model.ExistingContactPersons[i].SupplierContactPersonID"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    title="Διαγραφή υπευθύνου"
-                                                    onclick="return confirm('Να διαγραφεί ο υπεύθυνος επικοινωνίας;');">
+                                                    class="btn btn-sm btn-outline-danger icon-btn"
+                                                    title="Διαγραφή υπευθύνου">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -205,10 +204,16 @@
             </div>
 
             <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">
-                    Αποθήκευση
-                </button>
+                <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
+                    <span class="btn-text">
+                        Αποθήκευση
+                    </span>
 
+                    <span class="btn-spinner">
+                        <span class="spinner-border spinner-border-sm"></span>
+                        Αποθήκευση...
+                    </span>
+                </button>
                 <a asp-action="Index" class="btn btn-outline-secondary">
                     Ακύρωση
                 </a>

@@ -25,7 +25,7 @@ namespace panelapp.Controllers
             var username = HttpContext.Session.GetString("Username");
             var isAdmin = HttpContext.IsAdmin();
 
-            var query = _context.ActivityLogs.AsQueryable();
+            var query = _context.ActivityLogs.AsNoTracking().AsQueryable();
 
             if (!AllowedPageSizes.Contains(pageSize))
             {
@@ -52,6 +52,7 @@ namespace panelapp.Controllers
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalCount = totalCount;
             ViewBag.IsAdmin = isAdmin;
+            ViewBag.PageSize = pageSize;
 
             return View(logs);
         }

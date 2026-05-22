@@ -41,7 +41,7 @@ namespace panelapp.Controllers
                 return View(model);
             }
 
-            var user = await _context.Users
+            var user = await _context.Users.AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Username == model.Username && u.Active);
 
             if (user == null)

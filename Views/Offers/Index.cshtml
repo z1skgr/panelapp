@@ -20,6 +20,7 @@
             <p class="page-subtitle">Διαχείριση προσφορών και κοστολόγησης έργων</p>
         </div>
 
+
         <div class="page-header-actions">
             <a asp-action="Create" class="btn btn-primary app-btn" title="Νέα Προσφορά">
                 <i class="bi bi-plus-circle me-1"></i>
@@ -189,8 +190,10 @@
                                             <form asp-action="Delete"
                                                   asp-route-id="@offer.OfferID"
                                                   method="post"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Να διαγραφεί η προσφορά;');">
+                                                  class="d-inline js-confirm-form"
+                                                  data-confirm-title="Διαγραφή προσφοράς"
+                                                  data-confirm-message="Να διαγραφεί η προσφορά @offer.OfferCode;"
+                                                  data-confirm-button="Διαγραφή">
 
                                                 @Html.AntiForgeryToken()
 
@@ -200,6 +203,7 @@
                                                         data-bs-toggle="tooltip">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
+
                                             </form>
                                         </div>
                                     </td>

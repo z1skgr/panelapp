@@ -180,7 +180,7 @@ namespace panelapp.Controllers
                 return View(model);
             }
 
-            var exists = await _context.Suppliers
+            var exists = await _context.Suppliers.AsNoTracking()
                 .AnyAsync(s => s.SupplierName == model.SupplierName);
 
             if (exists)
@@ -236,7 +236,7 @@ namespace panelapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var supplier = await _context.Suppliers
+            var supplier = await _context.Suppliers.AsNoTracking()
                 .Include(s => s.ContactPersons)
                 .FirstOrDefaultAsync(s => s.SupplierID == id);
 

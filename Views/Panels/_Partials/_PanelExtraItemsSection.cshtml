@@ -79,13 +79,19 @@ else
                                                   asp-action="DeleteExtraItem"
                                                   asp-route-id="@item.PanelExtraItemID"
                                                   method="post"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Να αφαιρεθεί το λοιπό υλικό από τον πίνακα;');">
+                                                  onsubmit="return confirm('Να αφαιρεθεί το λοιπό υλικό από τον πίνακα;');"
+                                                  class="d-inline js-confirm-form"
+                                                  data-confirm-title="Διαγραφή ερμάριο υλικό"
+                                                  data-confirm-message="Να αφαιρεθεί το λοιπό υλικό @item.PanelExtraItemID από τον πίνακα"
+                                                  data-confirm-button="Διαγραφή">
+                                                >
 
                                                 @Html.AntiForgeryToken()
 
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-trash"></i>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger icon-btn"
+                                                        title="Διαγραφή"
+                                                        data-bs-toggle="tooltip">
                                                 </button>
                                             </form>
                                         </div>
@@ -193,9 +199,15 @@ else
                                         Ακύρωση
                                     </button>
 
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save"></i>
-                                        Αποθήκευση
+                                    <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
+                                        <span class="btn-text">
+                                            Αποθήκευση
+                                        </span>
+
+                                        <span class="btn-spinner">
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            Αποθήκευση...
+                                        </span>
                                     </button>
                                 </div>
                             </form>

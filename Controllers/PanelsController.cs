@@ -167,9 +167,8 @@ namespace panelapp.Controllers
 
 
             var query = _context.Panels
-                .Include(p => p.Customer)
-                .Where(p => !p.IsDeleted)
                 .AsNoTracking()
+                .Include(p => p.Customer)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))

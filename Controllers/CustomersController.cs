@@ -50,8 +50,8 @@ namespace panelapp.Controllers
 
 
             var query = _context.Customers
-                .Include(c => c.Panels)
                 .AsNoTracking()
+                .Include(c => c.Panels)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -145,7 +145,6 @@ namespace panelapp.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var customer = await _context.Customers
-                .Include(c => c.Panels)
                 .FirstOrDefaultAsync(c => c.CustomerID == id);
 
             if (customer == null)
@@ -153,7 +152,9 @@ namespace panelapp.Controllers
                 return NotFound();
             }
 
-            ViewBag.HasPanels = customer.Panels.Any();
+            ViewBag.HasPanels = await _context.Panels
+                .AsNoTracking()
+                .AnyAsync(p => p.CustomerID == id);
             return View(customer);
         }
 
@@ -165,7 +166,6 @@ namespace panelapp.Controllers
             _customerService.NormalizeCustomer(model);
 
             var customer = await _context.Customers
-                .Include(c => c.Panels)
                 .FirstOrDefaultAsync(c => c.CustomerID == model.CustomerID);
 
             if (customer == null)
@@ -173,7 +173,9 @@ namespace panelapp.Controllers
                 return NotFound();
             }
 
-            var hasPanels = customer.Panels.Any();
+            var hasPanels = await _context.Panels
+                .AsNoTracking()
+                .AnyAsync(p => p.CustomerID == model.CustomerID);
             ViewBag.HasPanels = hasPanels;
 
             if (hasPanels)

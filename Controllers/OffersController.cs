@@ -48,12 +48,12 @@ namespace panelapp.Controllers
                 page = 1;
 
             var query = _context.Offers
+                .AsNoTracking()
                 .Include(x => x.Customer)
                 .Include(x => x.Panel)
                 .Include(x => x.OfferMaterials)
                 .Include(x => x.OfferCabinets)
                 .Include(x => x.OfferExtraItems)
-                .Where(o => !o.IsDeleted)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -104,7 +104,7 @@ namespace panelapp.Controllers
                 Status = OfferStatuses.Draft
             };
 
-            ViewBag.Customers = await _context.Customers
+            ViewBag.Customers = await _context.Customers.AsNoTracking()
                 .Where(x => x.Active)
                 .OrderBy(x => x.CustomerName)
                 .ToListAsync();
@@ -122,7 +122,7 @@ namespace panelapp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Customers = await _context.Customers
+                ViewBag.Customers = await _context.Customers.AsNoTracking()
                     .Where(x => x.Active)
                     .OrderBy(x => x.CustomerName)
                     .ToListAsync();
@@ -153,6 +153,7 @@ namespace panelapp.Controllers
         public async Task<IActionResult> Details(int id, int? supplierId, string? materialSearch)
         {
             var offer = await _context.Offers
+                .AsSplitQuery()
                 .Include(x => x.Customer)
                 .Include(x => x.Panel)
                 .Include(x => x.OfferCabinets)
@@ -1272,7 +1273,7 @@ namespace panelapp.Controllers
         string? notes)
         {
             var offer = await _context.Offers
-                .FirstOrDefaultAsync(x => x.OfferID == offerId && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.OfferID == offerId);
 
             if (offer == null)
                 return NotFound();
@@ -1307,7 +1308,7 @@ namespace panelapp.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var offer = await _context.Offers
-                .FirstOrDefaultAsync(x => x.OfferID == id && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.OfferID == id);
 
             if (offer == null)
                 return NotFound();
@@ -1331,7 +1332,7 @@ namespace panelapp.Controllers
         public async Task<IActionResult> Edit(OfferEditViewModel model)
         {
             var offer = await _context.Offers
-                .FirstOrDefaultAsync(x => x.OfferID == model.OfferID && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.OfferID == model.OfferID);
 
             if (offer == null)
                 return NotFound();

@@ -308,7 +308,7 @@ namespace panelapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var material = await _context.Materials
+            var material = await _context.Materials.AsNoTracking()
                 .FirstOrDefaultAsync(m => m.MaterialID == id);
 
             if (material == null)
