@@ -346,7 +346,7 @@ body:has(.offer-details-page) .container {
 
     .offers-index-page .card {
         border-radius: 16px !important;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .offers-index-page .offers-filter-card .card-body {
@@ -369,7 +369,8 @@ body:has(.offer-details-page) .container {
 
     .offers-index-page .table-responsive {
         border-radius: 14px;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
     }
 
     .offers-index-page table.table {
@@ -500,13 +501,13 @@ body:has(.offer-details-page) main {
 }
 
     .offer-copy-title-btn:hover {
-        opacity: .72;
-    }
+        opacity: .72;   }
 
     .offer-copy-title-btn:active {
         transform: scale(.985);
     }
 
+/* Offers pages full width */
 
 /* Offers pages full width */
 body:has(.offers-index-page) .app-content,
@@ -519,4 +520,82 @@ body:has(.offers-index-page) .container-fluid {
 
 .offers-index-page {
     padding-inline: .25rem !important;
+}
+
+    .offers-index-page .offers-table-card {
+        overflow: hidden !important;
+    }
+
+        .offers-index-page .offers-table-card .card-body {
+            padding: 0 !important;
+        }
+
+    .offers-index-page .table-responsive {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    .offers-index-page th,
+    .offers-index-page td {
+        white-space: nowrap !important;
+    }
+
+    .offers-index-page .table-actions {
+        flex-wrap: nowrap;
+    }
+
+    .offers-index-page .icon-btn {
+        min-width: 34px;
+    }
+
+@media (max-width: 767.98px) {
+    .offers-index-page {
+        padding-inline: .75rem !important;
+    }
+
+        .offers-index-page .table-responsive table.table {
+            min-width: 820px !important;
+        }
+}
+
+/* Offers actions column fix */
+.offers-index-page table.table th:last-child,
+.offers-index-page table.table td:last-child {
+    width: 1% !important;
+    white-space: nowrap !important;
+}
+
+.offers-index-page .table-actions {
+    display: inline-flex !important;
+    justify-content: flex-end;
+    gap: .35rem;
+}
+
+
+/* =================================
+   Offer Edit Modals Fix
+================================= */
+
+.offer-details-page .modal,
+.offer-details-page .modal-dialog,
+.offer-details-page .modal-content {
+    overflow: visible !important;
+}
+
+
+
+.offer-details-page .offer-card,
+.offer-details-page .offer-convert-card,
+.offer-details-page .card {
+    overflow: visible !important;
+}
+
+.offer-details-page .table-responsive {
+    overflow: visible !important;
+}
+
+.offer-details-page .dropdown-menu {
+    z-index: 5000 !important;
 }

@@ -27,7 +27,7 @@ namespace panelapp.Controllers
         private const int DefaultPageSize = 15;
         private static readonly int[] AllowedPageSizes = { 5, 10, 15, 20 };
 
-        public PanelsController(ApplicationDbContext context, IPanelCodeService panelCodeService, IActivityLogService activityLogger, IPanelExportService panelExportService, IPanelMaterialService panelMaterialService, IPanelService panelService, IPanelOfferPdfService panelOfferPdfService, IPanelOfferPdfService panelPdfService)
+        public PanelsController(ApplicationDbContext context, IPanelCodeService panelCodeService, IActivityLogService activityLogger, IPanelExportService panelExportService, IPanelMaterialService panelMaterialService, IPanelService panelService, IPanelOfferPdfService panelOfferPdfService)
         {
             _context = context;
             _panelCodeService = panelCodeService;

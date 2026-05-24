@@ -9,5 +9,7 @@
         public string? ContextType { get; set; }
 
         public int? ContextEntityId { get; set; }
+
+        public int? OfferId { get; set; }
     }
 }

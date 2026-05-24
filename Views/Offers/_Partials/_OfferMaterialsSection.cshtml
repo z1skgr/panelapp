@@ -23,7 +23,6 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
-                        a
                         <tr>
                             <th>Κωδικός</th>
                             <th>Περιγραφή</th>
@@ -99,112 +98,114 @@
                 </table>
             </div>
 
-            @foreach (var item in offer.OfferMaterials)
-            {
-                <div class="modal fade" id="editMaterialModal_@item.OfferMaterialID" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content bg-body text-body">
-                            <form asp-controller="Offers" asp-action="UpdateMaterial" method="post">
-                                @Html.AntiForgeryToken()
-
-                                <input type="hidden" name="OfferMaterialID" value="@item.OfferMaterialID" />
-                                <input type="hidden" name="OfferID" value="@offer.OfferID" />
-                                <input type="hidden" name="RowVersion" value="@Convert.ToBase64String(item.RowVersion)" />
-
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Επεξεργασία Υλικού</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <strong>@item.Material?.MaterialCode</strong>
-                                        <div class="text-body-secondary">@item.Material?.Description</div>
-                                    </div>
-
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label">Ποσότητα</label>
-                                            <input name="Quantity"
-                                                   value="@item.Quantity.ToString("0.##", CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0.01" />
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <label class="form-label">Τιμή Μονάδας</label>
-                                            <input name="UnitPrice"
-                                                   value="@item.UnitPrice.ToString("0.##", CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0" />
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <label class="form-label">Έκπτωση %</label>
-                                            <input name="DiscountPercent"
-                                                   value="@item.DiscountPercent.ToString("0.##", CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0"
-                                                   max="100" />
-                                        </div>
-
-                                        <input type="hidden" name="IsManualPrice" value="false" />
-
-                                        <div class="col-md-12">
-                                            <div class="form-check">
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       name="IsManualPrice"
-                                                       value="true"
-                                                @(item.IsManualPrice ? "checked" : "") />
-
-                                                <label class="form-check-label">Χειροκίνητη τιμή</label>
-                                            </div>
-
-                                            <div class="form-text">
-                                                Αν δεν είναι ενεργό, η τιμή θα ενημερωθεί από τον τρέχοντα κατάλογο υλικών.
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <label class="form-label">Αιτιολογία χειροκίνητης τιμής</label>
-                                            <textarea name="ManualPriceReason"
-                                                      class="form-control"
-                                                      rows="3">@item.ManualPriceReason</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer">
-                                    <button type="button"
-                                            class="btn btn-outline-secondary"
-                                            data-bs-dismiss="modal">
-                                        Ακύρωση
-                                    </button>
-
-                                    <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
-                                        <span class="btn-text">
-                                            <i class="bi bi-save me-1"></i>
-                                            Αποθήκευση
-                                        </span>
-
-                                        <span class="btn-spinner">
-                                            <span class="spinner-border spinner-border-sm"></span>
-                                            Αποθήκευση...
-                                        </span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            }
+            
         }
     </div>
+    
 </div>
+@foreach (var item in offer.OfferMaterials)
+{
+    <div class="modal fade" id="editMaterialModal_@item.OfferMaterialID" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-body text-body">
+                <form asp-controller="Offers" asp-action="UpdateMaterial" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="OfferMaterialID" value="@item.OfferMaterialID" />
+                    <input type="hidden" name="OfferID" value="@offer.OfferID" />
+                    <input type="hidden" name="RowVersion" value="@Convert.ToBase64String(item.RowVersion)" />
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Επεξεργασία Υλικού</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>@item.Material?.MaterialCode</strong>
+                            <div class="text-body-secondary">@item.Material?.Description</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Ποσότητα</label>
+                                <input name="Quantity"
+                                       value="@item.Quantity.ToString("0.##", CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0.01" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Τιμή Μονάδας</label>
+                                <input name="UnitPrice"
+                                       value="@item.UnitPrice.ToString("0.##", CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Έκπτωση %</label>
+                                <input name="DiscountPercent"
+                                       value="@item.DiscountPercent.ToString("0.##", CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100" />
+                            </div>
+
+                            <input type="hidden" name="IsManualPrice" value="false" />
+
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="IsManualPrice"
+                                           value="true"
+                                    @(item.IsManualPrice ? "checked" : "") />
+
+                                    <label class="form-check-label">Χειροκίνητη τιμή</label>
+                                </div>
+
+                                <div class="form-text">
+                                    Αν δεν είναι ενεργό, η τιμή θα ενημερωθεί από τον τρέχοντα κατάλογο υλικών.
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Αιτιολογία χειροκίνητης τιμής</label>
+                                <textarea name="ManualPriceReason"
+                                          class="form-control"
+                                          rows="3">@item.ManualPriceReason</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">
+                            Ακύρωση
+                        </button>
+
+                        <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
+                            <span class="btn-text">
+                                <i class="bi bi-save me-1"></i>
+                                Αποθήκευση
+                            </span>
+
+                            <span class="btn-spinner">
+                                <span class="spinner-border spinner-border-sm"></span>
+                                Αποθήκευση...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

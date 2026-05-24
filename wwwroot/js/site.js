@@ -27,7 +27,7 @@
         return hour >= 7 && hour < 20 ? "light" : "dark";
     }
 
-    const savedTheme = localStorage.getItem(storageKey);
+    const savedTheme = sessionStorage.getItem(storageKey);
 
     applyTheme(savedTheme || getAutoTheme());
 
@@ -41,7 +41,7 @@
                 ? "light"
                 : "dark";
 
-            localStorage.setItem(storageKey, nextTheme);
+            sessionStorage.setItem(storageKey, nextTheme);
 
             applyTheme(nextTheme);
         });
@@ -62,5 +62,14 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
         new bootstrap.Tooltip(el);
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('form[action*="/Account/Logout"]').forEach(form => {
+        form.addEventListener("submit", function () {
+            sessionStorage.removeItem("aiChatHistory_v3");
+        });
     });
 });

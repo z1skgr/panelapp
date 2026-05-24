@@ -13,5 +13,9 @@
         public string? ActionLabel { get; set; }
 
         public string? SerializedDraft { get; set; }
+
+        public List<string> Suggestions { get; set; } = [];
+
+        public List<AiChatActionViewModel> Actions { get; set; } = [];
     }
 }

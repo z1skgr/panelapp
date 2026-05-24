@@ -84,7 +84,7 @@ else
                                                   data-confirm-title="Διαγραφή ερμάριο υλικό"
                                                   data-confirm-message="Να αφαιρεθεί το λοιπό υλικό @item.PanelExtraItemID από τον πίνακα"
                                                   data-confirm-button="Διαγραφή">
-                                                >
+                                                
 
                                                 @Html.AntiForgeryToken()
 
@@ -92,7 +92,9 @@ else
                                                         class="btn btn-sm btn-outline-danger icon-btn"
                                                         title="Διαγραφή"
                                                         data-bs-toggle="tooltip">
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
+
                                             </form>
                                         </div>
                                     }

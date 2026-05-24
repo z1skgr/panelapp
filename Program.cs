@@ -5,6 +5,7 @@ using panelapp.Models;
 
 using panelapp.Services;
 using panelapp.Services.AI;
+using panelapp.Services.AI.Chat;
 using QuestPDF.Infrastructure;
 
 
@@ -39,8 +40,11 @@ builder.Services.Configure<GeminiOptions>(
     builder.Configuration.GetSection("Gemini"));
 
 builder.Services.AddHttpClient<IOfferAiParser, OfferAiParser>();
-
-
+builder.Services.AddScoped<IOfferAiSummaryService, OfferAiSummaryService>();
+builder.Services.AddScoped<IOfferAiOperationParser, OfferAiOperationParser>();
+builder.Services.AddScoped<IOfferAiOperationExecutor, OfferAiOperationExecutor>();
+builder.Services.AddScoped<IAiChatRouterService, AiChatRouterService>();
+builder.Services.AddScoped<IAiChatIntentService, AiChatIntentService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 

@@ -48,3 +48,80 @@ body.dark-mode .select2-results__option--highlighted {
     background-color: #2563eb !important;
     color: #fff !important;
 }
+
+/* ================================
+   Global Responsive Hardening
+================================ */
+
+img,
+svg {
+    max-width: 100%;
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .app-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding-inline: .75rem !important;
+    }
+
+    .page-header,
+    .app-page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .page-header-actions,
+    .dashboard-hero-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .container-fluid.py-4 {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .card {
+        border-radius: 14px !important;
+    }
+
+    .card-body {
+        padding: .9rem !important;
+    }
+
+    .table {
+        font-size: .82rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: .25rem;
+    }
+
+        .pagination .page-link {
+            padding: .35rem .55rem;
+            font-size: .85rem;
+        }
+}
+
+/* Bootstrap modal z-index reset/fix */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-dialog {
+    z-index: 1061 !important;
+    position: relative;
+}

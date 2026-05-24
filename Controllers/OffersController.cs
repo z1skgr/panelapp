@@ -176,6 +176,11 @@ namespace panelapp.Controllers
 
                 SupplierDiscounts = await GetSupplierDiscountsAsync(),
 
+                GrandCatalogTotal =
+                offer.OfferMaterials.Sum(x => x.OriginalTotalPrice)
+                + offer.OfferCabinets.Sum(x => x.OriginalTotalPrice)
+                + offer.OfferExtraItems.Sum(x => x.OriginalTotalPrice),
+
                 AddMaterialForm = new AddMaterialToOfferViewModel
                 {
                     OfferID = offer.OfferID,

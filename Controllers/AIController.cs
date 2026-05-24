@@ -5,6 +5,7 @@ using panelapp.Data;
 using panelapp.Models;
 using panelapp.Services;
 using panelapp.Services.AI;
+using panelapp.Services.AI.Chat;
 using panelapp.ViewModels.AI.Chat;
 using panelapp.ViewModels.AiOffers;
 using System.Text.Json;
@@ -17,84 +18,52 @@ namespace panelapp.Controllers
         private readonly IOfferAiParser _offerAiParser;
         private readonly IActivityLogService _activityLogger;
 
-        public AIController(ApplicationDbContext context, IOfferAiParser offerAiParser, IActivityLogService activityLogger)
+        private readonly IOfferAiSummaryService _offerAiSummaryService;
+        private readonly IAiChatRouterService _aiChatRouterService;
+
+        public AIController(ApplicationDbContext context,
+            IOfferAiParser offerAiParser,
+            IActivityLogService activityLogger,
+            IOfferAiSummaryService offerAiSummaryService,
+            IAiChatRouterService aiChatRouterService)
         {
             _context = context;
             _offerAiParser = offerAiParser;
             _activityLogger = activityLogger;
+            _offerAiSummaryService = offerAiSummaryService;
+            _aiChatRouterService = aiChatRouterService;
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateOfferSummary(int offerId, CancellationToken cancellationToken)
+        {
+            var summary = await _offerAiSummaryService.GenerateSummaryAsync(offerId, cancellationToken);
+
+            return Json(new
+            {
+                success = true,
+                summary
+            });
+        }
+
+
 
 
 
         [HttpPost]
         public async Task<IActionResult> Chat(
-            [FromBody] AiChatRequestViewModel model,
-            CancellationToken cancellationToken)
+    [FromBody] AiChatRequestViewModel model,
+    CancellationToken cancellationToken)
         {
-            if (model == null || string.IsNullOrWhiteSpace(model.Message))
-            {
-                return BadRequest(new AiChatResponseViewModel
-                {
-                    Message = "Γράψε μου τι θέλεις να κάνουμε."
-                });
-            }
+            var response = await _aiChatRouterService.HandleAsync(
+                model,
+                cancellationToken);
 
-            var message = model.Message.Trim();
-
-            try
-            {
-                if (LooksLikeOfferPrompt(message))
-                {
-                    var draft = await _offerAiParser.ParseAsync(message, cancellationToken);
-
-                    var serializedDraft = JsonSerializer.Serialize(draft, new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    return Json(new AiChatResponseViewModel
-                    {
-                        Message = "Έφτιαξα ένα draft προσφοράς από την περιγραφή σου. Πριν δημιουργηθεί, πρέπει να ελέγξουμε πελάτη, υλικά, ποσότητες και κόστη στο preview.",
-                        ResponseType = "offer_preview",
-                        RequiresConfirmation = true,
-                        ActionUrl = Url.Action("OfferPreviewFromDraft", "AI"),
-                        ActionLabel = "Άνοιγμα Preview",
-                        SerializedDraft = serializedDraft
-                    });
-                }
-
-                return Json(new AiChatResponseViewModel
-                {
-                    Message = "Μπορώ να σε βοηθήσω με δημιουργία προσφοράς. Γράψε μου πελάτη, κωδικούς υλικών, ποσότητες, ερμάρια, λοιπά υλικά, εργατικά και κέρδος.",
-                    ResponseType = "chat"
-                });
-            }
-            catch
-            {
-                return Json(new AiChatResponseViewModel
-                {
-                    Message = "Δεν κατάφερα να διαβάσω σωστά την περιγραφή. Δοκίμασε ξανά με πιο συγκεκριμένη μορφή: πελάτης, κωδικός υλικού, ποσότητα, λοιπά υλικά, εργατικά και κέρδος.",
-                    ResponseType = "chat",
-                    RequiresConfirmation = false
-                });
-            }
-
+            return Json(response);
         }
 
-        private static bool LooksLikeOfferPrompt(string message)
-        {
-            var text = message.ToLowerInvariant();
 
-            return text.Contains("προσφορά")
-                || text.Contains("offer")
-                || text.Contains("πελάτη")
-                || text.Contains("υλικά")
-                || text.Contains("υλικο")
-                || text.Contains("ερμάριο")
-                || text.Contains("ερμαριο")
-                || text.Contains("λοιπά")
-                || text.Contains("λοιπα");
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -539,6 +508,9 @@ namespace panelapp.Controllers
 
             return $"{prefix}{count + 1:0000}";
         }
+
+
+
 
 
 

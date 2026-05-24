@@ -19,6 +19,15 @@ namespace panelapp.ViewModels
         public decimal ExtraItemsNetTotal =>
             Offer.OfferExtraItems?.Sum(x => x.LineNetTotal) ?? 0;
 
+        public decimal MaterialsCatalogTotal =>
+            Offer.OfferMaterials?.Sum(x => x.OriginalTotalPrice) ?? 0;
+
+        public decimal CabinetsCatalogTotal =>
+            Offer.OfferCabinets?.Sum(x => x.OriginalTotalPrice) ?? 0;
+
+        public decimal ExtraItemsCatalogTotal =>
+            Offer.OfferExtraItems?.Sum(x => x.OriginalTotalPrice) ?? 0;
+
         public decimal FinalOfferTotal =>
             MaterialsNetTotal
             + CabinetsNetTotal
@@ -31,5 +40,7 @@ namespace panelapp.ViewModels
         public AddOfferExtraItemViewModel AddExtraItemForm { get; set; } = new();
 
         public List<SupplierDiscountInfoViewModel> SupplierDiscounts { get; set; } = new();
+
+        public decimal GrandCatalogTotal { get; set; }
     }
 }

@@ -38,6 +38,10 @@ namespace panelapp.Models
         public Supplier? Supplier { get; set; }
 
         [NotMapped]
+        public decimal OriginalTotalPrice =>
+            Quantity * UnitPrice;
+
+        [NotMapped]
         public decimal DiscountAmount =>
             Quantity * UnitPrice * (DiscountPercent / 100);
 
