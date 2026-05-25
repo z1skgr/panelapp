@@ -14,28 +14,28 @@
 
 # 📑 Table of Contents
 
-* [General Information](#-general-information)
-* [Current Capabilities](#-current-capabilities)
-* [Technologies](#-technologies)
-* [Architecture](#-architecture)
-* [Folder Structure](#-folder-structure)
-* [UI Preview](#-ui-preview)
-* [Development Setup](#-development-setup)
-* [Database Setup](#-database-setup)
-* [Features](#-features)
-* [Code Highlights](#-code-highlights)
-* [Excel Import](#-excel-import)
-* [Authentication](#-authentication)
-* [AI Assistant](#-ai-assistant)
-* [Gemini Integration](#-gemini-integration)
-* [Future Improvements](#-future-improvements)
-* [Acknowledgements](#-acknowledgements)
+* [General Information](#general-information)
+* [Current Capabilities](#current-capabilities)
+* [Technologies](#technologies)
+* [Architecture](#architecture)
+* [Folder Structure](#folder-structure)
+* [UI Preview](#ui-preview)
+* [Development Setup](#development-setup)
+* [Setup DB](#setup-db)
+* [Features](#features)
+* [Code Highlights](#code-highlights)
+* [Excel Import](#excel-import)
+* [Authentication](#authentication)
+* [AI Assistant](#ai-assistant)
+* [Gemini Integration](#gemini-integration)
+* [Future Improvements](#future-improvements)
+* [Acknowledgements](#acknowledgements)
 
 
 ----
 
 
-# 📌 General Information
+# 📌General Information
 
 PanelApp is an ASP.NET Core MVC ERP-style platform designed for electrical distribution panel manufacturing workflows.
 
@@ -51,7 +51,7 @@ The platform focuses on:
 
 ----
 
-# 🚀 Current Capabilities
+# 🚀Current Capabilities
 
 ✅ Panel management  
 ✅ Offer / quotation management  
@@ -70,9 +70,26 @@ The platform focuses on:
 ✅ Labor & profit calculations  
 ✅ Responsive Bootstrap UI  
 
+## 🤖 Ai Assistant
+✅ AI material search  
+✅ AI offer operations  
+✅ Offer summary assistant  
+✅ PDF offer export  
+✅ Excel offer export  
+✅ Catalog pricing visibility  
+✅ Responsive offer workspace  
+
+The assistant also supports:
+
+- material search inside the ERP
+- offer summary generation
+- inline offer modifications
+- contextual operations inside opened offers
+- guided offer preview workflow
+
 ----
 
-# 🧱 Technologies
+# 🧱Technologies
 
 - ASP.NET Core MVC (.NET 8)
 - Entity Framework Core
@@ -85,7 +102,9 @@ The platform focuses on:
 - Google Gemini API
 - JSON-based AI parsing
 
-# 🏗️ Architecture
+----
+
+# 🏗️Architecture
 
 ```text
 [ Browser UI ]
@@ -213,11 +232,11 @@ flowchart TD
     class U,V data
     class W,X,Y audit
 ```
+
 ----
 
 
-# 📁 Folder Structure
-
+# 📁Folder Structure
 
 Detailed:
 ```text
@@ -235,6 +254,7 @@ ZL_panelapp/
 │   └── AccountController.cs
 │
 ├── Models/
+│	├── AI/OfferAiOperation.cs
 │   ├── Panel.cs
 │   ├── PanelMaterial.cs
 │   ├── PanelCabinet.cs
@@ -267,6 +287,17 @@ ZL_panelapp/
 │
 ├── Data/
 │   └── ApplicationDbContext.cs
+├── Services/
+│   ├── AI/Chat
+│   │	 	└──AiChatIntentService.cs
+│   │	 	└──AiChatRouterService.cs
+│   ├── AI/Helpers/
+│   ├── ActivityLogService.cs
+│   ├── CabinetImportService.cs
+│	'
+│	'
+│	'
+│   └── PanelService.cs
 │
 ├── ViewModels/
 │   ├── AddMaterialToPanelViewModel.cs
@@ -284,13 +315,11 @@ ZL_panelapp/
 
 ----
 
-
-# 🖼️ UI Preview
+# 🖼️UI Preview
 
 👉 Replace with real screenshots for production
 
 ## Login
-
 
 ![Login](docs/screenshots/login.png)
 
@@ -309,7 +338,7 @@ ZL_panelapp/
 
 ----
 
-# 🛠️ Development Setup Guide
+# 🛠️Development Setup Guide
 
 ## Prerequisites
 
@@ -345,8 +374,7 @@ dotnet run
 ```
 
 ----
-
-# 🗄️ Database Setup
+# 🗄️SetupDB
 
 For the purpose of our implementation we developed our database in [SQL Server 2022](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 ## Install SQL Express
@@ -472,7 +500,7 @@ GO
 ----
 
 
-# 📦 Features
+# 📦Features
 
 ```mermaid
 flowchart TD
@@ -490,11 +518,22 @@ flowchart TD
     F --> F1[Excel]
     F --> F2[CSV]
 	
-	G --> G1[Offer Preview]
-	G --> G2[Convert To Panel]
+	G --> G1[Convert To Panel]
+	G --> GG1[Material Search]
 	
-	H --> G1[Offer Preview]
+	G --> G3[AI Offer Operations]
 
+	G3 --> GG1[Offer Preview]
+	G3 --> GG2[Material Search]
+	G3 --> GG3[Offer Summary]
+
+
+G --> G3[AI Offer Operations]
+G --> G4[Offer PDF Export]
+G --> G5[Offer Excel Export]
+
+H --> H1[Material Search]
+H --> H2[Offer Summary]
 
     style A fill:#1f,color:#ffffff,stroke:#111827,stroke-width:2px
     style B fill:#8b5cf6,color:#ffffff,stroke:#7c3aed
@@ -512,7 +551,7 @@ flowchart TD
 
 ----
 
-# 💻 Code Highlights
+# 💻Code Highlights
 
 ## Import Logic
 
@@ -545,7 +584,7 @@ await transaction.CommitAsync();
 ----
 
 
-# 📊 Excel Import
+# 📊Excel Import
 
 Mandatory supplier selection from UI.
 
@@ -563,7 +602,7 @@ Rules:
 
 ----
 
-# 🔐 Authentication 
+# 🔐Authentication 
 
 **Admin**
 
@@ -583,7 +622,7 @@ Rules:
 ----
 
 
-# 🤖 AI Assistant
+# 🤖AI Assistant
 
 PanelApp includes an integrated AI assistant focused on accelerating quotation workflows.
 
@@ -618,51 +657,141 @@ Workflow:
 
 ----
 
-# 🤖 Gemini Integration
+# 🤖Gemini Integration
 ```mermaid
 flowchart TD
-    A[User writes prompt in AI Chat Popup] --> B[ai-chat.js sends POST /AI/Chat]
 
-    B --> C[AIController.Chat]
-    C --> D[IOfferAiParser]
-    D --> E[OfferAiParser]
+    subgraph UI["Frontend"]
+        A[User opens AI Chat]
+        B[ai-chat.js]
+        C[Quick Actions]
+    end
 
-    E --> F[Gemini API]
-    F --> G[Structured JSON Draft]
+    subgraph MVC["ASP.NET MVC"]
+        D[AIController.Chat]
+        E[Offer Preview]
+        F[Offer Details]
+    end
 
-    G --> H[OfferAiDraftViewModel]
-    H --> I[AIController creates Preview Model]
+    subgraph ROUTER["AI Chat Layer"]
+        G[AiChatRouterService]
+        H[AiChatIntentService]
+        I[Intent Detection]
+    end
 
-    I --> J[Resolve Customer]
-    I --> K[Resolve Materials]
-    I --> L[Resolve Cabinets]
-    I --> M[Keep Extra Items]
+    subgraph INTENTS["Supported AI Intents"]
+        J[Offer Create]
+        K[Offer Operations]
+        L[Material Search]
+        M[Offer Summary]
+        N[Help / Scoped Responses]
+    end
 
-    J --> N[OfferPreview.cshtml]
-    K --> N
-    L --> N
-    M --> N
+    subgraph GEMINI["Gemini AI"]
+        O[OfferAiParser]
+        P[Prompt Engineering]
+        Q[Gemini Flash API]
+        R[Structured JSON Draft]
+    end
 
-    N --> O{User Confirms?}
+    subgraph BUSINESS["Business Logic"]
+        S[Resolve Customer]
+        T[Resolve Materials]
+        U[Resolve Cabinets]
+        V[Resolve Extra Items]
+        W[Offer Calculations]
+        X[Offer Preview Validation]
+    end
 
-    O -->|Yes| P[CreateOfferFromPreview]
-    P --> Q[Create Offer]
-    P --> R[Create OfferMaterials]
-    P --> S[Create OfferCabinets]
-    P --> T[Create OfferExtraItems]
+    subgraph EXECUTION["Offer Operations"]
+        Y[OfferAiOperationParser]
+        Z[OfferAiOperationExecutor]
+        AA[Update Offer Materials]
+        AB[Update Cabinets]
+        AC[Update Extra Items]
+    end
 
-    Q --> U[SQL Server]
+    subgraph DATA["Persistence"]
+        AD[Entity Framework Core]
+        AE[(SQL Server)]
+    end
+
+    subgraph AUDIT["Logging"]
+        AF[Activity Logger]
+        AG[AI Operation Logs]
+        AH[AI Offer Preview Logs]
+    end
+
+    A --> B
+    B --> D
+    C --> B
+
+    D --> G
+    G --> H
+    H --> I
+
+    I --> J
+    I --> K
+    I --> L
+    I --> M
+    I --> N
+
+    J --> O
+    O --> P
+    P --> Q
+    Q --> R
+
+    R --> S
+    R --> T
     R --> U
-    S --> U
-    T --> U
+    R --> V
 
-    P --> V[Activity Log]
-    P --> W[Redirect to Offer Details]
+    S --> W
+    T --> W
+    U --> W
+    V --> W
+
+    W --> X
+    X --> E
+
+    K --> Y
+    Y --> Z
+
+    Z --> AA
+    Z --> AB
+    Z --> AC
+
+    AA --> AD
+    AB --> AD
+    AC --> AD
+
+    E --> AD
+    AD --> AE
+
+    D --> AF
+    Z --> AG
+    E --> AH
+
+    classDef ui fill:#2563eb,color:#ffffff,stroke:#1e3a8a
+    classDef mvc fill:#7c3aed,color:#ffffff,stroke:#581c87
+    classDef ai fill:#0f766e,color:#ffffff,stroke:#134e4a
+    classDef gem fill:#ea580c,color:#ffffff,stroke:#9a3412
+    classDef logic fill:#16a34a,color:#ffffff,stroke:#166534
+    classDef data fill:#dc2626,color:#ffffff,stroke:#7f1d1d
+    classDef audit fill:#475569,color:#ffffff,stroke:#0f172a
+
+    class A,B,C ui
+    class D,E,F mvc
+    class G,H,I,J,K,L,M,N ai
+    class O,P,Q,R gem
+    class S,T,U,V,W,X,Y,Z,AA,AB,AC logic
+    class AD,AE data
+    class AF,AG,AH audit
 ```
 
 ----
 
-# 🖥️ VM Setup
+# 🖥️VM Setup
 Assuming that the application is developed within the VM
 * Hosting Bundle
 * IIS
@@ -682,12 +811,10 @@ Recommended
 
 ----
 
-# 🔮 Future Improvements
+# 🔮Future Improvements
 
 - AI panel generation
-- AI material recommendations
 - Semantic search
-- AI production summaries
 - Dashboard AI insights
 - Cost optimization suggestions
 
@@ -695,11 +822,11 @@ Recommended
 
 ----
 
-# 🙏 Acknowledgements
+# 🙏Acknowledgements
 
 Developed for recording electrical distribution panel equipment for the company **Company**.
 
-v0.3 – AI Offer Workflow Integration
+v0.3.4 – AI Offer Operations & Responsive Workspace Refactor
 
 
 ```
