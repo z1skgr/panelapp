@@ -42,5 +42,13 @@ namespace panelapp.ViewModels
         public List<SupplierDiscountInfoViewModel> SupplierDiscounts { get; set; } = new();
 
         public decimal GrandCatalogTotal { get; set; }
+
+        public SupplierDiscountsModalViewModel SupplierDiscountsModal =>
+            new()
+            {
+                SourceType = "Offer",
+                SourceId = Offer.OfferID,
+                Suppliers = SupplierDiscounts
+            };
     }
 }

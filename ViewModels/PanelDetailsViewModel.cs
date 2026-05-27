@@ -31,7 +31,7 @@ namespace panelapp.ViewModels
 
 
         public decimal MaterialsCatalogTotal =>
-Materials?.Sum(x => x.OriginalTotalPrice) ?? 0;
+            Materials?.Sum(x => x.OriginalTotalPrice) ?? 0;
 
         public decimal CabinetsCatalogTotal =>
             Cabinets?.Sum(x => x.Quantity * x.UnitPrice) ?? 0;
@@ -42,7 +42,18 @@ Materials?.Sum(x => x.OriginalTotalPrice) ?? 0;
         public decimal GrandCatalogTotal =>
             MaterialsCatalogTotal + CabinetsCatalogTotal + ExtraItemsCatalogTotal;
 
+        public decimal FinalCatalogTotal =>
+    +GrandCatalogTotal
+    + OfferSummary.LaborCost
+    + OfferSummary.ProfitAmount;
 
+        public SupplierDiscountsModalViewModel SupplierDiscountsModal =>
+            new()
+            {
+                SourceType = "Panel",
+                SourceId = Panel.PanelID,
+                Suppliers = SupplierDiscounts
+            };
 
     }
 

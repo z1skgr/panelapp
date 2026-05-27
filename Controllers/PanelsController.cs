@@ -1629,6 +1629,62 @@ namespace panelapp.Controllers
                 .ToListAsync();
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateSupplierDiscountForPanel(
+            int panelId,
+            int supplierId,
+            decimal discountPercent)
+        {
+            if (discountPercent < 0 || discountPercent > 100)
+            {
+                TempData["ErrorMessage"] = "Η έκπτωση πρέπει να είναι από 0 έως 100.";
+                return RedirectToAction(nameof(Details), new { id = panelId });
+            }
+
+            var supplier = await _context.Suppliers.FindAsync(supplierId);
+            if (supplier == null)
+                return NotFound();
+
+            supplier.DefaultDiscountPercent = discountPercent;
+
+            var materials = await _context.PanelMaterials
+                .Where(x => x.PanelID == panelId && x.SupplierID == supplierId && !x.IsManualPrice)
+                .ToListAsync();
+
+            foreach (var item in materials)
+            {
+                item.DiscountPercent = discountPercent;
+                item.LastModifiedDate = DateTime.Now;
+            }
+
+            var cabinets = await _context.PanelCabinets
+                .Where(x => x.PanelID == panelId && x.SupplierID == supplierId && !x.IsManualPrice)
+                .ToListAsync();
+
+            foreach (var item in cabinets)
+            {
+                item.DiscountPercent = discountPercent;
+                item.LastModifiedDate = DateTime.Now;
+            }
+
+            var panel = await _context.Panels.FindAsync(panelId);
+            if (panel != null)
+                panel.LastModifiedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Η έκπτωση προμηθευτή εφαρμόστηκε στον πίνακα.";
+            await _activityLogger.LogAsync(
+                "Panel",
+                panelId,
+                "Updated",
+                "Ενημέρωση έκπτωσης προμηθευτή",
+                $"Ο προμηθευτής {supplier.SupplierName} ενημερώθηκε σε έκπτωση {discountPercent:N2}%.");
+
+            return RedirectToAction(nameof(Details), new { id = panelId });
+        }
     }
 
 

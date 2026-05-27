@@ -1,4 +1,4 @@
-﻿@model List<panelapp.ViewModels.SupplierDiscountInfoViewModel>
+﻿@model panelapp.ViewModels.SupplierDiscountsModalViewModel
 
 <div class="modal fade supplier-discounts-modal"
      id="supplierDiscountsModal"
@@ -17,7 +17,7 @@
             </div>
 
             <div class="modal-body">
-                @if (Model == null || !Model.Any())
+                @if (Model == null || !Model.Suppliers.Any())
                 {
                     <div class="text-muted">
                         Δεν υπάρχουν ενεργοί προμηθευτές.
@@ -31,15 +31,61 @@
                                 <tr>
                                     <th>Προμηθευτής</th>
                                     <th class="text-end">Default Έκπτωση</th>
+                                    <th style="width: 220px;">Νέα Έκπτωση</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var supplier in Model)
+                                @foreach (var supplier in Model.Suppliers)
                                 {
+                                    var actionName = Model.SourceType == "Offer"
+                                        ? "UpdateSupplierDiscountForOffer"
+                                        : "UpdateSupplierDiscountForPanel";
+
                                     <tr>
                                         <td>@supplier.SupplierName</td>
-                                        <td class="text-end fw-semibold">
-                                            @supplier.DefaultDiscountPercent.ToString("N2") %
+
+                                        <td class="text-end">
+                                            @supplier.DefaultDiscountPercent.ToString("0.##") %
+                                        </td>
+
+                                        <td style="width: 150px;">
+                                            <form asp-controller="@(Model.SourceType == "Offer" ? "Offers" : "Panels")"
+                                                  asp-action="@actionName"
+                                                  method="post"
+                                                  class="d-flex gap-2 align-items-center">
+
+                                                @Html.AntiForgeryToken()
+
+                                                @if (Model.SourceType == "Offer")
+                                                {
+                                                    <input type="hidden" name="offerId" value="@Model.SourceId" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="hidden" name="panelId" value="@Model.SourceId" />
+                                                }
+
+                                                <input type="hidden" name="supplierId" value="@supplier.SupplierID" />
+
+                                                <input type="number"
+                                                       name="discountPercent"
+                                                       value="@supplier.DefaultDiscountPercent"
+                                                       min="0"
+                                                       max="100"
+                                                       step="0.01"
+                                                       class="form-control form-control-sm" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-primary has-loading-state">
+                                                    <span class="btn-text">
+                                                        Εφαρμογή
+                                                    </span>
+
+                                                    <span class="btn-spinner">
+                                                        <span class="spinner-border spinner-border-sm"></span>
+                                                    </span>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 }
