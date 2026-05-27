@@ -75,7 +75,7 @@ namespace panelapp.Services
 
             try
             {
-                var now = DateTime.UtcNow;
+                var now = DateTime.Now;
 
                 for (int rowNumber = 2; rowNumber <= lastRow; rowNumber++)
                 {

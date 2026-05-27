@@ -15,7 +15,7 @@ namespace panelapp.Services
 
         public async Task<string> GenerateNextOfferCodeAsync()
         {
-            var currentYear = DateTime.UtcNow.Year;
+            var currentYear = DateTime.Now.Year;
 
             var lastOffer = await _context.Offers
                 .Where(x => x.OfferCode.StartsWith($"OFF-{currentYear}-"))

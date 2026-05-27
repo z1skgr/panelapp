@@ -38,12 +38,7 @@
             letter-spacing: .03em;
         }
 
-    .customers-index-page,
-    .customers-index-page .accordion-actions {
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-    }
+
 
     .customers-index-page .filter-control {
         height: 44px;
@@ -70,3 +65,99 @@ body.dark-mode .customers-index-page .bg-light,
 body.dark-mode .customers-index-page .bg-light-subtle {
     background-color: rgba(15, 23, 42, 0.35) !important;
 }
+.customers-index-page {
+    display: block !important;
+}
+
+    .customers-index-page .page-header {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+
+    .customers-index-page .page-header-content {
+        flex: 1 1 auto !important;
+    }
+
+    .customers-index-page .page-header-actions {
+        margin-left: auto !important;
+        display: flex !important;
+        gap: .65rem !important;
+    }
+
+.customers-index-page {
+    width: 100%;
+}
+
+
+
+
+.customers-index-page {
+    display: block !important;
+    width: 100% !important;
+}
+
+    .customers-index-page > * {
+        display: block;
+        width: 100%;
+    }
+
+    .customers-index-page .page-header {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+    }
+
+    .customers-index-page .page-header-actions {
+        display: flex !important;
+        margin-left: auto !important;
+        gap: .65rem !important;
+        width: auto !important;
+    }
+
+    .customers-index-page .accordion-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+    }
+
+
+.customers-index-page {
+    display: block !important;
+    width: 100% !important;
+}
+
+    .customers-index-page .customers-page-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 1rem;
+    }
+
+    .customers-index-page .page-header {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+    }
+
+    .customers-index-page .page-header-content {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    .customers-index-page .page-header-actions {
+        display: flex !important;
+        margin-left: auto !important;
+        gap: .65rem !important;
+        width: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    .customers-index-page .accordion-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+    }

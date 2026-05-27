@@ -29,6 +29,6 @@ namespace panelapp.Models
         [MaxLength(100)]
         public string? UserRole { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

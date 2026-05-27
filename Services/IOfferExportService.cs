@@ -2,7 +2,9 @@
 {
     public interface IOfferExportService
     {
-        Task<byte[]> ExportExcelAsync(int offerId);
+        Task<byte[]> ExportInternalCostingExcelAsync(int offerId);
+
+        Task<byte[]> ExportCustomerOfferExcelAsync(int offerId);
     }
 
 }

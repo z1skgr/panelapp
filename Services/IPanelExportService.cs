@@ -2,7 +2,10 @@
 {
     public interface IPanelExportService
     {
-        Task<byte[]> ExportCsvAsync(int panelId);
-        Task<byte[]> ExportExcelAsync(int panelId);
+        Task<byte[]> ExportInternalCostingCsvAsync(int panelId);
+
+        Task<byte[]> ExportInternalCostingExcelAsync(int panelId);
+
+        Task<byte[]> ExportCustomerOfferExcelAsync(int panelId);
     }
 }

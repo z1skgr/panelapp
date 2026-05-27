@@ -130,8 +130,8 @@ namespace panelapp.Controllers
                 return View(offer);
             }
 
-            offer.CreatedDate = DateTime.UtcNow;
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.CreatedDate = DateTime.Now;
+            offer.LastModifiedDate = DateTime.Now;
 
             _context.Offers.Add(offer);
 
@@ -307,10 +307,10 @@ namespace panelapp.Controllers
                 ? offerMaterial.UnitPrice
                 : material.CurrentPrice;
 
-            offerMaterial.DateAdded = DateTime.UtcNow;
-            offerMaterial.LastModifiedDate = DateTime.UtcNow;
+            offerMaterial.DateAdded = DateTime.Now;
+            offerMaterial.LastModifiedDate = DateTime.Now;
 
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
             _context.OfferMaterials.Add(offerMaterial);
 
@@ -494,7 +494,7 @@ namespace panelapp.Controllers
 
             offer.LaborCost = model.LaborCost;
             offer.ProfitAmount = model.ProfitAmount;
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
 
             _context.Entry(offer)
@@ -526,6 +526,8 @@ namespace panelapp.Controllers
         {
             var sourceOffer = await _context.Offers
                 .Include(x => x.OfferMaterials)
+                .Include(x => x.OfferCabinets)
+                .Include(x => x.OfferExtraItems)
                 .FirstOrDefaultAsync(x => x.OfferID == id);
 
             if (sourceOffer == null)
@@ -565,6 +567,35 @@ namespace panelapp.Controllers
                     LastModifiedDate = DateTime.Now
                 });
             }
+            foreach (var item in sourceOffer.OfferCabinets)
+            {
+                newOffer.OfferCabinets.Add(new OfferCabinet
+                {
+                    CabinetID = item.CabinetID,
+                    SupplierID = item.SupplierID,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    IsManualPrice = item.IsManualPrice,
+                    ManualPriceReason = item.ManualPriceReason,
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
+                });
+            }
+            foreach (var item in sourceOffer.OfferExtraItems)
+            {
+                newOffer.OfferExtraItems.Add(new OfferExtraItem
+                {
+                    ItemCode = item.ItemCode,
+                    Description = item.Description,
+                    Unit = item.Unit,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
+                });
+            }
 
             _context.Offers.Add(newOffer);
             await _context.SaveChangesAsync();
@@ -582,21 +613,29 @@ namespace panelapp.Controllers
         }
 
 
-        public async Task<IActionResult> ExportExcel(int id)
+        public async Task<IActionResult> ExportInternalCostingExcel(int id)
         {
-            var bytes = await _offerExportService.ExportExcelAsync(id);
+            var bytes = await _offerExportService.ExportInternalCostingExcelAsync(id);
 
             if (bytes.Length == 0)
                 return NotFound();
 
-            var fileName = $"Offer_{id}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+            var fileName = $"Offer_InternalCosting_{id}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
 
-            await _activityLogService.LogAsync(
-                "Offer",
-                id,
-                "Exported",
-                "Export προσφοράς σε Excel",
-                $"Έγινε εξαγωγή της προσφοράς #{id} σε Excel.");
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
+        }
+
+        public async Task<IActionResult> ExportCustomerOfferExcel(int id)
+        {
+            var bytes = await _offerExportService.ExportCustomerOfferExcelAsync(id);
+
+            if (bytes.Length == 0)
+                return NotFound();
+
+            var fileName = $"Offer_Customer_{id}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
 
             return File(
                 bytes,
@@ -612,14 +651,19 @@ namespace panelapp.Controllers
             if (bytes.Length == 0)
                 return NotFound();
 
-            var fileName = $"Offer_{id}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+            var fileName = $"Offer_Customer_{id}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
 
-            await _activityLogService.LogAsync(
-                "Offer",
-                id,
-                "Exported",
-                "Export προσφοράς σε PDF",
-                $"Έγινε εξαγωγή της προσφοράς #{id} σε PDF.");
+            return File(bytes, "application/pdf", fileName);
+        }
+
+        public async Task<IActionResult> ExportInternalCostingPdf(int id)
+        {
+            var bytes = await _offerPdfService.GenerateInternalCostingPdfAsync(id);
+
+            if (bytes.Length == 0)
+                return NotFound();
+
+            var fileName = $"Offer_InternalCosting_{id}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
 
             return File(bytes, "application/pdf", fileName);
         }
@@ -818,11 +862,11 @@ namespace panelapp.Controllers
                 offerMaterial.ManualPriceReason = null;
             }
 
-            offerMaterial.LastModifiedDate = DateTime.UtcNow;
+            offerMaterial.LastModifiedDate = DateTime.Now;
 
             if (offerMaterial.Offer != null)
             {
-                offerMaterial.Offer.LastModifiedDate = DateTime.UtcNow;
+                offerMaterial.Offer.LastModifiedDate = DateTime.Now;
             }
 
             _context.Entry(offerMaterial)
@@ -962,13 +1006,13 @@ namespace panelapp.Controllers
                 DiscountPercent = discountPercent,
                 IsManualPrice = false,
                 ManualPriceReason = null,
-                DateAdded = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                DateAdded = DateTime.Now,
+                LastModifiedDate = DateTime.Now
             };
 
             _context.OfferCabinets.Add(offerCabinet);
 
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
             await _activityLogService.LogAsync(
@@ -998,7 +1042,7 @@ namespace panelapp.Controllers
             var offerId = offerCabinet.OfferID;
 
             if (offerCabinet.Offer != null)
-                offerCabinet.Offer.LastModifiedDate = DateTime.UtcNow;
+                offerCabinet.Offer.LastModifiedDate = DateTime.Now;
 
             _context.OfferCabinets.Remove(offerCabinet);
 
@@ -1051,10 +1095,10 @@ namespace panelapp.Controllers
                 offerCabinet.ManualPriceReason = null;
             }
 
-            offerCabinet.LastModifiedDate = DateTime.UtcNow;
+            offerCabinet.LastModifiedDate = DateTime.Now;
 
             if (offerCabinet.Offer != null)
-                offerCabinet.Offer.LastModifiedDate = DateTime.UtcNow;
+                offerCabinet.Offer.LastModifiedDate = DateTime.Now;
 
             _context.Entry(offerCabinet)
                 .Property(x => x.RowVersion)
@@ -1104,13 +1148,13 @@ namespace panelapp.Controllers
                 Quantity = model.Quantity,
                 UnitPrice = model.UnitPrice,
                 DiscountPercent = model.DiscountPercent,
-                DateAdded = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                DateAdded = DateTime.Now,
+                LastModifiedDate = DateTime.Now
             };
 
             _context.OfferExtraItems.Add(extraItem);
 
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
             await _activityLogService.LogAsync(
@@ -1142,7 +1186,7 @@ namespace panelapp.Controllers
             var offerId = extraItem.OfferID;
 
             if (extraItem.Offer != null)
-                extraItem.Offer.LastModifiedDate = DateTime.UtcNow;
+                extraItem.Offer.LastModifiedDate = DateTime.Now;
 
             _context.OfferExtraItems.Remove(extraItem);
 
@@ -1194,10 +1238,10 @@ namespace panelapp.Controllers
             extraItem.Quantity = model.Quantity;
             extraItem.UnitPrice = model.UnitPrice;
             extraItem.DiscountPercent = model.DiscountPercent;
-            extraItem.LastModifiedDate = DateTime.UtcNow;
+            extraItem.LastModifiedDate = DateTime.Now;
 
             if (extraItem.Offer != null)
-                extraItem.Offer.LastModifiedDate = DateTime.UtcNow;
+                extraItem.Offer.LastModifiedDate = DateTime.Now;
 
             _context.Entry(extraItem)
                 .Property(x => x.RowVersion)
@@ -1236,7 +1280,7 @@ namespace panelapp.Controllers
             }
 
             offer.IsDeleted = true;
-            offer.DeletedDate = DateTime.UtcNow;
+            offer.DeletedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -1291,7 +1335,7 @@ namespace panelapp.Controllers
                 ? null
                 : notes.Trim();
 
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -1362,7 +1406,7 @@ namespace panelapp.Controllers
             offer.CustomerName = customer.CustomerName;
             offer.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
             offer.Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes.Trim();
-            offer.LastModifiedDate = DateTime.UtcNow;
+            offer.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 

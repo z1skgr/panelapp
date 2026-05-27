@@ -59,10 +59,10 @@ namespace panelapp.Services.AI
             if (material != null)
             {
                 material.Quantity = operation.Quantity.Value;
-                material.LastModifiedDate = DateTime.UtcNow;
+                material.LastModifiedDate = DateTime.Now;
 
                 if (material.Offer != null)
-                    material.Offer.LastModifiedDate = DateTime.UtcNow;
+                    material.Offer.LastModifiedDate = DateTime.Now;
 
                 await _context.SaveChangesAsync(cancellationToken);
 
@@ -84,10 +84,10 @@ namespace panelapp.Services.AI
             if (cabinet != null)
             {
                 cabinet.Quantity = operation.Quantity.Value;
-                cabinet.LastModifiedDate = DateTime.UtcNow;
+                cabinet.LastModifiedDate = DateTime.Now;
 
                 if (cabinet.Offer != null)
-                    cabinet.Offer.LastModifiedDate = DateTime.UtcNow;
+                    cabinet.Offer.LastModifiedDate = DateTime.Now;
 
                 await _context.SaveChangesAsync(cancellationToken);
 
@@ -147,10 +147,10 @@ namespace panelapp.Services.AI
             foreach (var item in materials)
             {
                 item.DiscountPercent = operation.DiscountPercent.Value;
-                item.LastModifiedDate = DateTime.UtcNow;
+                item.LastModifiedDate = DateTime.Now;
 
                 if (item.Offer != null)
-                    item.Offer.LastModifiedDate = DateTime.UtcNow;
+                    item.Offer.LastModifiedDate = DateTime.Now;
 
                 affected++;
             }
@@ -158,10 +158,10 @@ namespace panelapp.Services.AI
             foreach (var item in cabinets)
             {
                 item.DiscountPercent = operation.DiscountPercent.Value;
-                item.LastModifiedDate = DateTime.UtcNow;
+                item.LastModifiedDate = DateTime.Now;
 
                 if (item.Offer != null)
-                    item.Offer.LastModifiedDate = DateTime.UtcNow;
+                    item.Offer.LastModifiedDate = DateTime.Now;
 
                 affected++;
             }
@@ -201,7 +201,7 @@ namespace panelapp.Services.AI
                 var code = material.Material?.MaterialCode ?? "υλικό";
 
                 if (material.Offer != null)
-                    material.Offer.LastModifiedDate = DateTime.UtcNow;
+                    material.Offer.LastModifiedDate = DateTime.Now;
 
                 _context.OfferMaterials.Remove(material);
                 await _context.SaveChangesAsync(cancellationToken);
@@ -226,7 +226,7 @@ namespace panelapp.Services.AI
                 var code = cabinet.Cabinet?.CabinetCode ?? "ερμάριο";
 
                 if (cabinet.Offer != null)
-                    cabinet.Offer.LastModifiedDate = DateTime.UtcNow;
+                    cabinet.Offer.LastModifiedDate = DateTime.Now;
 
                 _context.OfferCabinets.Remove(cabinet);
                 await _context.SaveChangesAsync(cancellationToken);

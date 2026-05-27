@@ -32,23 +32,40 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
                         <a class="dropdown-item"
+                           asp-controller="Offers"
                            asp-action="ExportCustomerOfferPdf"
-                           asp-route-id="@offer.OfferID">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                            PDF Προσφοράς
+                           asp-route-id="@Model.Offer.OfferID">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>
+                            PDF Πελάτη
+                        </a>
+
+                        <a class="dropdown-item"
+                           asp-controller="Offers"
+                           asp-action="ExportInternalCostingPdf"
+                           asp-route-id="@Model.Offer.OfferID">
+                            <i class="bi bi-file-earmark-richtext me-2"></i>
+                            PDF Εσωτερικής Κοστολόγησης
                         </a>
                     </li>
 
                     <li>
                         <a class="dropdown-item"
-                           asp-action="ExportExcel"
-                           asp-route-id="@offer.OfferID">
-                            <i class="bi bi-file-earmark-excel"></i>
-                            Excel
+                           asp-controller="Offers"
+                           asp-action="ExportInternalCostingExcel"
+                           asp-route-id="@Model.Offer.OfferID">
+                            <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                            Excel Εσωτερικής Κοστολόγησης
+                        </a>
+
+                        <a class="dropdown-item"
+                           asp-controller="Offers"
+                           asp-action="ExportCustomerOfferExcel"
+                           asp-route-id="@Model.Offer.OfferID">
+                            <i class="bi bi-file-earmark-excel me-2"></i>
+                            Excel Πελάτη
                         </a>
                     </li>
 
-                    <li><hr class="dropdown-divider" /></li>
 
 
                     <li><hr class="dropdown-divider" /></li>
@@ -56,13 +73,23 @@
                     <li>
                         <form asp-action="Duplicate"
                               asp-route-id="@offer.OfferID"
-                              method="post">
+                              method="post"
+                              class="js-confirm-form"
+                              data-confirm-title="Αντιγραφή προσφοράς"
+                              data-confirm-message="Να γίνει αντιγραφή αυτής της προσφοράς σε νέα;"
+                              data-confirm-button="Αντιγραφή">
+
                             @Html.AntiForgeryToken()
 
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-files"></i>
-                                Νέα Προσφορά από αυτή
+                            <button type="submit"
+                                    class="dropdown-item"
+                                    title="Δημιουργία αντιγράφου"
+                                    data-bs-toggle="tooltip">
+
+                                <i class="bi bi-copy me-2"></i>
+                                Αντιγραφή Προσφοράς
                             </button>
+
                         </form>
                     </li>
                 </ul>
@@ -126,7 +153,7 @@
         <div class="offer-meta-label">Ημερομηνία</div>
         <div class="offer-meta-value">
             <i class="bi bi-calendar3 me-1"></i>
-            @offer.CreatedDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            @(offer.CreatedDate.ToString("dd/MM/yyyy HH:mm"))
         </div>
     </div>
 

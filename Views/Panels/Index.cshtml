@@ -137,22 +137,21 @@ else
                                         </a>
                                         @if(isAdmin){
                                             <form asp-action="Delete"
-                                                  asp-route-id="@item.PanelID"
-                                                  method="post"
-                                                      class="d-inline js-confirm-form"
-                                                      data-confirm-title="Διαγραφή πίνακα"
-                                                      data-confirm-message="Να διαγραφεί ο πίνακας @item.PanelCode;"
-                                                      data-confirm-button="Διαγραφή">
+      asp-route-id="@item.PanelID"
+      method="post"
+      class="d-inline js-confirm-form"
+      data-confirm-title="Διαγραφή πίνακα"
+      data-confirm-message="Να διαγραφεί ο πίνακας @item.PanelCode;"
+      data-confirm-button="Διαγραφή">
+    @Html.AntiForgeryToken()
 
-                                                @Html.AntiForgeryToken()
-
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-danger icon-btn"
-                                                            title="Διαγραφή" 
-                                                            data-bs-toggle="tooltip">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
+    <button type="submit"
+            class="btn btn-sm btn-outline-danger icon-btn"
+            title="Διαγραφή"
+            data-bs-toggle="tooltip">
+        <i class="bi bi-trash"></i>
+    </button>
+</form>
                                         }
                                             
                                            

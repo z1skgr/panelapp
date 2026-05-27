@@ -29,9 +29,9 @@ namespace panelapp.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal DiscountPercent { get; set; }
 
-        public DateTime DateAdded { get; set; } = DateTime.UtcNow;
+        public DateTime DateAdded { get; set; } = DateTime.Now;
 
-        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTime LastModifiedDate { get; set; } = DateTime.Now;
 
         public Offer? Offer { get; set; }
 

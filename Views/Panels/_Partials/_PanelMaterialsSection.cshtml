@@ -35,7 +35,7 @@
                 <ul class="dropdown-menu shadow-sm">
                     <li>
                         <a class="dropdown-item"
-                           asp-action="ExportCSV"
+                       asp-action="ExportInternalCostingCsv"
                            asp-route-id="@Model.Panel.PanelID">
                             CSV
                         </a>
@@ -43,10 +43,17 @@
 
                     <li>
                         <a class="dropdown-item"
-                           asp-action="ExportExcel"
+                       asp-action="ExportInternalCostingExcel"
                            asp-route-id="@Model.Panel.PanelID">
-                            Excel
+                            Excel Εσωτερικη Κοστολόγηση
                         </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                       asp-action="ExportCustomerOfferExcel"
+                       asp-route-id="@Model.Panel.PanelID">
+                        Excel Πελάτη
+                    </a>
                     </li>
                 </ul>
             </div>
@@ -65,23 +72,47 @@
                         <a class="dropdown-item"
                            asp-action="ExportInternalOfferPdf"
                            asp-route-id="@Model.Panel.PanelID">
-                            Εσωτερική Κοστολόγηση
+                            PDF Εσωτερική Κοστολόγηση
                         </a>
                     </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-action="ExportCustomerOfferPdf"
+                       asp-route-id="@Model.Panel.PanelID">
+                        PDF Πελάτη
+                    </a>
+                </li>
+
+
                 </ul>
             </div>
 
-            <a asp-action="Copy"
-               asp-route-id="@Model.Panel.PanelID"
-               class="btn btn-outline-primary px-4">
+        <form asp-action="Duplicate"
+              asp-route-id="@Model.Panel.PanelID"
+              method="post"
+              class="d-inline js-confirm-form"
+              data-confirm-title="Αντιγραφή πίνακα"
+              data-confirm-message="Να δημιουργηθεί νέος πίνακας από τον υπάρχοντα;"
+              data-confirm-button="Αντιγραφή">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-outline-primary px-4"
+                    data-bs-toggle="tooltip"
+                    title="Αντιγραφή πίνακα">
+
                 <i class="bi bi-files me-1"></i>
-            </a>
-            <button type="button"
-                class="btn btn-outline-secondary hero-action-btn"
+            </button>
+
+        </form>
+        <button type="button"
+                class="btn btn-outline-secondary px-4"
                 data-bs-toggle="modal"
-                data-bs-target="#supplierDiscountsModal">
-            <i class="bi bi-percent"></i>
-            <span>Εκπτώσεις</span>
+                data-bs-target="#supplierDiscountsModal"
+                title="Εκπτώσεις προμηθευτών">
+            <i class="bi bi-percent me-1"></i>
         </button>
         </div>
     

@@ -391,8 +391,8 @@ namespace panelapp.Controllers
                 Status = OfferStatuses.Draft,
                 LaborCost = draft.LaborCost,
                 ProfitAmount = draft.ProfitAmount,
-                CreatedDate = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow,
+                CreatedDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now,
                 IsDeleted = false
             };
 
@@ -428,8 +428,8 @@ namespace panelapp.Controllers
                         ? line.DiscountPercent
                         : defaultDiscount,
                     IsManualPrice = false,
-                    DateAdded = DateTime.UtcNow,
-                    LastModifiedDate = DateTime.UtcNow
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
                 });
             }
 
@@ -461,8 +461,8 @@ namespace panelapp.Controllers
                         ? line.DiscountPercent
                         : defaultDiscount,
                     IsManualPrice = false,
-                    DateAdded = DateTime.UtcNow,
-                    LastModifiedDate = DateTime.UtcNow
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
                 });
             }
 
@@ -477,8 +477,8 @@ namespace panelapp.Controllers
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     DiscountPercent = 0,
-                    DateAdded = DateTime.UtcNow,
-                    LastModifiedDate = DateTime.UtcNow
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
                 });
             }
 

@@ -29,19 +29,37 @@
 };
 
 document.addEventListener("submit", function (e) {
+
     const form = e.target;
 
-    if (!form.classList.contains("js-confirm-form")) return;
+    if (!form.classList.contains("js-confirm-form")) {
+        return;
+    }
 
+    // Αν έχει ήδη επιβεβαιωθεί -> άστο να συνεχίσει
+    if (form.dataset.confirmed === "true") {
+        return;
+    }
+
+    // Σταματάμε το submit
     e.preventDefault();
+    e.stopImmediatePropagation();
 
     showConfirm({
         title: form.dataset.confirmTitle || "Επιβεβαίωση",
         message: form.dataset.confirmMessage || "Είσαι σίγουρος;",
         confirmText: form.dataset.confirmButton || "Επιβεβαίωση",
+
         onConfirm: function () {
-            form.classList.remove("js-confirm-form");
-            form.submit();
+            form.dataset.confirmed = "true";
+
+            const hiddenSubmit = document.createElement("button");
+            hiddenSubmit.type = "submit";
+            hiddenSubmit.hidden = true;
+
+            form.appendChild(hiddenSubmit);
+            hiddenSubmit.click();
+            hiddenSubmit.remove();
         }
     });
 });

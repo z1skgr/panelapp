@@ -309,12 +309,55 @@ namespace panelapp.Services
                     pm.Quantity,
                     pm.UnitPrice,
                     pm.DiscountPercent,
-                    LineNetTotal = pm.Quantity * pm.UnitPrice * (1 - pm.DiscountPercent / 100)
+                    LineNetTotal = pm.Quantity * pm.UnitPrice * (1 - pm.DiscountPercent / 100),
+                    CatalogTotal = pm.Quantity * pm.UnitPrice,
+
                 })
                 .ToListAsync();
 
+            var cabinets = await _context.PanelCabinets
+                .AsNoTracking()
+                .Include(x => x.Cabinet)
+                .Include(x => x.Supplier)
+                .Where(x => x.PanelID == panelId)
+                .OrderBy(x => x.Cabinet!.CabinetCode)
+                .ToListAsync();
+
+            var extraItems = await _context.PanelExtraItems
+                .AsNoTracking()
+                .Where(x => x.PanelID == panelId)
+                .OrderBy(x => x.Description)
+                .ToListAsync();
+
+            var materialsCatalogTotal = materials.Sum(x => x.CatalogTotal);
             var materialsNetTotal = materials.Sum(x => x.LineNetTotal);
-            var finalTotal = materialsNetTotal + panel.LaborCost + panel.ProfitAmount;
+
+            var cabinetsCatalogTotal = cabinets.Sum(x => x.Quantity * x.UnitPrice);
+            var cabinetsNetTotal = cabinets.Sum(x => x.LineNetTotal);
+
+            var extraItemsCatalogTotal = extraItems.Sum(x => x.Quantity * x.UnitPrice);
+            var extraItemsNetTotal = extraItems.Sum(x => x.LineNetTotal);
+
+            var catalogTotal =
+                materialsCatalogTotal
+                + cabinetsCatalogTotal
+                + extraItemsCatalogTotal;
+
+            var catalogTotalCat =
+                catalogTotal + panel.LaborCost
+                + panel.ProfitAmount; ;
+
+            var netTotal =
+                materialsNetTotal
+                + cabinetsNetTotal
+                + extraItemsNetTotal;
+
+            var finalTotal =
+                netTotal
+                + panel.LaborCost
+                + panel.ProfitAmount;
+
+
 
             var logoPath = Path.Combine(
                 _env.WebRootPath,
@@ -421,79 +464,135 @@ namespace panelapp.Services
                             .Bold()
                             .FontColor(Colors.Blue.Darken2);
 
-                        column.Item().Table(table =>
+                        AddInternalSection(
+                            column,
+                            "ΗΛΕΚΤΡΟΛΟΓΙΚΑ ΥΛΙΚΑ",
+                            materials,
+                            x => x.MaterialCode,
+                            x => x.Description,
+                            x => x.SupplierName,
+                            x => x.Quantity,
+                            x => x.UnitPrice,
+                            x => x.DiscountPercent,
+                            x => x.CatalogTotal,
+                            x => x.LineNetTotal);
+
+                        AddInternalSection(
+                            column,
+                            "ΕΡΜΑΡΙΑ",
+                            cabinets,
+                            x => x.Cabinet?.CabinetCode ?? "",
+                            x => x.Cabinet?.Description ?? "",
+                            x => x.Supplier?.SupplierName ?? "",
+                            x => x.Quantity,
+                            x => x.UnitPrice,
+                            x => x.DiscountPercent,
+                            x => x.Quantity * x.UnitPrice,
+                            x => x.LineNetTotal);
+
+                        AddInternalSection(
+                            column,
+                            "ΛΟΙΠΑ ΥΛΙΚΑ",
+                            extraItems,
+                            x => x.ItemCode ?? "",
+                            x => x.Description,
+                            x => "",
+                            x => x.Quantity,
+                            x => x.UnitPrice,
+                            x => x.DiscountPercent,
+                            x => x.Quantity * x.UnitPrice,
+                            x => x.LineNetTotal);
+
+                        column.Item().PaddingTop(18).Row(summary =>
                         {
-                            table.ColumnsDefinition(columns =>
+                            summary.RelativeItem().Background(Colors.Blue.Lighten5).Border(1).BorderColor(Colors.Blue.Lighten2).Padding(10).Column(col =>
                             {
-                                columns.ConstantColumn(70);
-                                columns.RelativeColumn(2.4f);
-                                columns.RelativeColumn(1.4f);
-                                columns.ConstantColumn(55);
-                                columns.ConstantColumn(65);
-                                columns.ConstantColumn(55);
-                                columns.ConstantColumn(75);
-                            });
+                                col.Item().Text("ΣΥΝΟΛΑ ΚΑΤΑΛΟΓΟΥ").Bold();
 
-                            table.Header(header =>
-                            {
-                                header.Cell().Element(HeaderCell).Text("Κωδικός");
-                                header.Cell().Element(HeaderCell).Text("Περιγραφή");
-                                header.Cell().Element(HeaderCell).Text("Προμηθευτής");
-                                header.Cell().Element(HeaderCell).AlignRight().Text("Ποσ.");
-                                header.Cell().Element(HeaderCell).AlignRight().Text("Τιμή");
-                                header.Cell().Element(HeaderCell).AlignRight().Text("Εκπτ.");
-                                header.Cell().Element(HeaderCell).AlignRight().Text("Σύνολο");
-                            });
-
-                            foreach (var item in materials)
-                            {
-                                table.Cell().Element(BodyCell).Text(item.MaterialCode);
-                                table.Cell().Element(BodyCell).Text(item.Description);
-                                table.Cell().Element(BodyCell).Text(item.SupplierName);
-                                table.Cell().Element(BodyCell).AlignRight().Text(item.Quantity.ToString("N2"));
-                                table.Cell().Element(BodyCell).AlignRight().Text($"{item.UnitPrice:N2} €");
-                                table.Cell().Element(BodyCell).AlignRight().Text($"{item.DiscountPercent:N2}%");
-                                table.Cell().Element(BodyCell).AlignRight().Text($"{item.LineNetTotal:N2} €");
-                            }
-                        });
-
-                        column.Item().PaddingTop(18).AlignRight().Width(260).Element(container =>
-                        {
-                            container
-                                .Background(Colors.Grey.Lighten5)
-                                .Border(1)
-                                .BorderColor(Colors.Grey.Lighten1)
-                                .Padding(12)
-                                .Column(total =>
+                                col.Item().PaddingTop(5).Row(row =>
                                 {
-                                    total.Item().Row(row =>
-                                    {
-                                        row.RelativeItem().Text("Υλικά NET");
-                                        row.ConstantItem(100).AlignRight().Text($"{materialsNetTotal:N2} €");
-                                    });
-
-                                    total.Item().Row(row =>
-                                    {
-                                        row.RelativeItem().Text("Εργατικά");
-                                        row.ConstantItem(100).AlignRight().Text($"{panel.LaborCost:N2} €");
-                                    });
-
-                                    total.Item().Row(row =>
-                                    {
-                                        row.RelativeItem().Text("Κέρδος");
-                                        row.ConstantItem(100).AlignRight().Text($"{panel.ProfitAmount:N2} €");
-                                    });
-
-                                    total.Item().PaddingVertical(6)
-                                        .LineHorizontal(1)
-                                        .LineColor(Colors.Grey.Lighten1);
-
-                                    total.Item().Row(row =>
-                                    {
-                                        row.RelativeItem().Text("Σύνολο Κοστολόγησης").Bold();
-                                        row.ConstantItem(100).AlignRight().Text($"{finalTotal:N2} €").Bold();
-                                    });
+                                    row.RelativeItem().Text("Υλικά");
+                                    row.ConstantItem(90).AlignRight().Text($"{materialsCatalogTotal:N2} €");
                                 });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Ερμάρια");
+                                    row.ConstantItem(90).AlignRight().Text($"{cabinetsCatalogTotal:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Λοιπά Υλικά");
+                                    row.ConstantItem(90).AlignRight().Text($"{extraItemsCatalogTotal:N2} €");
+                                });
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Εργατικά");
+                                    row.ConstantItem(90).AlignRight().Text($"{panel.LaborCost:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Κέρδος");
+                                    row.ConstantItem(90).AlignRight().Text($"{panel.ProfitAmount:N2} €");
+                                });
+
+
+
+                                col.Item().PaddingVertical(5).LineHorizontal(1);
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Σύνολο Καταλόγου").Bold();
+                                    row.ConstantItem(90).AlignRight().Text($"{catalogTotalCat:N2} €").Bold();
+                                });
+                            });
+
+                            summary.ConstantItem(15);
+
+                            summary.RelativeItem().Background(Colors.Yellow.Lighten5).Border(1).BorderColor(Colors.Yellow.Darken1).Padding(10).Column(col =>
+                            {
+                                col.Item().Text("NET ΚΟΣΤΟΛΟΓΗΣΗ").Bold();
+
+                                col.Item().PaddingTop(5).Row(row =>
+                                {
+                                    row.RelativeItem().Text("Υλικά NET");
+                                    row.ConstantItem(90).AlignRight().Text($"{materialsNetTotal:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Ερμάρια NET");
+                                    row.ConstantItem(90).AlignRight().Text($"{cabinetsNetTotal:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Λοιπά Υλικά NET");
+                                    row.ConstantItem(90).AlignRight().Text($"{extraItemsNetTotal:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Εργατικά");
+                                    row.ConstantItem(90).AlignRight().Text($"{panel.LaborCost:N2} €");
+                                });
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Κέρδος");
+                                    row.ConstantItem(90).AlignRight().Text($"{panel.ProfitAmount:N2} €");
+                                });
+
+                                col.Item().PaddingVertical(5).LineHorizontal(1);
+
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("Σύνολο NET").Bold();
+                                    row.ConstantItem(90).AlignRight().Text($"{finalTotal:N2} €").Bold();
+                                });
+                            });
                         });
                     });
 
@@ -514,6 +613,72 @@ namespace panelapp.Services
                     });
                 });
             }).GeneratePdf();
+
+
+
+        }
+
+        private static void AddInternalSection<T>(
+    ColumnDescriptor column,
+    string title,
+    IEnumerable<T> items,
+    Func<T, string> code,
+    Func<T, string> description,
+    Func<T, string> supplier,
+    Func<T, decimal> quantity,
+    Func<T, decimal> unitPrice,
+    Func<T, decimal> discountPercent,
+    Func<T, decimal> catalogTotal,
+    Func<T, decimal> netTotal)
+        {
+            var list = items.ToList();
+
+            if (!list.Any())
+                return;
+
+            column.Item().PaddingTop(10).Text(title)
+                .FontSize(12)
+                .Bold()
+                .FontColor(Colors.Blue.Darken2);
+
+            column.Item().Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(60);
+                    columns.RelativeColumn(2.2f);
+                    columns.RelativeColumn(1.3f);
+                    columns.ConstantColumn(45);
+                    columns.ConstantColumn(55);
+                    columns.ConstantColumn(45);
+                    columns.ConstantColumn(65);
+                    columns.ConstantColumn(65);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Element(HeaderCell).Text("Κωδ.");
+                    header.Cell().Element(HeaderCell).Text("Περιγραφή");
+                    header.Cell().Element(HeaderCell).Text("Προμηθ.");
+                    header.Cell().Element(HeaderCell).AlignRight().Text("Ποσ.");
+                    header.Cell().Element(HeaderCell).AlignRight().Text("Τιμή");
+                    header.Cell().Element(HeaderCell).AlignRight().Text("Εκπτ.");
+                    header.Cell().Element(HeaderCell).AlignRight().Text("Κατ.");
+                    header.Cell().Element(HeaderCell).AlignRight().Text("NET");
+                });
+
+                foreach (var item in list)
+                {
+                    table.Cell().Element(BodyCell).Text(code(item));
+                    table.Cell().Element(BodyCell).Text(description(item));
+                    table.Cell().Element(BodyCell).Text(supplier(item));
+                    table.Cell().Element(BodyCell).AlignRight().Text(quantity(item).ToString("N2"));
+                    table.Cell().Element(BodyCell).AlignRight().Text($"{unitPrice(item):N2}");
+                    table.Cell().Element(BodyCell).AlignRight().Text($"{discountPercent(item):N2}%");
+                    table.Cell().Element(BodyCell).AlignRight().Text($"{catalogTotal(item):N2}");
+                    table.Cell().Element(BodyCell).AlignRight().Text($"{netTotal(item):N2}");
+                }
+            });
         }
     }
 }

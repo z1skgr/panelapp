@@ -361,7 +361,7 @@ namespace panelapp.Controllers
             existing.CurrentPrice = model.CurrentPrice;
             existing.SupplierID = model.SupplierID;
             existing.Active = model.Active;
-            existing.LastModifiedDate = DateTime.UtcNow;
+            existing.LastModifiedDate = DateTime.Now;
             _context.Entry(existing)
                 .Property(x => x.RowVersion)
                 .OriginalValue = model.RowVersion;
@@ -369,7 +369,7 @@ namespace panelapp.Controllers
 
             if (priceChanged)
             {
-                existing.PriceUpdatedDate = DateTime.UtcNow;
+                existing.PriceUpdatedDate = DateTime.Now;
             }
 
             try
@@ -575,8 +575,8 @@ namespace panelapp.Controllers
                 return View(model);
             }
 
-            model.CreatedDate = DateTime.UtcNow;
-            model.LastModifiedDate = DateTime.UtcNow;
+            model.CreatedDate = DateTime.Now;
+            model.LastModifiedDate = DateTime.Now;
 
             _context.Cabinets.Add(model);
             await _context.SaveChangesAsync();
@@ -648,7 +648,7 @@ namespace panelapp.Controllers
             existing.CurrentPrice = model.CurrentPrice;
             existing.SupplierID = model.SupplierID;
             existing.Active = model.Active;
-            existing.LastModifiedDate = DateTime.UtcNow;
+            existing.LastModifiedDate = DateTime.Now;
 
             _context.Entry(existing)
                 .Property(x => x.RowVersion)

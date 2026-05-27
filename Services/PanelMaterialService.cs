@@ -114,7 +114,7 @@ namespace panelapp.Services
 
             panelMaterial.Quantity = model.Quantity;
             panelMaterial.DiscountPercent = model.DiscountPercent;
-            panelMaterial.LastModifiedDate = DateTime.UtcNow;
+            panelMaterial.LastModifiedDate = DateTime.Now;
             _context.Entry(panelMaterial)
                 .Property(x => x.RowVersion)
                 .OriginalValue = Convert.FromBase64String(model.RowVersion);
@@ -138,7 +138,7 @@ namespace panelapp.Services
             panelMaterial.DiscountPercent = model.DiscountPercent;
             panelMaterial.IsManualPrice = model.IsManualPrice;
             panelMaterial.ManualPriceReason = model.ManualPriceReason;
-            panelMaterial.LastModifiedDate = DateTime.UtcNow;
+            panelMaterial.LastModifiedDate = DateTime.Now;
 
             _context.Entry(panelMaterial)
                 .Property(x => x.RowVersion)

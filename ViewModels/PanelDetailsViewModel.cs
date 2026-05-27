@@ -30,6 +30,19 @@ namespace panelapp.ViewModels
         public List<SupplierDiscountInfoViewModel> SupplierDiscounts { get; set; } = new();
 
 
+        public decimal MaterialsCatalogTotal =>
+Materials?.Sum(x => x.OriginalTotalPrice) ?? 0;
+
+        public decimal CabinetsCatalogTotal =>
+            Cabinets?.Sum(x => x.Quantity * x.UnitPrice) ?? 0;
+
+        public decimal ExtraItemsCatalogTotal =>
+            ExtraItems?.Sum(x => x.Quantity * x.UnitPrice) ?? 0;
+
+        public decimal GrandCatalogTotal =>
+            MaterialsCatalogTotal + CabinetsCatalogTotal + ExtraItemsCatalogTotal;
+
+
 
     }
 

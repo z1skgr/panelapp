@@ -665,7 +665,7 @@ namespace panelapp.Controllers
                 return RedirectToAction(nameof(Details), new { id = model.PanelID });
             }
 
-            panel.LastModifiedDate = DateTime.UtcNow;
+            panel.LastModifiedDate = DateTime.Now;
 
 
 
@@ -713,7 +713,8 @@ namespace panelapp.Controllers
                     DiscountPercent = pm.DiscountPercent,
                     UnitPrice = pm.UnitPrice,
                     IsManualPrice = pm.IsManualPrice,
-                    ManualPriceReason = pm.ManualPriceReason
+                    ManualPriceReason = pm.ManualPriceReason,
+                    RowVersion = Convert.ToBase64String(pm.RowVersion)
                 })
                 .FirstOrDefaultAsync();
 
@@ -747,7 +748,7 @@ namespace panelapp.Controllers
 
             if (panel != null)
             {
-                panel.LastModifiedDate = DateTime.UtcNow;
+                panel.LastModifiedDate = DateTime.Now;
             }
 
 
@@ -943,110 +944,113 @@ namespace panelapp.Controllers
             return RedirectToAction(nameof(Details), new { id = panel.PanelID });
         }
 
-
-
-        [HttpGet]
-        public async Task<IActionResult> Copy(int id)
-        {
-            var sourcePanel = await _context.Panels
-                .Include(p => p.Customer)
-                .FirstOrDefaultAsync(p => p.PanelID == id);
-
-            if (sourcePanel == null)
-            {
-                return NotFound();
-            }
-
-            var customers = await GetCustomerOptionsAsync();
-
-            var model = new CopyPanelViewModel
-            {
-                SourcePanelID = sourcePanel.PanelID,
-                SourcePanelCode = sourcePanel.PanelCode,
-                SourceCustomerName = sourcePanel.CustomerName,
-                SuggestedPanelCode = await _panelCodeService.GetNextPanelCodeAsync(),
-                CustomerID = sourcePanel.CustomerID,
-                Description = sourcePanel.Description,
-                CopyMaterials = true,
-                CopyDiscounts = true,
-                CopyManualPrices = true,
-                Customers = customers
-            };
-
-            return View(model);
-        }
-
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Copy(CopyPanelViewModel model)
+        public async Task<IActionResult> Duplicate(int id)
         {
-            model.CopyMaterials = true;
-            model.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
-
-            model.Customers = await GetCustomerOptionsAsync();
-
             var sourcePanel = await _context.Panels
-                .FirstOrDefaultAsync(p => p.PanelID == model.SourcePanelID);
+                .Include(x => x.PanelMaterials)
+                .Include(x => x.PanelCabinets)
+                .Include(x => x.PanelExtraItems)
+                .FirstOrDefaultAsync(x => x.PanelID == id);
 
             if (sourcePanel == null)
-            {
                 return NotFound();
-            }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.CustomerID == model.CustomerID && c.Active);
-
-            if (customer == null)
+            var newPanel = new Panel
             {
-                ModelState.AddModelError(nameof(model.CustomerID), "Ο επιλεγμένος πελάτης δεν βρέθηκε.");
-            }
+                PanelCode = await _panelCodeService.GetNextPanelCodeAsync(),
 
-            if (!ModelState.IsValid)
+
+                CustomerID = sourcePanel.CustomerID,
+                CustomerName = sourcePanel.CustomerName,
+                Description = sourcePanel.Description,
+
+
+                Status = PanelStatuses.UnderConstruction,
+
+                LaborCost = sourcePanel.LaborCost,
+                ProfitAmount = sourcePanel.ProfitAmount,
+
+                CreatedDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now
+            };
+
+            foreach (var item in sourcePanel.PanelMaterials)
             {
-                model.SourcePanelCode = sourcePanel.PanelCode;
-                model.SourceCustomerName = sourcePanel.CustomerName;
-                model.SuggestedPanelCode = await _panelCodeService.GetNextPanelCodeAsync();
-                return View(model);
+                newPanel.PanelMaterials.Add(new PanelMaterial
+                {
+                    MaterialID = item.MaterialID,
+                    SupplierID = item.SupplierID,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    IsManualPrice = item.IsManualPrice,
+                    ManualPriceReason = item.ManualPriceReason,
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
+                });
             }
 
-            var result = await _panelService.CopyPanelAsync(model);
-
-            if (!result.Success)
+            foreach (var item in sourcePanel.PanelCabinets)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
-
-                model.SourcePanelCode = sourcePanel.PanelCode;
-                model.SourceCustomerName = sourcePanel.CustomerName;
-                model.SuggestedPanelCode = await _panelCodeService.GetNextPanelCodeAsync();
-
-                return View(model);
+                newPanel.PanelCabinets.Add(new PanelCabinet
+                {
+                    CabinetID = item.CabinetID,
+                    SupplierID = item.SupplierID,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    IsManualPrice = item.IsManualPrice,
+                    ManualPriceReason = item.ManualPriceReason,
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
+                });
             }
+
+            foreach (var item in sourcePanel.PanelExtraItems)
+            {
+                newPanel.PanelExtraItems.Add(new PanelExtraItem
+                {
+                    ItemCode = item.ItemCode,
+                    Description = item.Description,
+                    Unit = item.Unit,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    DateAdded = DateTime.Now,
+                    LastModifiedDate = DateTime.Now
+                });
+            }
+
+            _context.Panels.Add(newPanel);
+            await _context.SaveChangesAsync();
 
             await _activityLogger.LogAsync(
                 "Panel",
-                result.NewPanelID,
+                newPanel.PanelID,
                 "Created",
-                $"Δημιουργήθηκε αντίγραφο πίνακα {result.NewPanelCode}",
-                $"Αντιγραφή από {sourcePanel.PanelCode} · Πελάτης: {customer!.CustomerName}");
+                "Αντιγραφή πίνακα",
+                $"Δημιουργήθηκε νέος πίνακας {newPanel.PanelCode} από τον {sourcePanel.PanelCode}.");
 
-            TempData["SuccessMessage"] = result.Message;
+            TempData["SuccessMessage"] = "Δημιουργήθηκε νέος πίνακας από τον υπάρχοντα.";
 
-            return RedirectToAction(nameof(Details), new { id = result.NewPanelID });
+            return RedirectToAction(nameof(Details), new { id = newPanel.PanelID });
         }
 
+
+
+
+
+
+
         [HttpGet]
-        public async Task<IActionResult> ExportCSV(int id)
+        public async Task<IActionResult> ExportInternalCostingCsv(int id)
         {
-            var panel = await _context.Panels.FindAsync(id);
+            var panel = await _context.Panels.AsNoTracking().FirstOrDefaultAsync(p => p.PanelID == id);
+            if (panel == null) return NotFound();
 
-            if (panel == null)
-            {
-                return NotFound();
-            }
-
-            var bytes = await _panelExportService.ExportCsvAsync(id);
+            var bytes = await _panelExportService.ExportInternalCostingCsvAsync(id);
 
             await _activityLogger.LogAsync(
                 "Panel",
@@ -1055,22 +1059,17 @@ namespace panelapp.Controllers
                 "Export πίνακα σε CSV",
                 $"Έγινε εξαγωγή του πίνακα #{id} σε CSV.");
 
-            return File(bytes, "text/csv", $"{panel.PanelCode}_Export.csv");
+            return File(bytes, "text/csv", $"{panel.PanelCode}_InternalCosting.csv");
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportExcel(int id)
+        public async Task<IActionResult> ExportInternalCostingExcel(int id)
         {
-            var panel = await _context.Panels
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.PanelID == id);
+            var panel = await _context.Panels.AsNoTracking().FirstOrDefaultAsync(p => p.PanelID == id);
+            if (panel == null) return NotFound();
 
-            if (panel == null)
-            {
-                return NotFound();
-            }
+            var bytes = await _panelExportService.ExportInternalCostingExcelAsync(id);
 
-            var bytes = await _panelExportService.ExportExcelAsync(id);
 
             await _activityLogger.LogAsync(
                 "Panel",
@@ -1082,8 +1081,24 @@ namespace panelapp.Controllers
             return File(
                 bytes,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                $"{panel.PanelCode}_Export.xlsx");
+                $"{panel.PanelCode}_InternalCostingPanel.xlsx");
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCustomerOfferExcel(int id)
+        {
+            var panel = await _context.Panels.AsNoTracking().FirstOrDefaultAsync(p => p.PanelID == id);
+            if (panel == null) return NotFound();
+
+            var bytes = await _panelExportService.ExportCustomerOfferExcelAsync(id);
+
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"{panel.PanelCode}_CustomerPanel.xlsx");
+        }
+
 
 
         [HttpGet]
@@ -1135,7 +1150,7 @@ namespace panelapp.Controllers
             panel.LaborCost = model.LaborCost;
             panel.ProfitAmount = model.ProfitAmount;
 
-            panel.LastModifiedDate = DateTime.UtcNow;
+            panel.LastModifiedDate = DateTime.Now;
             _context.Entry(panel)
                 .Property(x => x.RowVersion)
                 .OriginalValue = Convert.FromBase64String(model.RowVersion);
@@ -1303,13 +1318,13 @@ namespace panelapp.Controllers
                 : cabinet.Supplier?.DefaultDiscountPercent ?? 0,
                 IsManualPrice = false,
                 ManualPriceReason = null,
-                DateAdded = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                DateAdded = DateTime.Now,
+                LastModifiedDate = DateTime.Now
             };
 
             _context.PanelCabinets.Add(panelCabinet);
 
-            panel.LastModifiedDate = DateTime.UtcNow;
+            panel.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -1340,7 +1355,7 @@ namespace panelapp.Controllers
             var panelId = panelCabinet.PanelID;
 
             if (panelCabinet.Panel != null)
-                panelCabinet.Panel.LastModifiedDate = DateTime.UtcNow;
+                panelCabinet.Panel.LastModifiedDate = DateTime.Now;
 
             _context.PanelCabinets.Remove(panelCabinet);
 
@@ -1388,10 +1403,10 @@ namespace panelapp.Controllers
                 panelCabinet.ManualPriceReason = null;
             }
 
-            panelCabinet.LastModifiedDate = DateTime.UtcNow;
+            panelCabinet.LastModifiedDate = DateTime.Now;
 
             if (panelCabinet.Panel != null)
-                panelCabinet.Panel.LastModifiedDate = DateTime.UtcNow;
+                panelCabinet.Panel.LastModifiedDate = DateTime.Now;
 
             _context.Entry(panelCabinet)
                 .Property(x => x.RowVersion)
@@ -1456,13 +1471,13 @@ namespace panelapp.Controllers
                 Quantity = model.Quantity,
                 UnitPrice = model.UnitPrice,
                 DiscountPercent = model.DiscountPercent,
-                DateAdded = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                DateAdded = DateTime.Now,
+                LastModifiedDate = DateTime.Now
             };
 
             _context.PanelExtraItems.Add(extraItem);
 
-            panel.LastModifiedDate = DateTime.UtcNow;
+            panel.LastModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -1493,7 +1508,7 @@ namespace panelapp.Controllers
             var panelId = extraItem.PanelID;
 
             if (extraItem.Panel != null)
-                extraItem.Panel.LastModifiedDate = DateTime.UtcNow;
+                extraItem.Panel.LastModifiedDate = DateTime.Now;
 
             _context.PanelExtraItems.Remove(extraItem);
 
@@ -1545,10 +1560,10 @@ namespace panelapp.Controllers
             extraItem.Quantity = model.Quantity;
             extraItem.UnitPrice = model.UnitPrice;
             extraItem.DiscountPercent = model.DiscountPercent;
-            extraItem.LastModifiedDate = DateTime.UtcNow;
+            extraItem.LastModifiedDate = DateTime.Now;
 
             if (extraItem.Panel != null)
-                extraItem.Panel.LastModifiedDate = DateTime.UtcNow;
+                extraItem.Panel.LastModifiedDate = DateTime.Now;
 
             _context.Entry(extraItem)
                 .Property(x => x.RowVersion)
@@ -1584,7 +1599,7 @@ namespace panelapp.Controllers
                 return NotFound();
 
             panel.IsDeleted = true;
-            panel.DeletedDate = DateTime.UtcNow;
+            panel.DeletedDate = DateTime.Now;
 
             await _activityLogger.LogAsync(
                 "Panel",

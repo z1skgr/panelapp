@@ -501,3 +501,25 @@ body.dark-mode .app-confirm-modal-content {
 .btn.has-loading-state {
     min-width: 140px;
 }
+
+
+.page-header {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+}
+
+.page-header-content {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+.page-header-actions {
+    margin-left: auto !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: .65rem !important;
+    flex: 0 0 auto !important;
+}

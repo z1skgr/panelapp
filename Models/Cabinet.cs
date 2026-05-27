@@ -28,9 +28,9 @@ namespace panelapp.Models
 
         public bool Active { get; set; } = true;
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTime LastModifiedDate { get; set; } = DateTime.Now;
 
         [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();

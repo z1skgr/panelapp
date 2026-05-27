@@ -35,9 +35,9 @@ namespace panelapp.Models
         [StringLength(2000)]
         public string? Notes { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTime LastModifiedDate { get; set; } = DateTime.Now;
 
         public DateTime? SentDate { get; set; }
 

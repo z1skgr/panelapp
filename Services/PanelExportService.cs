@@ -15,7 +15,7 @@ namespace panelapp.Services
             _context = context;
         }
 
-        public async Task<byte[]> ExportCsvAsync(int panelId)
+        public async Task<byte[]> ExportInternalCostingCsvAsync(int panelId)
         {
             var panel = await _context.Panels
                 .Include(p => p.PanelCabinets)
@@ -129,7 +129,7 @@ namespace panelapp.Services
             return preamble.Concat(content).ToArray();
         }
 
-        public async Task<byte[]> ExportExcelAsync(int panelId)
+        public async Task<byte[]> ExportInternalCostingExcelAsync(int panelId)
         {
             var panel = await _context.Panels
                 .Include(p => p.PanelCabinets)
@@ -314,9 +314,39 @@ namespace panelapp.Services
             var discountTotal = materialsDiscountTotal + cabinetsDiscountTotal + extraItemsDiscountTotal;
             var netTotal = materialsNetTotal + cabinetsNetTotal + extraItemsNetTotal;
 
-            var finalTotal = netTotal + panel.LaborCost + panel.ProfitAmount;
+            var finalTotal = catalogTotal + panel.LaborCost + panel.ProfitAmount;
+
+            var summaryStartRow = row + 2;
+
+            ws.Cell(summaryStartRow, 6).Value = "Υλικά Κατάλογος";
+            ws.Cell(summaryStartRow, 7).Value = materialsCatalogTotal;
+
+            ws.Cell(summaryStartRow + 1, 6).Value = "Ερμάρια Κατάλογος";
+            ws.Cell(summaryStartRow + 1, 7).Value = cabinetsCatalogTotal;
+
+            ws.Cell(summaryStartRow + 2, 6).Value = "Λοιπά Υλικά Κατάλογος";
+            ws.Cell(summaryStartRow + 2, 7).Value = extraItemsCatalogTotal;
+
+            ws.Cell(summaryStartRow + 3, 6).Value = "Εργατικά";
+            ws.Cell(summaryStartRow + 3, 7).Value = panel.LaborCost;
+
+
+            ws.Cell(summaryStartRow + 4, 6).Value = "Κέρδος";
+            ws.Cell(summaryStartRow + 4, 7).Value = panel.ProfitAmount;
+
+
+            ws.Cell(summaryStartRow + 5, 6).Value = "Σύνολο Καταλόγου";
+            ws.Cell(summaryStartRow + 5, 7).Value = finalTotal;
+
+            var catalogRange = ws.Range(summaryStartRow, 6, summaryStartRow + 5, 7);
+            catalogRange.Style.Font.Bold = true;
+            catalogRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+            catalogRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            catalogRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
             row += 2;
+
+            var finalNetTotal = netTotal + panel.LaborCost + panel.ProfitAmount;
 
             ws.Cell(row, 9).Value = "Υλικά NET";
             ws.Cell(row, 10).Value = materialsNetTotal;
@@ -339,7 +369,7 @@ namespace panelapp.Services
             row++;
 
             ws.Cell(row, 9).Value = "Σύνολο Κοστολόγησης";
-            ws.Cell(row, 10).Value = finalTotal;
+            ws.Cell(row, 10).Value = finalNetTotal;
 
             var totalRange = ws.Range(row - 5, 9, row, 10);
             totalRange.Style.Font.Bold = true;
@@ -368,6 +398,167 @@ namespace panelapp.Services
             ws.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            return stream.ToArray();
+        }
+
+        public async Task<byte[]> ExportCustomerOfferExcelAsync(int panelId)
+        {
+            var panel = await _context.Panels
+                .Include(p => p.PanelCabinets)
+                    .ThenInclude(x => x.Cabinet)
+                .Include(p => p.PanelExtraItems)
+                .FirstOrDefaultAsync(p => p.PanelID == panelId);
+
+            if (panel == null)
+                return Array.Empty<byte>();
+
+            var materialRows = await GetPanelExportRowsAsync(panelId);
+
+            using var workbook = new XLWorkbook();
+            var ws = workbook.Worksheets.Add("Customer Offer");
+
+            ws.Cell("A1").Value = "ΠΡΟΣΦΟΡΑ ΠΕΛΑΤΗ";
+            ws.Range("A1:E1").Merge();
+
+            ws.Cell("A1").Style.Font.Bold = true;
+            ws.Cell("A1").Style.Font.FontSize = 16;
+            ws.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell("A1").Style.Fill.BackgroundColor = XLColor.LightSteelBlue;
+
+            ws.Cell("A3").Value = "Κωδικός Πίνακα";
+            ws.Cell("B3").Value = panel.PanelCode;
+
+            ws.Cell("A4").Value = "Πελάτης";
+            ws.Cell("B4").Value = panel.CustomerName ?? "";
+
+            ws.Cell("A5").Value = "Περιγραφή";
+            ws.Cell("B5").Value = panel.Description ?? "";
+
+            int row = 8;
+
+            void WriteHeader(string title)
+            {
+                ws.Cell(row, 1).Value = title;
+                ws.Range(row, 1, row, 4).Merge();
+
+                ws.Cell(row, 1).Style.Font.Bold = true;
+                ws.Cell(row, 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                row++;
+
+                ws.Cell(row, 1).Value = "Κωδικός";
+                ws.Cell(row, 2).Value = "Περιγραφή";
+                ws.Cell(row, 3).Value = "Μονάδα";
+                ws.Cell(row, 4).Value = "Ποσότητα";
+
+
+                var header = ws.Range(row, 1, row, 4);
+
+                header.Style.Font.Bold = true;
+                header.Style.Fill.BackgroundColor = XLColor.LightGray;
+                header.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                header.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                row++;
+            }
+
+            void StyleRows(int startRow, int endRow)
+            {
+                if (endRow < startRow)
+                    return;
+
+                var range = ws.Range(startRow, 1, endRow, 4);
+
+                range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                range.Style.Border.InsideBorder = XLBorderStyleValues.Hair;
+            }
+
+            // MATERIALS
+            WriteHeader("ΗΛΕΚΤΡΟΛΟΓΙΚΑ ΥΛΙΚΑ");
+
+            int matStart = row;
+
+            foreach (var item in materialRows)
+            {
+                ws.Cell(row, 1).Value = item.MaterialCode;
+                ws.Cell(row, 2).Value = item.Description;
+                ws.Cell(row, 3).Value = item.Unit;
+                ws.Cell(row, 4).Value = item.Quantity;
+
+                row++;
+            }
+
+            StyleRows(matStart, row - 1);
+
+            // CABINETS
+            row += 2;
+
+            WriteHeader("ΕΡΜΑΡΙΑ");
+
+            int cabStart = row;
+
+            foreach (var item in panel.PanelCabinets)
+            {
+                ws.Cell(row, 1).Value = item.Cabinet?.CabinetCode ?? "";
+                ws.Cell(row, 2).Value = item.Cabinet?.Description ?? "";
+                ws.Cell(row, 3).Value = item.Cabinet?.Unit ?? "pcs";
+                ws.Cell(row, 4).Value = item.Quantity;
+
+                row++;
+            }
+
+            StyleRows(cabStart, row - 1);
+
+            // EXTRA ITEMS
+            row += 2;
+
+            WriteHeader("ΛΟΙΠΑ ΥΛΙΚΑ");
+
+            int extraStart = row;
+
+            foreach (var item in panel.PanelExtraItems)
+            {
+                ws.Cell(row, 1).Value = item.ItemCode ?? "";
+                ws.Cell(row, 2).Value = item.Description;
+                ws.Cell(row, 3).Value = item.Unit;
+                ws.Cell(row, 4).Value = item.Quantity;
+
+                row++;
+            }
+
+            StyleRows(extraStart, row - 1);
+
+            decimal total =
+                materialRows.Sum(x => x.CatalogTotal)
+                + panel.PanelCabinets.Sum(x => x.Quantity * x.UnitPrice)
+                + panel.PanelExtraItems.Sum(x => x.Quantity * x.UnitPrice)
+            + panel.LaborCost + panel.ProfitAmount;
+
+
+
+            row += 3;
+
+            ws.Cell(row, 3).Value = "Σύνολο";
+            ws.Cell(row, 4).Value = total;
+
+            var totalRange = ws.Range(row, 3, row, 4);
+
+            totalRange.Style.Font.Bold = true;
+            totalRange.Style.Fill.BackgroundColor = XLColor.LightGreen;
+            totalRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+            ws.Column(1).Width = 20;
+            ws.Column(2).Width = 45;
+            ws.Column(3).Width = 12;
+            ws.Column(4).Width = 12;
+            ws.Column(5).Width = 18;
+
+            ws.Column(5).Style.NumberFormat.Format = "#,##0.00 €";
+
+            using var stream = new MemoryStream();
+
             workbook.SaveAs(stream);
 
             return stream.ToArray();
