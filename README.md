@@ -584,32 +584,21 @@ await transaction.CommitAsync();
 ----
 
 
-# 📤 Export System
+# 📊Excel Import
 
-PanelApp supports separate export flows for internal costing and customer-facing quotations.
+Mandatory supplier selection from UI.
 
-## Offers & Panels
+Format:
 
-- Customer PDF
-- Internal Costing PDF
-- Customer Excel
-- Internal Costing Excel
-- Internal Costing CSV
+```text
+MaterialCode | Description | Price | Unit
+```
 
-Internal exports include:
-- suppliers
-- quantities
-- discounts
-- catalog totals
-- NET totals
-- labor cost
-- profit
+Rules:
 
-Customer exports include:
-- grouped Materials / Cabinets / Extra Items
-- quantities
-- final offer total
-- no suppliers or discount breakdown
+* One supplier per file
+* No duplicates
+* Update existing
 
 ----
 
