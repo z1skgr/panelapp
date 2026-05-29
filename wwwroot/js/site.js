@@ -73,3 +73,33 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+document.addEventListener('DOMContentLoaded', function () {
+    const navbar = document.querySelector('.app-navbar');
+
+    if (!navbar) return;
+
+    document.body.classList.add('has-fixed-navbar');
+
+    function updateNavbarScrollState() {
+        navbar.classList.toggle('navbar-scrolled', window.scrollY > 8);
+    }
+
+    updateNavbarScrollState();
+
+    window.addEventListener('scroll', updateNavbarScrollState, {
+        passive: true
+    });
+});
+
+
+document.addEventListener("submit", function (e) {
+
+    e.target.querySelectorAll(".js-decimal").forEach(input => {
+
+        input.value = input.value
+            .replace(/\s/g, "")
+            .replace(",", ".");
+
+    });
+
+}, true);

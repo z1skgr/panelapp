@@ -35,7 +35,7 @@
     if (searchForm && supplierSelect) {
         supplierSelect.addEventListener("change", () => searchForm.submit());
     }
-
+    
     if (searchForm && supplierFilterSelect) {
         supplierFilterSelect.addEventListener("change", () => {
             if (supplierSelect) {

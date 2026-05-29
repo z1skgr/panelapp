@@ -96,18 +96,21 @@
         });
     }
 
-    const rawChartData = window.dashboardChartData || [];
+    const allChartData = window.dashboardChartData || {
+        panels: [],
+        offers: []
+    };
     const chartCanvas = document.getElementById('panelsChart');
     const emptyState = document.getElementById('chartEmptyState');
     const chartSummary = document.getElementById('chartSummary');
     const chartTopSelect = document.getElementById('chartTopSelect');
     const chartModeInputs = document.querySelectorAll('input[name="chartMode"]');
 
-    if (!chartCanvas || !Array.isArray(rawChartData) || rawChartData.length === 0) {
-        if (chartCanvas) {
-            chartCanvas.style.display = 'none';
-        }
+    const chartEntityToggle = document.getElementById('chartEntityToggle');
+    const chartTitle = document.getElementById('chartTitle');
+    const chartSubtitle = document.getElementById('chartSubtitle');
 
+    if (!chartCanvas) {
         if (emptyState) {
             emptyState.classList.remove('d-none');
         }
@@ -131,10 +134,10 @@
         return isNaN(value) ? 8 : value;
     }
 
-    function buildChartPayload() {
+    function buildChartPayload(sourceData) {
         const topN = getTopN();
         const mode = getSelectedMode();
-        const sliced = rawChartData.slice(0, topN);
+        const sliced = (sourceData || []).slice(0, topN);
 
         return {
             mode,
@@ -167,8 +170,28 @@
     }
 
     function renderChart() {
-        const data = buildChartPayload();
+        const sourceData =
+            activeChartEntity === "offers"
+                ? allChartData.offers
+                : allChartData.panels;
+        const data = buildChartPayload(sourceData);
         const dark = isDarkMode();
+
+
+        if (activeChartEntity === "offers") {
+
+            chartTitle.textContent = "Προσφορές ανά Πελάτη";
+
+            chartSubtitle.textContent =
+                "Σύγκριση προσφορών ανά πελάτη και κατάσταση";
+        }
+        else {
+
+            chartTitle.textContent = "Πίνακες ανά Πελάτη";
+
+            chartSubtitle.textContent =
+                "Σύγκριση πινάκων ανά πελάτη και κατάσταση";
+        }
 
         if (!data.labels.length) {
             chartCanvas.style.display = 'none';
@@ -214,49 +237,79 @@
             ? makeGradient('rgba(203, 213, 225, 0.90)', 'rgba(148, 163, 184, 0.30)')
             : makeGradient('rgba(148, 163, 184, 0.90)', 'rgba(148, 163, 184, 0.26)');
 
+        const firstLabel =
+            activeChartEntity === "offers"
+                ? "Draft"
+                : "Υπό Κατασκευή";
+
+        const secondLabel =
+            activeChartEntity === "offers"
+                ? "Accepted"
+                : "Ολοκληρωμένοι";
+
+        const thirdLabel =
+            activeChartEntity === "offers"
+                ? "Cancelled"
+                : "Ακυρωμένοι";
+
         chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: data.labels,
                 datasets: [
                     {
-                        label: 'Υπό Κατασκευή',
+                        label: firstLabel,
                         data: data.underConstruction,
                         backgroundColor: underGradient,
                         borderColor: dark ? '#fbbf24' : '#d97706',
                         borderWidth: 1,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         borderSkipped: false,
                         stack: isStacked ? 'panels' : undefined,
                         categoryPercentage: 0.55,
                         barPercentage: 0.75,
-                        maxBarThickness: 28
+                        maxBarThickness: 28,
+                        animations: {
+                            y: {
+                                from: 500
+                            }
+                        }
                     },
                     {
-                        label: 'Ολοκληρωμένοι',
+                        label: secondLabel,
                         data: data.completed,
                         backgroundColor: completedGradient,
                         borderColor: dark ? '#4ade80' : '#16a34a',
                         borderWidth: 1,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         borderSkipped: false,
                         stack: isStacked ? 'panels' : undefined,
                         categoryPercentage: 0.55,
                         barPercentage: 0.75,
-                        maxBarThickness: 28
+                        maxBarThickness: 28,
+                        animations: {
+                            y: {
+                                from: 500
+                            }
+                        }
                     },
                     {
-                        label: 'Ακυρωμένοι',
+                        label: thirdLabel,
                         data: data.cancelled,
                         backgroundColor: cancelledGradient,
                         borderColor: dark ? '#cbd5e1' : '#64748b',
                         borderWidth: 1,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         borderSkipped: false,
                         stack: isStacked ? 'panels' : undefined,
                         categoryPercentage: 0.55,
                         barPercentage: 0.75,
-                        maxBarThickness: 28
+                        maxBarThickness: 28,
+                        animations: {
+                            y: {
+                                from: 500
+                            }
+                        }
                     }
                 ]
             },
@@ -299,7 +352,10 @@
                         callbacks: {
                             footer: function (tooltipItems) {
                                 const total = tooltipItems.reduce((sum, item) => sum + item.raw, 0);
-                                return `Σύνολο: ${total} πίνακες`;
+                                return `Σύνολο: ${total} ${activeChartEntity === "offers"
+                                        ? "προσφορές"
+                                        : "πίνακες"
+                                    }`;
                             },
                             label: function (context) {
                                 return `${context.dataset.label}: ${context.raw}`;
@@ -340,11 +396,62 @@
                     }
                 },
                 animation: {
-                    duration: 650,
-                    easing: 'easeOutQuart'
+                    duration: 700,
+                    easing: 'easeOutQuart',
+                    delay: function (context) {
+                        if (context.type !== 'data') return 0;
+
+                        return context.dataIndex * 35;
+                    }
                 }
             }
         });
+    }
+
+
+
+    let activeChartEntity = "panels";
+
+    chartEntityToggle?.addEventListener("click", () => {
+
+        activeChartEntity =
+            activeChartEntity === "panels"
+                ? "offers"
+                : "panels";
+
+        chartEntityToggle.dataset.entity = activeChartEntity;
+
+        chartEntityToggle.innerHTML =
+            activeChartEntity === "panels"
+                ? '<i class="bi bi-arrow-repeat me-1"></i> Προβολή Προσφορών'
+                : '<i class="bi bi-arrow-repeat me-1"></i> Προβολή Πινάκων';
+
+        chartCanvas.animate(
+            [
+                {
+                    opacity: 0.6,
+                    transform: 'scale(.98)'
+                },
+                {
+                    opacity: 1,
+                    transform: 'scale(1)'
+                }
+            ],
+            {
+                duration: 300,
+                easing: 'ease-out'
+            }
+        );
+
+        renderChart();
+    });
+
+    function getChartColors() {
+        return {
+            first: '#f59e0b',
+            second: '#22c55e',
+            third: '#94a3b8'
+        };
     }
 
     if (chartTopSelect) {
@@ -363,6 +470,5 @@
         attributes: true,
         attributeFilter: ['class']
     });
-
     renderChart();
 });

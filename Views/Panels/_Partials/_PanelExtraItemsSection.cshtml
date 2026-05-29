@@ -79,7 +79,6 @@ else
                                                   asp-action="DeleteExtraItem"
                                                   asp-route-id="@item.PanelExtraItemID"
                                                   method="post"
-                                                  onsubmit="return confirm('Να αφαιρεθεί το λοιπό υλικό από τον πίνακα;');"
                                                   class="d-inline js-confirm-form"
                                                   data-confirm-title="Διαγραφή ερμάριο υλικό"
                                                   data-confirm-message="Να αφαιρεθεί το λοιπό υλικό @item.PanelExtraItemID από τον πίνακα"
@@ -120,103 +119,106 @@ else
 
                             
             </div>
-            @foreach (var item in Model.ExtraItems)
-            {
-                <div class="modal fade"
-                     id="editExtraItemModal_@item.PanelExtraItemID"
-                     tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content bg-body text-body">
-                            <form asp-controller="Panels" asp-action="UpdateExtraItem" method="post">
-                                @Html.AntiForgeryToken()
+            
+        </div>
+    </div>
+}
 
-                                <input type="hidden" name="PanelExtraItemID" value="@item.PanelExtraItemID" />
-                                <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+@foreach (var item in Model.ExtraItems)
+{
+    <div class="modal fade"
+         id="editExtraItemModal_@item.PanelExtraItemID"
+         tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-body text-body">
+                <form asp-controller="Panels" asp-action="UpdateExtraItem" method="post">
+                    @Html.AntiForgeryToken()
 
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Επεξεργασία Λοιπού Υλικού</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
+                    <input type="hidden" name="PanelExtraItemID" value="@item.PanelExtraItemID" />
+                    <input type="hidden" name="PanelID" value="@Model.Panel.PanelID" />
+                    <input type="hidden" name="RowVersion" value="@Convert.ToBase64String(item.RowVersion)" />
 
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label">Κωδικός</label>
-                                            <input name="ItemCode"
-                                                   value="@item.ItemCode"
-                                                   class="form-control" />
-                                        </div>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Επεξεργασία Λοιπού Υλικού</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
 
-                                        <div class="col-md-8">
-                                            <label class="form-label">Περιγραφή</label>
-                                            <input name="Description"
-                                                   value="@item.Description"
-                                                   class="form-control"
-                                                   required />
-                                        </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Κωδικός</label>
+                                <input name="ItemCode"
+                                       value="@item.ItemCode"
+                                       class="form-control" />
+                            </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Μονάδα</label>
-                                            <select name="Unit" class="form-select">
-                                                <option value="pcs" selected="@(item.Unit == "pcs")">pcs</option>
-                                                <option value="meters" selected="@(item.Unit == "meters")">meters</option>
-                                            </select>
-                                        </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Περιγραφή</label>
+                                <input name="Description"
+                                       value="@item.Description"
+                                       class="form-control"
+                                       required />
+                            </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Ποσότητα</label>
-                                            <input name="Quantity"
-                                                   value="@item.Quantity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0.01" />
-                                        </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Μονάδα</label>
+                                <select name="Unit" class="form-select">
+                                    <option value="pcs" selected="@(item.Unit == "pcs")">pcs</option>
+                                    <option value="meters" selected="@(item.Unit == "meters")">meters</option>
+                                </select>
+                            </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Τιμή</label>
-                                            <input name="UnitPrice"
-                                                   value="@item.UnitPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0" />
-                                        </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Ποσότητα</label>
+                                <input name="Quantity"
+                                       value="@item.Quantity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0.01" />
+                            </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Έκπτωση %</label>
-                                            <input name="DiscountPercent"
-                                                   value="@item.DiscountPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
-                                                   class="form-control"
-                                                   type="number"
-                                                   step="0.01"
-                                                   min="0"
-                                                   max="100" />
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Τιμή</label>
+                                <input name="UnitPrice"
+                                       value="@item.UnitPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0" />
+                            </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                        Ακύρωση
-                                    </button>
-
-                                    <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
-                                        <span class="btn-text">
-                                            Αποθήκευση
-                                        </span>
-
-                                        <span class="btn-spinner">
-                                            <span class="spinner-border spinner-border-sm"></span>
-                                            Αποθήκευση...
-                                        </span>
-                                    </button>
-                                </div>
-                            </form>
+                            <div class="col-md-3">
+                                <label class="form-label">Έκπτωση %</label>
+                                <input name="DiscountPercent"
+                                       value="@item.DiscountPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Ακύρωση
+                        </button>
+
+                        <button type="submit" class="btn btn-primary app-btn has-loading-state d-inline-flex align-items-center justify-content-center">
+                            <span class="btn-text">
+                                Αποθήκευση
+                            </span>
+
+                            <span class="btn-spinner">
+                                <span class="spinner-border spinner-border-sm"></span>
+                                Αποθήκευση...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 }

@@ -35,7 +35,7 @@ Dataset/
 
 # Company assets
 wwwroot/images/
-wwwroot/uploads/
+wwwroot/preview/
 
 # OS
 .DS_Store

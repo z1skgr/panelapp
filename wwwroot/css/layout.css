@@ -197,3 +197,22 @@ body.dark-mode .app-footer {
         font-size: 1.6rem;
     }
 }
+
+
+
+.app-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: box-shadow .2s ease, background-color .2s ease;
+}
+
+    .app-navbar.navbar-scrolled {
+        box-shadow: 0 12px 30px rgba(15, 23, 42, .12) !important;
+    }
+
+body.dark-mode .app-navbar.navbar-scrolled {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .35) !important;
+}

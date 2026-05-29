@@ -1,18 +1,18 @@
 @model panelapp.ViewModels.ImportMaterialsViewModel
 
 @{
-    ViewData["Title"] = "Εισαγωγή Υλικών από Excel";
+    ViewData["Title"] = "Εισαγωγή Τιμοκαταλόγου";
 }
 
 <div class="page-header">
     <div class="page-header-content">
         <h1 class="page-title">
             <i class="bi bi-file-earmark-excel"></i>
-            Εισαγωγή Υλικών
+            Εισαγωγή Τιμοκαταλόγου
         </h1>
 
         <p class="page-subtitle">
-            Μαζική εισαγωγή ή ενημέρωση υλικών μέσω Excel
+            Μαζική εισαγωγή ή ενημέρωση υλικών και ερμαρίων μέσω Excel
         </p>
     </div>
 
@@ -26,19 +26,26 @@
     </div>
 </div>
 
-
-
 @if (!Model.Suppliers.Any())
 {
     <div class="card border-0 shadow-sm">
         <div class="card-body text-center py-5">
             <i class="bi bi-building-x fs-1 text-muted"></i>
-            <h2 class="h5 mt-3">Δεν υπάρχουν διαθέσιμοι προμηθευτές</h2>
+
+            <h2 class="h5 mt-3">
+                Δεν υπάρχουν διαθέσιμοι προμηθευτές
+            </h2>
+
             <p class="text-muted mb-4">
-                Για να γίνει εισαγωγή υλικών, πρέπει πρώτα να καταχωριστεί τουλάχιστον ένας προμηθευτής.
+                Για να γίνει εισαγωγή τιμοκαταλόγου, πρέπει πρώτα να καταχωριστεί τουλάχιστον ένας προμηθευτής.
             </p>
 
-
+            <a asp-controller="Suppliers"
+               asp-action="Create"
+               class="btn btn-primary app-btn">
+                <i class="bi bi-plus-circle me-1"></i>
+                Νέος Προμηθευτής
+            </a>
         </div>
     </div>
 }
@@ -48,47 +55,61 @@ else
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <h2 class="h5 mb-3">Ανέβασμα αρχείου</h2>
-                    <p class="text-muted mb-4">
-                        Επίλεξε προμηθευτή και το αντίστοιχο αρχείο Excel του τιμοκαταλόγου.
-                    </p>
-                    <div class="mb-3">
-                        <label class="form-label">Τύπος εισαγωγής</label>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <span class="quick-actions-icon">
+                            <i class="bi bi-upload"></i>
+                        </span>
 
-                        
-
-                        <span asp-validation-for="ImportType" class="text-danger small"></span>
+                        <div>
+                            <h2 class="h5 mb-1">Ανέβασμα αρχείου Excel</h2>
+                            <p class="text-muted mb-0">
+                                Επίλεξε τύπο εισαγωγής, προμηθευτή και αρχείο τιμοκαταλόγου.
+                            </p>
+                        </div>
                     </div>
+
                     <form asp-action="Import" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
+
                         @if (!ViewData.ModelState.IsValid)
                         {
                             <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
                         }
-                        <select asp-for="ImportType" class="form-select">
-                            <option value="Material">Διακοπτικό Υλικό</option>
-                            <option value="Cabinet">Ερμάριο</option>
-                        </select>
 
-                        <div class="mb-3">
-                            <label asp-for="SupplierID" class="form-label">Προμηθευτής</label>
-                            <select id="supplierSelect"
-                                    asp-for="SupplierID"
-                                    asp-items="Model.Suppliers"
-                                    class="form-select searchable-select"
-                                    data-placeholder="Αναζήτηση προμηθευτή..."
-                                    data-max-options="15">
-                                <option value="">-- Επιλογή Προμηθευτή --</option>
-                            </select>
-                            <span asp-validation-for="SupplierID" class="text-danger small"></span>
-                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="ImportType" class="form-label">Τύπος εισαγωγής</label>
+                                <select asp-for="ImportType" class="form-select">
+                                    <option value="Material">Διακοπτικό Υλικό</option>
+                                    <option value="Cabinet">Ερμάριο</option>
+                                </select>
+                                <span asp-validation-for="ImportType" class="text-danger small"></span>
+                            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="ExcelFile" class="form-label">Αρχείο Excel</label>
-                            <input asp-for="ExcelFile" type="file" class="form-control" accept=".xlsx" />
-                            <span asp-validation-for="ExcelFile" class="text-danger small"></span>
-                            <div class="form-text">
-                                Το αρχείο πρέπει να περιέχει μόνο υλικά του επιλεγμένου προμηθευτή.
+                            <div class="col-md-6">
+                                <label asp-for="SupplierID" class="form-label">Προμηθευτής</label>
+                                <select id="supplierSelect"
+                                        asp-for="SupplierID"
+                                        asp-items="Model.Suppliers"
+                                        class="form-select searchable-select"
+                                        data-placeholder="Αναζήτηση προμηθευτή..."
+                                        data-max-options="15">
+                                    <option value="">-- Επιλογή Προμηθευτή --</option>
+                                </select>
+                                <span asp-validation-for="SupplierID" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="ExcelFile" class="form-label">Αρχείο Excel</label>
+                                <input asp-for="ExcelFile"
+                                       type="file"
+                                       class="form-control"
+                                       accept=".xlsx" />
+                                <span asp-validation-for="ExcelFile" class="text-danger small"></span>
+
+                                <div class="form-text">
+                                    Επιτρέπονται μόνο αρχεία .xlsx. Το αρχείο πρέπει να αφορά έναν προμηθευτή κάθε φορά.
+                                </div>
                             </div>
                         </div>
 
@@ -96,12 +117,15 @@ else
                             <button id="importSubmitBtn"
                                     type="submit"
                                     class="btn btn-primary app-btn">
-                                <i class="bi bi-upload me-1"></i>
-                                Εισαγωγή
+                                <i class="bi bi-cloud-arrow-up me-1"></i>
+                                Εκτέλεση Import
                             </button>
 
-                            <a asp-action="Index" class="btn btn-outline-secondary app-btn" title="Ακύρωση">
-                                <i class="bi bi-arrow-left"></i>
+                            <a asp-controller="Materials"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary app-btn">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Ακύρωση
                             </a>
                         </div>
                     </form>
@@ -112,73 +136,111 @@ else
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <h2 class="h5 mb-3">Οδηγίες</h2>
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <span class="quick-actions-icon">
+                            <i class="bi bi-info-circle"></i>
+                        </span>
 
-                    <ul class="text-muted ps-3 mb-0">
-                        <li class="mb-2">Επίλεξε πρώτα τον προμηθευτή του τιμοκαταλόγου.</li>
-                        <li class="mb-2">Χρησιμοποίησε αρχείο Excel σε μορφή <strong>.xlsx</strong>.</li>
-                        <li class="mb-2">Οι στήλες του αρχείου πρέπει να είναι: 
-                            <ol>
-                                <li><strong>MaterialCode</strong></li>
-                                <li><strong>Description</strong></li>
-                                <li><strong>Price</strong></li>
-                                <li><strong>Unit</strong></li>
-                            </ol>
+                        <div>
+                            <h2 class="h5 mb-1">Οδηγίες Import</h2>
+                            <p class="text-muted small mb-0">
+                                Το ίδιο format χρησιμοποιείται για υλικά και ερμάρια.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small mb-3">
+                        <strong>Υποστηρίζονται:</strong>
+                        Διακοπτικό Υλικό και Ερμάρια, ανά προμηθευτή.
+                    </div>
+
+                    <h3 class="h6 mb-2">Απαιτούμενες στήλες Excel</h3>
+
+                    <ol class="text-muted small ps-3 mb-3">
+                        <li><strong>MaterialCode</strong> — Κωδικός είδους</li>
+                        <li><strong>Description</strong> — Περιγραφή</li>
+                        <li><strong>Price</strong> — Τιμή καταλόγου</li>
+                        <li><strong>Unit</strong> — Μονάδα μέτρησης</li>
+                    </ol>
+
+                    <h3 class="h6 mb-2">Κανόνες</h3>
+
+                    <ul class="text-muted small ps-3 mb-0">
+                        <li class="mb-2">
+                            Μην αναμιγνύεις είδη διαφορετικών προμηθευτών στο ίδιο αρχείο.
                         </li>
-                        <li class="mb-2">Η στήλη <strong>Unit</strong> πρέπει να περιέχει μόνο τιμές για <strong>pcs</strong> ή <strong>meters</strong>. Γίνονται επίσης δεκτές γνωστές παραλλαγές όπως <strong>τεμ</strong> ή <strong>m</strong>.</li>
-                        <li class="mb-2">Αν υπάρχει ήδη ίδιος κωδικός για τον ίδιο προμηθευτή, το υλικό θα ενημερωθεί.</li>
-                        <li class="mb-0">Μην αναμιγνύεις υλικά διαφορετικών προμηθευτών στο ίδιο αρχείο.</li>
+                        <li class="mb-2">
+                            Αν υπάρχει ίδιος κωδικός στον ίδιο προμηθευτή, η εγγραφή ενημερώνεται.
+                        </li>
+                        <li class="mb-2">
+                            Η μονάδα δέχεται τιμές όπως <strong>pcs</strong>, <strong>meters</strong>, <strong>τεμ</strong>, <strong>m</strong>.
+                        </li>
+                        <li class="mb-0">
+                            Για ερμάρια επίλεξε τύπο εισαγωγής <strong>Ερμάριο</strong> πριν ανεβάσεις το αρχείο.
+                        </li>
                     </ul>
-                    
-                    @*Mporei na gxreiastei na bei se sxolia. Einai gia na emfanizontai pio omorfa ta apotelesmata to imp
-                    *@
-                    
                 </div>
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3">
 
-            <span class="badge rounded-pill text bg-success px-3 py-2">
-                ✔ @Model.InsertedCount νέα
-            </span>
+        @if (Model.InsertedCount > 0 || Model.UpdatedCount > 0 || Model.SkippedCount > 0)
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h5 mb-3">
+                            <i class="bi bi-clipboard-check me-1"></i>
+                            Αποτελέσματα Import
+                        </h2>
 
-            <span class="badge rounded-pill text bg-primary px-3 py-2">
-                🔄 @Model.UpdatedCount ενημερώσεις
-            </span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill bg-success px-3 py-2">
+                                ✔ @Model.InsertedCount νέες εγγραφές
+                            </span>
 
-            <span class="badge rounded-pill text bg-warning px-3 py-2">
-                ⚠ @Model.SkippedCount παραλήψεις
-            </span>
+                            <span class="badge rounded-pill bg-primary px-3 py-2">
+                                🔄 @Model.UpdatedCount ενημερώσεις
+                            </span>
 
-        </div>
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                                ⚠ @Model.SkippedCount παραλήψεις
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
 
-        @* Auto na emfanizetai se kapoio log arxeio na ginetai apo emas Gia na kseroume ti phge lathos kai ti oxi*@
         @if (Model.Messages != null && Model.Messages.Any())
         {
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-light">
-                    <strong>Αναλυτικά αποτελέσματα import</strong>
-                </div>
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <strong>
+                            <i class="bi bi-list-check me-1"></i>
+                            Αναλυτικά αποτελέσματα import
+                        </strong>
+                    </div>
 
-                <div class="list-group list-group-flush">
-                    @foreach (var message in Model.Messages)
-                    {
-                        <div class="list-group-item small">
-                            @message
-                        </div>
-                    }
+                    <div class="list-group list-group-flush">
+                        @foreach (var message in Model.Messages)
+                        {
+                            <div class="list-group-item small">
+                                @message
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         }
     </div>
 }
 
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
     <script>
         const supplierSelect = document.getElementById('supplierSelect');
         const importSubmitBtn = document.getElementById('importSubmitBtn');
@@ -193,5 +255,4 @@ else
             toggleImportButton();
         }
     </script>
-
 }

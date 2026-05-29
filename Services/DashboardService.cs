@@ -123,15 +123,56 @@ namespace panelapp.Services
                     .Sum(x => x.Count)
             }).ToList();
 
+            var groupedOffers = await activeOffersQuery
+    .Where(o => o.CustomerName != null && o.CustomerName != "")
+    .GroupBy(o => new { o.CustomerName, o.Status })
+    .Select(g => new
+    {
+        Customer = g.Key.CustomerName!,
+        Status = g.Key.Status,
+        Count = g.Count()
+    })
+    .ToListAsync();
+
+            var orderedOfferCustomers = groupedOffers
+                .GroupBy(x => x.Customer)
+                .OrderByDescending(g => g.Sum(x => x.Count))
+                .Select(g => g.Key)
+                .ToList();
+
+            var allOfferCustomersData = orderedOfferCustomers.Select(c => new
+            {
+                customer = c,
+
+                underConstruction = groupedOffers
+                    .Where(x => x.Customer == c &&
+                        (x.Status == OfferStatuses.Draft))
+                    .Sum(x => x.Count),
+
+                completed = groupedOffers
+                    .Where(x => x.Customer == c &&
+                        (x.Status == OfferStatuses.Accepted || x.Status == OfferStatuses.Converted))
+                    .Sum(x => x.Count),
+
+                cancelled = groupedOffers
+                    .Where(x => x.Customer == c &&
+                        (x.Status == OfferStatuses.Rejected || x.Status == OfferStatuses.Cancelled))
+                    .Sum(x => x.Count)
+            }).ToList();
+
 
             var totalOffers = await activeOffersQuery.CountAsync();
 
 
-            var draftOffers = await activeOffersQuery.CountAsync(x => x.Status == "Draft");
-            var sentOffers = await activeOffersQuery.CountAsync(x => x.Status == "Sent");
-            var acceptedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Accepted");
-            var convertedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Converted");
-            var rejectedOffers = await activeOffersQuery.CountAsync(x => x.Status == "Rejected");
+            var draftOffers = await activeOffersQuery.CountAsync(x => x.Status == OfferStatuses.Draft);
+            var inactiveCustomers = await _context.Customers.CountAsync(x => !x.Active);
+
+
+
+            var sentOffers = await activeOffersQuery.CountAsync(x => x.Status == OfferStatuses.Sent);
+            var acceptedOffers = await activeOffersQuery.CountAsync(x => x.Status == OfferStatuses.Accepted);
+            var convertedOffers = await activeOffersQuery.CountAsync(x => x.Status == OfferStatuses.Converted);
+            var rejectedOffers = await activeOffersQuery.CountAsync(x => x.Status == OfferStatuses.Rejected);
 
             var offersThisMonth = await activeOffersQuery
                 .CountAsync(x => x.CreatedDate >= monthStart);
@@ -161,6 +202,19 @@ namespace panelapp.Services
                     ? 0
                     : Math.Round((decimal)convertedOffers / acceptedOffers * 100, 1);
 
+            var activeCustomers = await _context.Customers.CountAsync(x => x.Active);
+
+            var acceptedOffersThisMonth = await activeOffersQuery
+                .CountAsync(x =>
+                    x.Status == OfferStatuses.Accepted &&
+                    x.CreatedDate >= monthStart);
+
+            var completedPanelsThisMonth = await activePanelsQuery
+                .CountAsync(x =>
+                    x.Status == PanelStatuses.Completed &&
+                    x.CreatedDate >= monthStart);
+
+
             var model = new HomeDashboardViewModel
             {
                 TotalPanels = totalPanels,
@@ -174,6 +228,8 @@ namespace panelapp.Services
                 TotalSuppliers = await _context.Suppliers.CountAsync(),
                 ActiveSuppliers = await _context.Suppliers.CountAsync(s => s.Active),
                 InactiveSuppliers = await _context.Suppliers.CountAsync(s => !s.Active),
+
+
 
                 TotalCustomers = await _context.Customers.CountAsync(),
 
@@ -198,6 +254,8 @@ namespace panelapp.Services
                 ActivityFeed = activityFeed,
 
                 ChartDataJson = JsonConvert.SerializeObject(allCustomersData),
+                PanelChartDataJson = JsonConvert.SerializeObject(allCustomersData),
+                OfferChartDataJson = JsonConvert.SerializeObject(allOfferCustomersData),
 
                 TotalOffers = totalOffers,
                 DraftOffers = draftOffers,
@@ -216,7 +274,12 @@ namespace panelapp.Services
                 ActiveCabinets = await _context.Cabinets.CountAsync(x => x.Active),
 
                 OfferAcceptanceRate = offerAcceptanceRate,
-                OfferConversionRate = offerConversionRate
+                OfferConversionRate = offerConversionRate,
+
+                InactiveCustomers = inactiveCustomers,
+                ActiveCustomers = activeCustomers,
+                AcceptedOffersThisMonth = acceptedOffersThisMonth,
+                CompletedPanelsThisMonth = completedPanelsThisMonth,
 
 
             };

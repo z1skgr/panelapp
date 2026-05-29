@@ -29,6 +29,9 @@
         public string ChartDataJson { get; set; } = "[]";
 
 
+        public string PanelChartDataJson { get; set; } = "[]";
+        public string OfferChartDataJson { get; set; } = "[]";
+
         public int TotalOffers { get; set; }
         public int DraftOffers { get; set; }
         public int SentOffers { get; set; }
@@ -48,6 +51,14 @@
         public decimal OfferAcceptanceRate { get; set; }
 
         public decimal OfferConversionRate { get; set; }
+
+        public int InactiveCustomers { get; set; }
+
+        public int ActiveCustomers { get; set; }
+
+        public int AcceptedOffersThisMonth { get; set; }
+
+        public int CompletedPanelsThisMonth { get; set; }
     }
 
     public class RecentPanelRow

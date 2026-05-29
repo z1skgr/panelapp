@@ -53,7 +53,10 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        window.dashboardChartData = @Html.Raw(ViewBag.ChartData ?? "[]");
+        window.dashboardChartData = {
+            panels: @Html.Raw(Model.PanelChartDataJson),
+            offers: @Html.Raw(Model.OfferChartDataJson)
+        };
     </script>
     <script src="~/js/dashboard-index.js" asp-append-version="true"></script>
     <script src="~/js/dashboard-llm.js" asp-append-version="true"></script>

@@ -12,6 +12,7 @@
         ? Model.TotalSuppliers
         : Model.ActiveSuppliers + Model.InactiveSuppliers;
 }
+
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <div>
         <h2 class="h5 mb-1">Βασικά Στατιστικά</h2>
@@ -31,8 +32,9 @@
     </div>
 </div>
 
-
 <div class="row g-3 mb-4 dashboard-stats-row" id="statsCarousel">
+
+    <!-- GROUP 0: PANELS -->
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item" data-stat-group="0">
         <a asp-controller="Panels" asp-action="Index" class="text-decoration-none">
             <div class="card border-0 shadow-sm stat-card stat-card-panels h-100">
@@ -78,6 +80,7 @@
         </a>
     </div>
 
+    <!-- GROUP 1: MATERIALS / CUSTOMERS -->
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="1">
         <a asp-controller="Materials" asp-action="Index" class="text-decoration-none">
             <div class="card border-0 shadow-sm stat-card stat-card-materials h-100">
@@ -86,8 +89,8 @@
                         <div class="stat-label">Υλικά</div>
                         <span class="stat-icon"><i class="bi bi-box-seam"></i></span>
                     </div>
-                    <div class="stat-value">@Model.TotalMaterials</div>
-                    <div class="stat-subtext">Σύνολο καταχωρημένων υλικών</div>
+                    <div class="stat-value">@(Model.TotalMaterials + Model.TotalCabinets)</div>
+                    <div class="stat-subtext">@Model.TotalMaterials materials / @Model.TotalCabinets ερμάρια</div>
                 </div>
             </div>
         </a>
@@ -101,14 +104,45 @@
                         <div class="stat-label">Ενεργά Υλικά</div>
                         <span class="stat-icon"><i class="bi bi-box-seam-fill"></i></span>
                     </div>
-                    <div class="stat-value">@Model.ActiveMaterials</div>
-                    <div class="stat-subtext">Διαθέσιμα υλικά προς χρήση</div>
+                    <div class="stat-value">@(Model.ActiveMaterials + Model.ActiveCabinets)</div>
+                    <div class="stat-subtext">@Model.ActiveMaterials ενεργά materials / @Model.ActiveCabinets ενεργά ερμάρια</div>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="1">
+        <a asp-controller="Customers" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-customers h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Πελάτες</div>
+                        <span class="stat-icon"><i class="bi bi-people"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.TotalCustomers</div>
+                    <div class="stat-subtext">Σύνολο καταχωρημένων πελατών</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- GROUP 2: CUSTOMERS / SUPPLIERS -->
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
+        <a asp-controller="Customers" asp-action="Index" asp-route-active="false" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-muted h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Ανενεργοί Πελάτες</div>
+                        <span class="stat-icon"><i class="bi bi-person-x"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.InactiveCustomers</div>
+                    <div class="stat-subtext">Πελάτες χωρίς ενεργή συνεργασία</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
         <a asp-controller="Suppliers" asp-action="Index" class="text-decoration-none">
             <div class="card border-0 shadow-sm stat-card stat-card-suppliers h-100">
                 <div class="card-body">
@@ -124,114 +158,64 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
-        <a asp-controller="Panels" asp-action="Index" asp-route-status="@PanelStatuses.Cancelled" class="text-decoration-none">
-            <div class="card border-0 shadow-sm stat-card stat-card-danger h-100">
+        <a asp-controller="Suppliers" asp-action="Index" asp-route-active="true" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
                 <div class="card-body">
                     <div class="stat-top">
-                        <div class="stat-label">Ακυρωμένοι Πίνακες</div>
-                        <span class="stat-icon"><i class="bi bi-x-circle"></i></span>
+                        <div class="stat-label">Ενεργοί Προμηθευτές</div>
+                        <span class="stat-icon"><i class="bi bi-building-check"></i></span>
                     </div>
-                    <div class="stat-value">@Model.CancelledPanels</div>
-                    <div class="stat-subtext">Πίνακες που έχουν ακυρωθεί</div>
+                    <div class="stat-value">@Model.ActiveSuppliers</div>
+                    <div class="stat-subtext">Προμηθευτές με ενεργή συνεργασία</div>
                 </div>
             </div>
         </a>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
-        <a asp-controller="Customers" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm stat-card stat-card-customers h-100">
-                <div class="card-body">
-                    <div class="stat-top">
-                        <div class="stat-label">Πελάτες</div>
-                        <span class="stat-icon"><i class="bi bi-people"></i></span>
-                    </div>
-                    <div class="stat-value">@Model.TotalCustomers</div>
-                    <div class="stat-subtext">Σύνολο καταχωρημένων πελατών</div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="2">
-        <a asp-controller="Suppliers" asp-action="Index" asp-route-active="false" class="text-decoration-none">
-            <div class="card border-0 shadow-sm stat-card stat-card-muted h-100">
-                <div class="card-body">
-                    <div class="stat-top">
-                        <div class="stat-label">Ανενεργοί Προμηθευτές</div>
-                        <span class="stat-icon"><i class="bi bi-building-x"></i></span>
-                    </div>
-                    <div class="stat-value">@Model.InactiveSuppliers</div>
-                    <div class="stat-subtext">Προμηθευτές χωρίς ενεργή χρήση</div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="3">
-        <a asp-controller="Cabinets" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm stat-card stat-card-materials h-100">
-                <div class="card-body">
-                    <div class="stat-top">
-                        <div class="stat-label">Ερμάρια</div>
-                        <span class="stat-icon">
-                            <i class="bi bi-box"></i>
-                        </span>
-                    </div>
-
-                    <div class="stat-value">@Model.TotalCabinets</div>
-
-                    <div class="stat-subtext">
-                        @Model.ActiveCabinets Eνεργά Eρμάρια
-                    </div>
-                </div>
-            </div>
-        </a>
-    </div>
-
+    <!-- GROUP 3: OFFERS -->
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="3">
         <a asp-controller="Offers" asp-action="Index" class="text-decoration-none">
             <div class="card border-0 shadow-sm stat-card stat-card-offers h-100">
                 <div class="card-body">
                     <div class="stat-top">
                         <div class="stat-label">Προσφορές</div>
-                        <span class="stat-icon">
-                            <i class="bi bi-file-earmark-text"></i>
-                        </span>
+                        <span class="stat-icon"><i class="bi bi-file-earmark-text"></i></span>
                     </div>
-
                     <div class="stat-value">@Model.TotalOffers</div>
-
-                    <div class="stat-subtext">
-                        Σύνολο καταχωρημένων προσφορών
-                    </div>
+                    <div class="stat-subtext">Σύνολο καταχωρημένων προσφορών</div>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="3">
-        <a asp-controller="Offers"
-           asp-action="Index"
-           asp-route-status="Accepted"
-           class="text-decoration-none">
-
-            <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
+        <a asp-controller="Offers" asp-action="Index" asp-route-status="@OfferStatuses.Draft" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-progress h-100">
                 <div class="card-body">
                     <div class="stat-top">
-                        <div class="stat-label">Αποδεκτές Προσφορές</div>
-                        <span class="stat-icon">
-                            <i class="bi bi-check2-circle"></i>
-                        </span>
+                        <div class="stat-label">Draft Προσφορές</div>
+                        <span class="stat-icon"><i class="bi bi-pencil-square"></i></span>
                     </div>
-
-                    <div class="stat-value">@Model.AcceptedOffers</div>
-
-                    <div class="stat-subtext">
-                        Προσφορές που εγκρίθηκαν από πελάτες
-                    </div>
+                    <div class="stat-value">@Model.DraftOffers</div>
+                    <div class="stat-subtext">Προσφορές που είναι σε επεξεργασία</div>
                 </div>
             </div>
         </a>
     </div>
+
+    <div class="col-12 col-sm-6 col-xl-4 dashboard-stat-item d-none" data-stat-group="3">
+        <a asp-controller="Offers" asp-action="Index" asp-route-status="@OfferStatuses.Accepted" class="text-decoration-none">
+            <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
+                <div class="card-body">
+                    <div class="stat-top">
+                        <div class="stat-label">Αποδεκτές Προσφορές</div>
+                        <span class="stat-icon"><i class="bi bi-check2-circle"></i></span>
+                    </div>
+                    <div class="stat-value">@Model.AcceptedOffers</div>
+                    <div class="stat-subtext">Προσφορές που εγκρίθηκαν από πελάτες</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
 </div>

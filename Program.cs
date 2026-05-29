@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using panelapp.Data;
+using panelapp.Infrastructure.ModelBinding;
 using panelapp.Models;
-
 using panelapp.Services;
 using panelapp.Services.AI;
 using panelapp.Services.AI.Chat;
@@ -48,7 +48,10 @@ builder.Services.AddScoped<IAiChatIntentService, AiChatIntentService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.ModelBinderProviders.Insert(0, new FlexibleDecimalModelBinderProvider());
+});
 
 builder.Services.AddSession(options =>
 {

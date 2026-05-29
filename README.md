@@ -317,23 +317,36 @@ ZL_panelapp/
 
 # 🖼️UI Preview
 
-👉 Replace with real screenshots for production
+👉 Added fixed transparent navbar on scroll.
+👉 Improved modal appearance in light and dark mode.
+👉 Added smoother chart and card motion effects.
 
-## Login
+## Updates 
+- Added chart toggle between Panels and Offers.
+- Added animated chart rendering for smoother transitions.
+- Reorganized statistic cards into clearer groups:
+  - Panels
+  - Materials / Cabinets / Customers
+  - Customers / Suppliers
+  - Offers
+- Updated KPI strip with more actionable business metrics.
 
-![Login](docs/screenshots/login.png)
+### Login
 
-## Dashboard
+![Login](wwwroot/preview/login.png)
 
-![Dashboard](docs/screenshots/dashboard.png)
+### Dashboard
 
-## Materials
+![Dashboard](wwwroot/preview/dashboard.png)
 
-![Materials](docs/screenshots/materials.png)
+### Materials
 
-## Panels
+![Materials](wwwroot/preview/materials.png)
 
-![Materials](docs/screenshots/panels.png)
+### Panels
+
+![Panels](wwwroot/preview/panels.png)
+
 
 
 ----
@@ -599,6 +612,10 @@ Rules:
 * One supplier per file
 * No duplicates
 * Update existing
+
+- Updated Excel import page for both Materials and Cabinets.
+- Improved import instructions and result display.
+
 
 ----
 
